@@ -18,11 +18,11 @@ public class User {
     }
 
     public User(String country, String email, String password, String username, int id) {
-        this.country = country;
-        this.email = email;
-        this.password = password;
-        this.username = username;
         this.id = id;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.country = country;
     }
 
     public int getId() {
