@@ -1,4 +1,4 @@
-package com.pogany.recipesharingforum;
+package com.pogany.recipesharingforum.entities;
 
 public class Comment {
     private int id;
