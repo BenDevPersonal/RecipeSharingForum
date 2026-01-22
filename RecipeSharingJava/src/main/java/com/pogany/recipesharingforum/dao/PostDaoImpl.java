@@ -41,7 +41,7 @@ public class PostDaoImpl implements PostDao {
     @Override
     public void updatePost(Post post) throws SQLException {
         PreparedStatement updatePostPstmt = conn.prepareStatement("UPDATE post " +
-                "SET user_id = ?, title = ?, content = ?, create_date = ?, update_date " +
+                "SET user_id = ?, title = ?, content = ?, create_date = ?, update_date = ? " +
                 "WHERE id = ?");
 
         updatePostPstmt.setInt(1, post.getUserId());
@@ -60,7 +60,7 @@ public class PostDaoImpl implements PostDao {
         PreparedStatement removePostPstmt = conn.prepareStatement("DELETE FROM post " +
                 "WHERE id = ?");
 
-        removePostPstmt.setLong(1, post.getId());
+        removePostPstmt.setInt(1, post.getId());
 
         removePostPstmt.executeUpdate();
     }
