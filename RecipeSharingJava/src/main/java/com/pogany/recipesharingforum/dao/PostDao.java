@@ -13,7 +13,7 @@ public interface PostDao {
     void removePost(Post Post) throws SQLException;
 
     List<Post> findAll() throws SQLException;
-    Post findById(int id) throws SQLException;
     List<Post> findByUserId(int userId) throws SQLException;
 
+    Post findById(int id) throws SQLException;
 }
