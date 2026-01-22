@@ -59,15 +59,15 @@ CREATE TABLE `post` (
   `user_id` int(11) NOT NULL,
   `title` varchar(40) NOT NULL,
   `content` text NOT NULL,
-  `creation_date` date NOT NULL,
-  `update_date` date NOT NULL
+  `creationDate` date NOT NULL,
+  `updateDate` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `post`
 --
 
-INSERT INTO `post` (`id`, `user_id`, `title`, `content`, `creation_date`, `update_date`) VALUES
+INSERT INTO `post` (`id`, `user_id`, `title`, `content`, `creationDate`, `updateDate`) VALUES
 (1, 1, 'Classic Margherita Pizza', 'A simple Italian pizza with tomatoes, mozzarella, and basil.', '2026-01-10', '2026-01-10'),
 (2, 2, 'Best Beef Burger', 'Juicy beef burger with homemade sauce and fresh veggies.', '2026-01-11', '2026-01-11'),
 (3, 3, 'Spicy Chicken Curry', 'Traditional Indian chicken curry with rich spices.', '2026-01-12', '2026-01-12'),

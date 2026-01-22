@@ -11,14 +11,14 @@ import java.util.List;
 
 public class UserDaoImpl implements UserDao {
     private Connection conn;
-    private PreparedStatement getAllUserPstmt;
+    private PreparedStatement getAllUsersPstmt;
     private PreparedStatement getUserByIdPstmt;
     private PreparedStatement getUserByLoginPstmt;
     private PreparedStatement getUserByEmailPstmt;
 
     public UserDaoImpl(Connection conn) throws SQLException {
         this.conn = conn;
-        getAllUserPstmt = conn.prepareStatement("SELECT * FROM user");
+        getAllUsersPstmt = conn.prepareStatement("SELECT * FROM user");
         getUserByIdPstmt = conn.prepareStatement("SELECT * FROM user WHERE id=?");
         getUserByLoginPstmt = conn.prepareStatement("SELECT * FROM user WHERE login=?");
         getUserByEmailPstmt = conn.prepareStatement("SELECT * FROM user WHERE email=?");
@@ -64,7 +64,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> findAll() throws SQLException {
-        ResultSet rs = getAllUserPstmt.executeQuery();
+        ResultSet rs = getAllUsersPstmt.executeQuery();
         List<User> users = new ArrayList<>();
 
         while (rs.next()) {
