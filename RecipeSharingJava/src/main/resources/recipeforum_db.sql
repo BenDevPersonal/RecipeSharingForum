@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 18, 2026 at 12:13 PM
+-- Generation Time: Jan 22, 2026 at 04:23 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -59,15 +59,15 @@ CREATE TABLE `post` (
   `user_id` int(11) NOT NULL,
   `title` varchar(40) NOT NULL,
   `content` text NOT NULL,
-  `creationDate` date NOT NULL,
-  `updateDate` date NOT NULL
+  `creation_date` date NOT NULL,
+  `update_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `post`
 --
 
-INSERT INTO `post` (`id`, `user_id`, `title`, `content`, `creationDate`, `updateDate`) VALUES
+INSERT INTO `post` (`id`, `user_id`, `title`, `content`, `creation_date`, `update_date`) VALUES
 (1, 1, 'Classic Margherita Pizza', 'A simple Italian pizza with tomatoes, mozzarella, and basil.', '2026-01-10', '2026-01-10'),
 (2, 2, 'Best Beef Burger', 'Juicy beef burger with homemade sauce and fresh veggies.', '2026-01-11', '2026-01-11'),
 (3, 3, 'Spicy Chicken Curry', 'Traditional Indian chicken curry with rich spices.', '2026-01-12', '2026-01-12'),
@@ -123,7 +123,7 @@ ALTER TABLE `post`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `login` (`login`),
+  ADD UNIQUE KEY `username` (`login`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
