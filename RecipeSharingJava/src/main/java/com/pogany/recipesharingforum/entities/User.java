@@ -2,7 +2,7 @@ package com.pogany.recipesharingforum.entities;
 
 public class User {
     private int id;
-    private String username;
+    private String login;
     private String password;
     private String email;
     private String country;
@@ -11,15 +11,15 @@ public class User {
     }
 
     public User(String username, String password, String email, String country) {
-        this.username = username;
+        this.login = username;
         this.password = password;
         this.email = email;
         this.country = country;
     }
 
-    public User(String country, String email, String password, String username, int id) {
+    public User(int id, String email, String password, String username, String country) {
         this.id = id;
-        this.username = username;
+        this.login = username;
         this.password = password;
         this.email = email;
         this.country = country;
@@ -33,12 +33,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getLogin() {
+        return login;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getPassword() {

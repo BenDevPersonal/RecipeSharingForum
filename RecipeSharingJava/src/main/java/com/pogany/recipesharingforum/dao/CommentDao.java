@@ -13,7 +13,7 @@ public interface CommentDao {
     void removeComment(Comment Comment) throws SQLException;
 
     Comment findById(int id) throws SQLException;
-    
+
     List<Comment> findByPostId(int postId);
     List<Comment> findByUserId(int userId) throws SQLException;
 
