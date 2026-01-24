@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 18, 2026 at 12:13 PM
+-- Generation Time: Jan 22, 2026 at 04:23 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -82,7 +82,7 @@ INSERT INTO `post` (`id`, `user_id`, `title`, `content`, `creation_date`, `updat
 
 CREATE TABLE `user` (
   `id` int(11) NOT NULL,
-  `username` varchar(21) NOT NULL,
+  `login` varchar(21) NOT NULL,
   `email` varchar(256) NOT NULL,
   `password` varchar(127) NOT NULL,
   `country` varchar(45) NOT NULL
@@ -92,7 +92,7 @@ CREATE TABLE `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `username`, `email`, `password`, `country`) VALUES
+INSERT INTO `user` (`id`, `login`, `email`, `password`, `country`) VALUES
 (1, 'chefanna', 'chefanna@gmail.com', 'hashed_pw_anna', 'Italy'),
 (2, 'foodie_mark', 'mark.foodie@yahoo.com', 'hashed_pw_mark', 'USA'),
 (3, 'spicequeen', 'spicequeen@outlook.com', 'hashed_pw_spice', 'India'),
@@ -123,7 +123,7 @@ ALTER TABLE `post`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `username` (`login`),
   ADD UNIQUE KEY `email` (`email`);
 
 --

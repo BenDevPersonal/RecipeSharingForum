@@ -8,12 +8,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface CommentDao {
-    void createComment(Comment Comment) throws SQLException;
-    void updateComment(Comment Comment) throws SQLException;
-    void removeComment(Comment Comment) throws SQLException;
+    void createComment(Comment comment) throws SQLException;
+    void updateComment(Comment comment) throws SQLException;
+    void removeComment(Comment comment) throws SQLException;
 
     Comment findById(int id) throws SQLException;
-    List<Comment> findByPostId(int postId);
+
+    List<Comment> findByPostId(int postId) throws SQLException;
     List<Comment> findByUserId(int userId) throws SQLException;
 
 }
