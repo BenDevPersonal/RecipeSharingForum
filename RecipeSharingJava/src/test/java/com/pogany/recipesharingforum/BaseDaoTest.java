@@ -11,9 +11,9 @@ import java.sql.Statement;
 public abstract class BaseDaoTest {
 
     protected static final String JDBC_URL =
-            "jdbc:mariadb://localhost:3306/testdb";
-    protected static final String DB_USER = "test_user";
-    protected static final String DB_PASS = "test_password";
+            "jdbc:mariadb://localhost:3306/recipeforum_testdb";
+    protected static final String DB_USER = "root";
+    protected static final String DB_PASS = "";
 
     @BeforeAll
     void createSchema() throws Exception {
