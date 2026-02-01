@@ -10,16 +10,16 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password, String email, String country) {
-        this.login = username;
+    public User(String login, String password, String email, String country) {
+        this.login = login;
         this.password = password;
         this.email = email;
         this.country = country;
     }
 
-    public User(int id, String email, String password, String username, String country) {
+    public User(int id, String login, String password, String email, String country) {
         this.id = id;
-        this.login = username;
+        this.login = login;
         this.password = password;
         this.email = email;
         this.country = country;
