@@ -29,8 +29,8 @@ public class UserDaoImpl implements UserDao {
         PreparedStatement createUserPstmt = conn.prepareStatement("INSERT INTO user " +
                 "(login, email, password, country) VALUES (?, ?, ?, ?)");
         createUserPstmt.setString(1, user.getLogin());
-        createUserPstmt.setString(2, user.getPassword());
-        createUserPstmt.setString(3, user.getEmail());
+        createUserPstmt.setString(2, user.getEmail());
+        createUserPstmt.setString(3, user.getPassword());
         createUserPstmt.setString(4, user.getCountry());
 
         createUserPstmt.executeUpdate();
