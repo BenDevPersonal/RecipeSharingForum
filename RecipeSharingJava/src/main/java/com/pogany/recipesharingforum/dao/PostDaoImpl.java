@@ -3,10 +3,8 @@ package com.pogany.recipesharingforum.dao;
 import com.pogany.recipesharingforum.entities.Post;
 import com.pogany.recipesharingforum.entities.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +30,8 @@ public class PostDaoImpl implements PostDao {
         createPostPstmt.setInt(1, post.getUserId());
         createPostPstmt.setString(2, post.getTitle());
         createPostPstmt.setString(3, post.getContent());
-        createPostPstmt.setDate(4, post.getCreationDate());
-        createPostPstmt.setDate(5, post.getUpdateDate());
+        createPostPstmt.setDate(4, Date.valueOf(LocalDate.now()));
+        createPostPstmt.setDate(5, Date.valueOf(LocalDate.now()));
 
         createPostPstmt.executeUpdate();
     }
@@ -41,14 +39,14 @@ public class PostDaoImpl implements PostDao {
     @Override
     public void updatePost(Post post) throws SQLException {
         PreparedStatement updatePostPstmt = conn.prepareStatement("UPDATE post " +
-                "SET user_id = ?, title = ?, content = ?, create_date = ?, update_date = ? " +
+                "SET user_id = ?, title = ?, content = ?, creation_date = ?, update_date = ? " +
                 "WHERE id = ?");
 
         updatePostPstmt.setInt(1, post.getUserId());
         updatePostPstmt.setString(2, post.getTitle());
         updatePostPstmt.setString(3, post.getContent());
         updatePostPstmt.setDate(4, post.getCreationDate());
-        updatePostPstmt.setDate(5, post.getUpdateDate());
+        updatePostPstmt.setDate(5, Date.valueOf(LocalDate.now()));
 
         updatePostPstmt.setInt(6, post.getId());
 
