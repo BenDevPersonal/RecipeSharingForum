@@ -1,6 +1,7 @@
 package com.pogany.recipesharingforum;
 
 import com.pogany.recipesharingforum.dao.*;
+import com.pogany.recipesharingforum.entities.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
