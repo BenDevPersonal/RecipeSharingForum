@@ -61,7 +61,6 @@ public class Main {
         }
     }
 
-    //above is the selector, below are the soon to be console demos
     private static void userMenu(Scanner sc, UserDao userDao) throws SQLException {
         System.out.println("""
                 --- USER MENU ---
