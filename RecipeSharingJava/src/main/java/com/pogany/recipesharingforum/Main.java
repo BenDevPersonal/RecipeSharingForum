@@ -57,7 +57,7 @@ public class Main {
             }
             conn.commit();
 
-            } catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -126,7 +126,126 @@ public class Main {
             }
         }
     }
-    private static void postMenu(Scanner sc, PostDao postDao) throws SQLException {}
-    private static void commentMenu(Scanner sc, CommentDao commentDao) throws SQLException {}
 
+    private static void postMenu(Scanner sc, PostDao postDao) throws SQLException {
+        System.out.println("""
+                --- POST MENU ---
+                1 - Create post
+                2 - Update post
+                3 - Remove post
+                4 - Find all
+                5 - Find by user ID
+                6 - Find by ID
+                """);
+
+        int choice = sc.nextInt();
+        sc.nextLine();
+
+        switch (choice) {
+            case 1 -> {
+                System.out.print("User ID: ");
+                int userId = sc.nextInt();
+                sc.nextLine();
+                System.out.print("Title: ");
+                String title = sc.nextLine();
+                System.out.print("Content: ");
+                String content = sc.nextLine();
+
+                postDao.createPost(new Post(userId, title, content, null, null));
+            }
+            case 2 -> {
+                System.out.print("Post ID: ");
+                int id = sc.nextInt();
+                System.out.print("User ID: ");
+                int userId = sc.nextInt();
+                sc.nextLine();
+                System.out.print("Title: ");
+                String title = sc.nextLine();
+                System.out.print("Content: ");
+                String content = sc.nextLine();
+
+                postDao.updatePost(new Post(id, userId, title, content, null, null));
+            }
+            case 3 -> {
+                System.out.print("Post ID: ");
+                int id = sc.nextInt();
+                postDao.removePost(postDao.findById(id));
+            }
+            case 4 -> postDao.findAll().forEach(p ->
+                    System.out.println(p.getId() + " " + p.getTitle() + "\n" + p.getContent()));
+            case 5 -> {
+                System.out.print("User ID: ");
+                postDao.findByUserId(sc.nextInt())
+                        .forEach(p -> System.out.println(p.getTitle() + "\n" + p.getContent()));
+            }
+            case 6 -> {
+                System.out.print("Post ID: ");
+
+                System.out.println(postDao.findById(sc.nextInt()));
+            }
+        }
+    }
+
+    private static void commentMenu(Scanner sc, CommentDao commentDao) throws SQLException {
+        System.out.println("""
+                --- COMMENT MENU ---
+                1 - Create comment
+                2 - Update comment
+                3 - Remove comment
+                4 - Find by ID
+                5 - Find by user ID
+                6 - Find by post ID
+                """);
+
+        int choice = sc.nextInt();
+        sc.nextLine();
+
+        switch (choice) {
+            case 1 -> {
+                System.out.print("User ID: ");
+                int userId = sc.nextInt();
+                System.out.print("Post ID: ");
+                int postId = sc.nextInt();
+
+                sc.nextLine();
+                System.out.print("Content: ");
+                String content = sc.nextLine();
+
+                commentDao.createComment(new Comment(userId, postId, 0, content));
+            }
+            case 2 -> {
+                System.out.print("Comment ID: ");
+                int id = sc.nextInt();
+                System.out.print("User ID: ");
+                int userId = sc.nextInt();
+                System.out.print("Post ID: ");
+                int postId = sc.nextInt();
+
+                sc.nextLine();
+                System.out.print("Content: ");
+                String content = sc.nextLine();
+
+                commentDao.updateComment(new Comment(id, userId, postId, 0, content));
+            }
+            case 3 -> {
+                System.out.print("Comment ID: ");
+                int id = sc.nextInt();
+                commentDao.removeComment(commentDao.findById(id));
+            }
+            case 4 -> {
+                System.out.print("ID: ");
+                System.out.println(commentDao.findById(sc.nextInt()));
+            }
+            case 5 -> {
+                System.out.print("User ID: ");
+                commentDao.findByUserId(sc.nextInt())
+                        .forEach(c -> System.out.println(c.getContent()));
+            }
+            case 6 -> {
+                System.out.print("Post ID: ");
+                commentDao.findByPostId(sc.nextInt())
+                        .forEach(c -> System.out.println(c.getContent()));
+            }
+        }
+    }
 }
