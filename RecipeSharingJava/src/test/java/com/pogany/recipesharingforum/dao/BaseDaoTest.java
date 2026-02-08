@@ -1,4 +1,4 @@
-package com.pogany.recipesharingforum;
+package com.pogany.recipesharingforum.dao;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
