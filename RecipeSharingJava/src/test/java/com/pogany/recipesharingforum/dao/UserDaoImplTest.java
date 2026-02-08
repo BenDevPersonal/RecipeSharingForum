@@ -1,6 +1,5 @@
-package com.pogany.recipesharingforum;
+package com.pogany.recipesharingforum.dao;
 
-import com.pogany.recipesharingforum.dao.UserDaoImpl;
 import com.pogany.recipesharingforum.entities.User;
 import org.junit.jupiter.api.*;
 

@@ -1,7 +1,5 @@
-package com.pogany.recipesharingforum;
+package com.pogany.recipesharingforum.dao;
 
-import com.pogany.recipesharingforum.dao.PostDaoImpl;
-import com.pogany.recipesharingforum.dao.UserDaoImpl;
 import com.pogany.recipesharingforum.entities.Post;
 import com.pogany.recipesharingforum.entities.User;
 import org.junit.jupiter.api.AfterEach;
@@ -46,7 +44,7 @@ public class PostDaoImplTest extends BaseDaoTest {
         Post post = new Post(userID, "Test title", "Test content", Date.valueOf(LocalDate.now()), Date.valueOf(LocalDate.now()));
 
         postDao.createPost(post);
-        Post found = postDao.findByUserId(userID).get(0);
+        Post found = postDao.findByUserId(userID).getLast();
 
         assertNotNull(found);
         assertEquals("Test title", found.getTitle());
