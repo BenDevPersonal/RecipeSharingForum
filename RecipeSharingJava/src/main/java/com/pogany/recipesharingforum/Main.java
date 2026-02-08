@@ -1,6 +1,7 @@
 package com.pogany.recipesharingforum;
 
 import com.pogany.recipesharingforum.dao.*;
+import com.pogany.recipesharingforum.entities.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -104,7 +105,7 @@ public class Main {
             case 3 -> {
                 System.out.print("ID: ");
                 int id = sc.nextInt();
-                userDao.removeUser(new User(id, null, null, null, null));
+                userDao.removeUser(userDao.findById(id));
             }
             case 4 -> {
                 List<User> users = userDao.findAll();
