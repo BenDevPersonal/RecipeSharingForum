@@ -155,4 +155,79 @@ public class PostDaoImplTest extends BaseDaoTest {
         }
     }
 
+    @Test
+    void testCreatePostWithInvalidUserId() {
+        Post post = new Post(
+                -1,
+                "Invalid user",
+                "Should fail",
+                Date.valueOf(LocalDate.now()),
+                Date.valueOf(LocalDate.now())
+        );
+
+        assertThrows(SQLException.class, () -> postDao.createPost(post));
+    }
+
+    @Test
+    void testCreatePostWithNullTitle() {
+        Post post = new Post(
+                userID,
+                null,
+                "Content",
+                Date.valueOf(LocalDate.now()),
+                Date.valueOf(LocalDate.now())
+        );
+
+        assertThrows(SQLException.class, () -> postDao.createPost(post));
+    }
+
+    @Test
+    void testFindPostByInvalidId() throws SQLException {
+        Post found = postDao.findById(-1);
+        assertNull(found);
+    }
+
+    @Test
+    void testFindPostByNonExistingId() throws SQLException {
+        Post found = postDao.findById(99999);
+        assertNull(found);
+    }
+
+    @Test
+    void testFindPostsByUserIdEmptyResult() throws SQLException {
+        userDao.createUser(new User("noposts", "pw", "noposts@test.com", "US"));
+        int emptyUserId = userDao.findByLogin("noposts").getId();
+
+        List<Post> posts = postDao.findByUserId(emptyUserId);
+
+        assertTrue(posts.isEmpty());
+    }
+
+    @Test
+    void testUpdateNonExistingPost() throws SQLException {
+        Post ghost = new Post(
+                userID,
+                "Ghost",
+                "Nope",
+                Date.valueOf(LocalDate.now()),
+                Date.valueOf(LocalDate.now())
+        );
+        ghost.setId(99999);
+
+        postDao.updatePost(ghost);
+
+        assertNull(postDao.findById(ghost.getId()));
+    }
+
+    @Test
+    void testRemoveNonExistingPost() throws SQLException {
+        Post ghost = new Post(userID, "Ghost", "Nope",
+                Date.valueOf(LocalDate.now()),
+                Date.valueOf(LocalDate.now()));
+        ghost.setId(99999);
+
+        postDao.removePost(ghost);
+
+        assertNull(postDao.findById(ghost.getId()));
+    }
 }

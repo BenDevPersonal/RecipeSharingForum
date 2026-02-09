@@ -166,4 +166,81 @@ class CommentDaoImplTest extends BaseDaoTest {
             assertEquals(userID, postComment.getUserId());
         }
     }
+
+    @Test
+    void testCreateCommentWithInvalidUserId() {
+        Comment comment = new Comment(-1, postID, 5, "Invalid user");
+
+        assertThrows(SQLException.class, () -> commentDao.createComment(comment));
+    }
+
+    @Test
+    void testCreateCommentWithInvalidPostId() {
+        Comment comment = new Comment(userID, -1, 5, "Invalid post");
+
+        assertThrows(SQLException.class, () -> commentDao.createComment(comment));
+    }
+
+    @Test
+    void testCreateCommentWithNullContent() {
+        Comment comment = new Comment(userID, postID, 5, null);
+
+        assertThrows(SQLException.class, () -> commentDao.createComment(comment));
+    }
+
+    @Test
+    void testFindCommentByInvalidId() throws SQLException {
+        Comment found = commentDao.findById(-1);
+        assertNull(found);
+    }
+
+    @Test
+    void testFindCommentByNonExistingId() throws SQLException {
+        Comment found = commentDao.findById(99999);
+        assertNull(found);
+    }
+
+    @Test
+    void testFindCommentsByPostIdEmpty() throws SQLException {
+        postDao.createPost(
+                new Post(userID, "Empty post", "No comments",
+                        Date.valueOf(LocalDate.now()),
+                        Date.valueOf(LocalDate.now()))
+        );
+        int emptyPostId = postDao.findAll().getLast().getId();
+
+        List<Comment> comments = commentDao.findByPostId(emptyPostId);
+
+        assertTrue(comments.isEmpty());
+    }
+
+    @Test
+    void testFindCommentsByUserIdEmpty() throws SQLException {
+        userDao.createUser(new User("nocomments", "pw", "nc@test.com", "US"));
+        int noCommentUserId = userDao.findByLogin("nocomments").getId();
+
+        List<Comment> comments = commentDao.findByUserId(noCommentUserId);
+
+        assertTrue(comments.isEmpty());
+    }
+
+    @Test
+    void testUpdateNonExistingComment() throws SQLException {
+        Comment ghost = new Comment(userID, postID, 1, "Ghost");
+        ghost.setId(99999);
+
+        commentDao.updateComment(ghost);
+
+        assertNull(commentDao.findById(ghost.getId()));
+    }
+
+    @Test
+    void testRemoveNonExistingComment() throws SQLException {
+        Comment ghost = new Comment(userID, postID, 1, "Ghost");
+        ghost.setId(99999);
+
+        commentDao.removeComment(ghost);
+
+        assertNull(commentDao.findById(ghost.getId()));
+    }
 }
