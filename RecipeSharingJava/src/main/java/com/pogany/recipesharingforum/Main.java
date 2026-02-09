@@ -156,15 +156,18 @@ public class Main {
             case 2 -> {
                 System.out.print("Post ID: ");
                 int id = sc.nextInt();
-                System.out.print("User ID: ");
-                int userId = sc.nextInt();
                 sc.nextLine();
                 System.out.print("Title: ");
                 String title = sc.nextLine();
                 System.out.print("Content: ");
                 String content = sc.nextLine();
 
-                postDao.updatePost(new Post(id, userId, title, content, null, null));
+                Post post = postDao.findById(id);
+
+                post.setTitle(title);
+                post.setContent(content);
+
+                postDao.updatePost(post);
             }
             case 3 -> {
                 System.out.print("Post ID: ");
@@ -206,26 +209,30 @@ public class Main {
                 int userId = sc.nextInt();
                 System.out.print("Post ID: ");
                 int postId = sc.nextInt();
-
+                System.out.print("Rating (1-5): ");
+                int rating = sc.nextInt();
                 sc.nextLine();
                 System.out.print("Content: ");
                 String content = sc.nextLine();
 
-                commentDao.createComment(new Comment(userId, postId, 0, content));
+                commentDao.createComment(new Comment(userId, postId, rating, content));
             }
             case 2 -> {
                 System.out.print("Comment ID: ");
                 int id = sc.nextInt();
-                System.out.print("User ID: ");
-                int userId = sc.nextInt();
-                System.out.print("Post ID: ");
-                int postId = sc.nextInt();
 
+                System.out.print("Rating (1-5): ");
+                int rating = sc.nextInt();
                 sc.nextLine();
                 System.out.print("Content: ");
                 String content = sc.nextLine();
 
-                commentDao.updateComment(new Comment(id, userId, postId, 0, content));
+                Comment comment = commentDao.findById(id);
+
+                comment.setRating(rating);
+                comment.setContent(content);
+
+                commentDao.updateComment(comment);
             }
             case 3 -> {
                 System.out.print("Comment ID: ");
@@ -233,7 +240,7 @@ public class Main {
                 commentDao.removeComment(commentDao.findById(id));
             }
             case 4 -> {
-                System.out.print("ID: ");
+                System.out.print("Comment ID: ");
                 System.out.println(commentDao.findById(sc.nextInt()));
             }
             case 5 -> {
