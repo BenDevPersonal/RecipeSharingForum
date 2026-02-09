@@ -140,4 +140,54 @@ public class UserDaoImplTest extends BaseDaoTest {
                 )
         );
     }
+
+    @Test
+    void testFindUserByInvalidId() throws SQLException {
+        User found = userDao.findById(-1);
+        assertNull(found);
+    }
+
+    @Test
+    void testFindUserByNonExistingId() throws SQLException {
+        User found = userDao.findById(99999);
+        assertNull(found);
+    }
+
+    @Test
+    void testCreateUserWithNullLogin() {
+        User user = new User(0, null, "pw", "null@test.com", "US");
+
+        assertThrows(SQLException.class, () -> userDao.createUser(user));
+    }
+
+    @Test
+    void testCreateUserWithNullEmail() {
+        User user = new User(0, "nullmail", "pw", null, "US");
+
+        assertThrows(SQLException.class, () -> userDao.createUser(user));
+    }
+
+    @Test
+    void testUpdateNonExistingUser() throws SQLException {
+        User ghost = new User(99999, "ghost", "pw", "ghost@test.com", "US");
+
+        userDao.updateUser(ghost);
+
+        assertNull(userDao.findById(ghost.getId()));
+    }
+
+    @Test
+    void testDeleteNonExistingUser() throws SQLException {
+        User ghost = new User(99999, "ghost", "pw", "ghost@test.com", "US");
+
+        userDao.removeUser(ghost);
+
+        assertNull(userDao.findById(ghost.getId()));
+    }
+
+    @Test
+    void testFindAllUsersEmpty() throws SQLException {
+        List<User> users = userDao.findAll();
+        assertTrue(users.isEmpty());
+    }
 }
