@@ -1,4 +1,4 @@
-package com.pogany.recipesharingforum.dao;
+package dao;
 
 import com.pogany.recipesharingforum.entities.Post;
 import com.pogany.recipesharingforum.entities.User;

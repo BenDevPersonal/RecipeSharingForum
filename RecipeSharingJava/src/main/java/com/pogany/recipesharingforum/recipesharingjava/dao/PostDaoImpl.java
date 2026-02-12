@@ -1,7 +1,6 @@
-package com.pogany.recipesharingforum.dao;
+package com.pogany.recipesharingforum.recipesharingjava.dao;
 
-import com.pogany.recipesharingforum.entities.Post;
-import com.pogany.recipesharingforum.entities.User;
+import com.pogany.recipesharingforum.recipesharingjava.entities.Post;
 
 import java.sql.*;
 import java.time.LocalDate;

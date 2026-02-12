@@ -1,8 +1,8 @@
-package com.pogany.recipesharingforum.dao;
+package com.pogany.recipesharingforum.recipesharingjava.dao;
 
 
 
-import com.pogany.recipesharingforum.entities.Comment;
+import com.pogany.recipesharingforum.recipesharingjava.entities.Comment;
 
 import java.sql.SQLException;
 import java.util.List;

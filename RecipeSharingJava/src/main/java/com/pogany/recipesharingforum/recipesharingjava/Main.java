@@ -1,12 +1,14 @@
-package com.pogany.recipesharingforum;
+package com.pogany.recipesharingforum.recipesharingjava;
 
-import com.pogany.recipesharingforum.dao.*;
-import com.pogany.recipesharingforum.entities.*;
+import com.pogany.recipesharingforum.recipesharingjava.dao.*;
+import com.pogany.recipesharingforum.recipesharingjava.entities.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;

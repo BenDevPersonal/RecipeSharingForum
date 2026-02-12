@@ -1,4 +1,4 @@
-package com.pogany.recipesharingforum.entities;
+package com.pogany.recipesharingforum.recipesharingjava.entities;
 
 public class User {
     private int id;
