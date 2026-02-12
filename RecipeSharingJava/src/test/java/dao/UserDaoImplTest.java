@@ -1,6 +1,7 @@
 package dao;
 
-import com.pogany.recipesharingforum.entities.User;
+import com.pogany.recipesharingforum.recipesharingjava.entities.User;
+import com.pogany.recipesharingforum.recipesharingjava.dao.UserDaoImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

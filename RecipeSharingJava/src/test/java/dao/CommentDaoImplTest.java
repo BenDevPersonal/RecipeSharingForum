@@ -1,8 +1,11 @@
 package dao;
 
-import com.pogany.recipesharingforum.entities.Comment;
-import com.pogany.recipesharingforum.entities.Post;
-import com.pogany.recipesharingforum.entities.User;
+import com.pogany.recipesharingforum.recipesharingjava.entities.Comment;
+import com.pogany.recipesharingforum.recipesharingjava.entities.Post;
+import com.pogany.recipesharingforum.recipesharingjava.entities.User;
+import com.pogany.recipesharingforum.recipesharingjava.dao.CommentDaoImpl;
+import com.pogany.recipesharingforum.recipesharingjava.dao.UserDaoImpl;
+import com.pogany.recipesharingforum.recipesharingjava.dao.PostDaoImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
