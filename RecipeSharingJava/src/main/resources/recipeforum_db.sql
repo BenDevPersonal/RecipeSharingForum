@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 22, 2026 at 04:23 PM
+-- Generation Time: Feb 10, 2026 at 01:25 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -72,7 +72,26 @@ INSERT INTO `post` (`id`, `user_id`, `title`, `content`, `creation_date`, `updat
 (2, 2, 'Best Beef Burger', 'Juicy beef burger with homemade sauce and fresh veggies.', '2026-01-11', '2026-01-11'),
 (3, 3, 'Spicy Chicken Curry', 'Traditional Indian chicken curry with rich spices.', '2026-01-12', '2026-01-12'),
 (4, 4, 'Quick Pasta Alfredo', 'Creamy Alfredo pasta ready in under 30 minutes.', '2026-01-13', '2026-01-13'),
-(5, 5, 'Chocolate Croissants', 'Flaky croissants filled with dark chocolate.', '2026-01-14', '2026-01-14');
+(5, 5, 'Chocolate croissants', 'Flaky croissants filled with dark chocolate', '2026-01-14', '2026-02-09');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `role`
+--
+
+CREATE TABLE `role` (
+  `id` int(11) NOT NULL,
+  `name` varchar(21) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `role`
+--
+
+INSERT INTO `role` (`id`, `name`) VALUES
+(1, 'admin'),
+(2, 'user');
 
 -- --------------------------------------------------------
 
@@ -85,19 +104,21 @@ CREATE TABLE `user` (
   `login` varchar(21) NOT NULL,
   `email` varchar(256) NOT NULL,
   `password` varchar(127) NOT NULL,
-  `country` varchar(45) NOT NULL
+  `country` varchar(45) NOT NULL,
+  `role_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `login`, `email`, `password`, `country`) VALUES
-(1, 'chefanna', 'chefanna@gmail.com', 'hashed_pw_anna', 'Italy'),
-(2, 'foodie_mark', 'mark.foodie@yahoo.com', 'hashed_pw_mark', 'USA'),
-(3, 'spicequeen', 'spicequeen@outlook.com', 'hashed_pw_spice', 'India'),
-(4, 'homecook_john', 'john.cook@gmail.com', 'hashed_pw_john', 'Canada'),
-(5, 'baker_lily', 'lily.bakes@gmail.com', 'hashed_pw_lily', 'France');
+INSERT INTO `user` (`id`, `login`, `email`, `password`, `country`, `role_id`) VALUES
+(1, 'chefanna', 'chefanna@gmail.com', 'hashed_pw_anna', 'Italy', 2),
+(2, 'foodie_mark', 'mark.foodie@yahoo.com', 'hashed_pw_mark', 'USA', 2),
+(3, 'spicequeen', 'spicequeen@outlook.com', 'hashed_pw_spice', 'India', 2),
+(4, 'homecook_john', 'john.cook@gmail.com', 'hashed_pw_john', 'Canada', 2),
+(5, 'baker_lily', 'lily.bakes@gmail.com', 'hashed_pw_lily', 'France', 2),
+(7, 'admin', 'admin@recipeforum.com', 'hashed_admin_pw', 'HUN', 1);
 
 --
 -- Indexes for dumped tables
@@ -119,12 +140,19 @@ ALTER TABLE `post`
   ADD KEY `fk_user_id` (`user_id`);
 
 --
+-- Indexes for table `role`
+--
+ALTER TABLE `role`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`login`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `fk_role_id` (`role_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -134,19 +162,25 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `post`
 --
 ALTER TABLE `post`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `role`
+--
+ALTER TABLE `role`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -164,6 +198,12 @@ ALTER TABLE `feedback`
 --
 ALTER TABLE `post`
   ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `user`
+--
+ALTER TABLE `user`
+  ADD CONSTRAINT `fk_role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
