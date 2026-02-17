@@ -35,6 +35,7 @@ public class Main {
             UserDao userDao = new UserDaoImpl(conn);
             PostDao postDao = new PostDaoImpl(conn);
             CommentDao commentDao = new CommentDaoImpl(conn);
+            RoleDao roleDao = new RoleDaoImpl(conn);
 
             Scanner sc = new Scanner(System.in);
             boolean running = true;
@@ -89,10 +90,16 @@ public class Main {
                 String email = sc.nextLine();
                 System.out.print("Country: ");
                 String country = sc.nextLine();
+                System.out.print("Role ID: ");
+                int roleId = sc.nextInt();
 
-                userDao.createUser(new User(login, pass, email, country));
+                userDao.createUser(new User(login, pass, email, country, roleId));
             }
             case 2 -> {
+                System.out.print("User ID: ");
+                int id = sc.nextInt();
+                sc.nextLine();
+
                 System.out.print("Login: ");
                 String login = sc.nextLine();
                 System.out.print("Password: ");
@@ -101,8 +108,18 @@ public class Main {
                 String email = sc.nextLine();
                 System.out.print("Country: ");
                 String country = sc.nextLine();
+                System.out.print("Role ID: ");
+                int roleId = sc.nextInt();
 
-                userDao.updateUser(new User(login, pass, email, country));
+                User user = userDao.findById(id);
+
+                user.setLogin(login);
+                user.setPassword(pass);
+                user.setEmail(email);
+                user.setCountry(country);
+                user.setRoleId(roleId);
+
+                userDao.updateUser(user);
             }
             case 3 -> {
                 System.out.print("ID: ");
