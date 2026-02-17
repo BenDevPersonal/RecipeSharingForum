@@ -11,21 +11,21 @@ public class User {
     public User() {
     }
 
-    public User(int roleId, String login, String password, String email, String country) {
-        this.roleId = roleId;
+    public User(String login, String password, String email, String country, int roleId) {
         this.login = login;
         this.password = password;
         this.email = email;
         this.country = country;
+        this.roleId = roleId;
     }
 
-    public User(int id, int roleId, String login, String password, String email, String country) {
+    public User(int id, String login, String password, String email, String country, int roleId) {
         this.id = id;
-        this.roleId = roleId;
         this.login = login;
         this.password = password;
         this.email = email;
         this.country = country;
+        this.roleId = roleId;
     }
 
     public int getId() {
