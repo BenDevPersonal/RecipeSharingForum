@@ -27,11 +27,12 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void createUser(User user) throws SQLException {
         PreparedStatement createUserPstmt = conn.prepareStatement("INSERT INTO user " +
-                "(login, email, password, country) VALUES (?, ?, ?, ?)");
+                "(login, email, password, country, role_id) VALUES (?, ?, ?, ?, ?)");
         createUserPstmt.setString(1, user.getLogin());
         createUserPstmt.setString(2, user.getEmail());
         createUserPstmt.setString(3, user.getPassword());
         createUserPstmt.setString(4, user.getCountry());
+        createUserPstmt.setLong(5, user.getRoleId());
 
         createUserPstmt.executeUpdate();
     }
@@ -39,15 +40,16 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void updateUser(User user) throws SQLException {
         PreparedStatement updateUserPstmt = conn.prepareStatement("UPDATE user " +
-                "SET login = ?, password = ?, email = ?, country = ? " +
+                "SET login = ?, password = ?, email = ?, country = ?,  role_id = ? " +
                 "WHERE id = ?");
 
         updateUserPstmt.setString(1, user.getLogin());
         updateUserPstmt.setString(2, user.getPassword());
         updateUserPstmt.setString(3, user.getEmail());
         updateUserPstmt.setString(4, user.getCountry());
+        updateUserPstmt.setLong(5, user.getRoleId());
 
-        updateUserPstmt.setLong(5, user.getId());
+        updateUserPstmt.setLong(6, user.getId());
 
         updateUserPstmt.executeUpdate();
     }
@@ -73,7 +75,8 @@ public class UserDaoImpl implements UserDao {
                     rs.getString("login"),
                     rs.getString("password"),
                     rs.getString("email"),
-                    rs.getString("country")
+                    rs.getString("country"),
+                    rs.getInt("role_id")
             ));
         }
 
@@ -91,7 +94,8 @@ public class UserDaoImpl implements UserDao {
                     rs.getString("login"),
                     rs.getString("password"),
                     rs.getString("email"),
-                    rs.getString("country")
+                    rs.getString("country"),
+                    rs.getInt("role_id")
             );
         }
 
@@ -109,7 +113,8 @@ public class UserDaoImpl implements UserDao {
                     rs.getString("login"),
                     rs.getString("password"),
                     rs.getString("email"),
-                    rs.getString("country")
+                    rs.getString("country"),
+                    rs.getInt("role_id")
             );
         }
 
@@ -127,7 +132,8 @@ public class UserDaoImpl implements UserDao {
                     rs.getString("login"),
                     rs.getString("password"),
                     rs.getString("email"),
-                    rs.getString("country")
+                    rs.getString("country"),
+                    rs.getInt("role_id")
             );
         }
 
