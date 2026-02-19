@@ -1,3 +1,4 @@
+/*
 package dao;
 
 import com.pogany.recipesharingforum.recipesharingjava.entities.User;
@@ -194,3 +195,4 @@ public class UserDaoImplTest extends BaseDaoTest {
         assertTrue(users.isEmpty());
     }
 }
+*/

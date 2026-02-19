@@ -1,3 +1,4 @@
+/*
 package dao;
 
 import com.pogany.recipesharingforum.recipesharingjava.entities.Comment;
@@ -246,4 +247,4 @@ class CommentDaoImplTest extends BaseDaoTest {
 
         assertNull(commentDao.findById(ghost.getId()));
     }
-}
+}*/

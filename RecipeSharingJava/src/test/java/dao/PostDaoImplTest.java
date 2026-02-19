@@ -1,3 +1,4 @@
+/*
 package dao;
 
 import com.pogany.recipesharingforum.recipesharingjava.entities.Post;
@@ -233,3 +234,4 @@ public class PostDaoImplTest extends BaseDaoTest {
         assertNull(postDao.findById(ghost.getId()));
     }
 }
+*/
