@@ -23,7 +23,7 @@ public class UserDaoImpl implements UserDao {
         getUserByIdPstmt = conn.prepareStatement("SELECT * FROM user WHERE id=?");
         getUserByLoginPstmt = conn.prepareStatement("SELECT * FROM user WHERE login=?");
         getUserByEmailPstmt = conn.prepareStatement("SELECT * FROM user WHERE email=?");
-        authUserPstmt = conn.prepareStatement("SELECT * FROM user WHERE username=? AND password=?");
+        authUserPstmt = conn.prepareStatement("SELECT * FROM user WHERE login=? AND password=?");
     }
 
     @Override
@@ -148,8 +148,7 @@ public class UserDaoImpl implements UserDao {
                     rs.getString("login"),
                     rs.getString("password"),
                     rs.getString("email"),
-                    rs.getString("country"),
-                    rs.getInt("role_id")
+                    rs.getString("country")
             );
         }
         return user;
