@@ -154,7 +154,8 @@ public class UserDaoImpl implements UserDao {
                     rs.getString("login"),
                     rs.getString("password"),
                     rs.getString("email"),
-                    rs.getString("country")
+                    rs.getString("country"),
+                    rs.getInt("role_id")
             );
         }
         return user;
