@@ -15,6 +15,7 @@ public class UserDaoImpl implements UserDao {
     private PreparedStatement getUserByIdPstmt;
     private PreparedStatement getUserByLoginPstmt;
     private PreparedStatement getUserByEmailPstmt;
+    private PreparedStatement authUserPstmt;
 
     public UserDaoImpl(Connection conn) throws SQLException {
         this.conn = conn;
@@ -22,6 +23,7 @@ public class UserDaoImpl implements UserDao {
         getUserByIdPstmt = conn.prepareStatement("SELECT * FROM user WHERE id=?");
         getUserByLoginPstmt = conn.prepareStatement("SELECT * FROM user WHERE login=?");
         getUserByEmailPstmt = conn.prepareStatement("SELECT * FROM user WHERE email=?");
+        authUserPstmt = conn.prepareStatement("SELECT * FROM user WHERE username=? AND password=?");
     }
 
     @Override
@@ -132,5 +134,24 @@ public class UserDaoImpl implements UserDao {
         }
 
         return null;
+    }
+
+    @Override
+    public User authUser(String login, String password) throws SQLException {
+        authUserPstmt.setString(1, login);
+        authUserPstmt.setString(2, password);
+        ResultSet rs = authUserPstmt.executeQuery();
+        User user = null;
+        if (rs.next()) {
+            user = new User(
+                    rs.getInt("id"),
+                    rs.getString("login"),
+                    rs.getString("password"),
+                    rs.getString("email"),
+                    rs.getString("country"),
+                    rs.getInt("role_id")
+            );
+        }
+        return user;
     }
 }

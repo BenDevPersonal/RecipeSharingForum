@@ -15,4 +15,5 @@ public interface UserDao {
     User findById(int id) throws SQLException;
     User findByLogin(String login) throws SQLException;
     User findByEmail(String email) throws SQLException;
+    User authUser(String login, String password) throws SQLException;
 }
