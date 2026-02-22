@@ -27,20 +27,26 @@ public class UserListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response)
             throws ServletException, IOException {
+        Connection conn = null;
+
         try {
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
             DataSource ds = (DataSource) envCtx.lookup("jdbc/recipeforum_db");
-            Connection conn = ds.getConnection();
+            conn = ds.getConnection();
             UserDao userDao = new UserDaoImpl(conn);
             UserService userService = new UserServiceImpl(userDao);
 
             List<User> users = userService.getAllUsers();
 
             request.setAttribute("users", users);
-            conn.close();
+            request.getRequestDispatcher("/users.jsp").forward(request, response);
+
         } catch (NamingException | SQLException e) {
             throw new ServletException(e);
+        } finally {
+            try {
+                if (conn != null) conn.close();
+            } catch (SQLException ignored) {}
         }
     }
-}
