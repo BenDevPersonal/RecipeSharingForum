@@ -47,6 +47,8 @@ public class UserListServlet extends HttpServlet {
         } finally {
             try {
                 if (conn != null) conn.close();
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         }
     }
+}
