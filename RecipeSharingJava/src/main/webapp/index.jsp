@@ -5,7 +5,7 @@
     <title>Index</title>
 </head>
 <body>
-<a href="">Registration (Planned)</a>
+<a href="">Registration (Planned)</a><br>
 <a href="login.jsp">Login</a>
 </body>
 </html>

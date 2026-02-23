@@ -1,7 +1,10 @@
 package com.pogany.recipesharingforum.recipesharingjava.servlets;
 
+import com.pogany.recipesharingforum.recipesharingjava.dao.RoleDao;
+import com.pogany.recipesharingforum.recipesharingjava.dao.RoleDaoImpl;
 import com.pogany.recipesharingforum.recipesharingjava.dao.UserDao;
 import com.pogany.recipesharingforum.recipesharingjava.dao.UserDaoImpl;
+import com.pogany.recipesharingforum.recipesharingjava.entities.Role;
 import com.pogany.recipesharingforum.recipesharingjava.entities.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -30,6 +33,7 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("user");
         String password = request.getParameter("password");
         User user;
+        Role role;
 
         Context initCtx = null;
         Connection conn = null;
@@ -41,17 +45,20 @@ public class LoginServlet extends HttpServlet {
             conn = ds.getConnection();
 
             UserDao userDao = new UserDaoImpl(conn);
+            RoleDao roleDao = new RoleDaoImpl(conn);
 
             user = userDao.authUser(username, password);
+            role = roleDao.findById(user.getRoleId());
 
             if (user == null) {
                 //TO DO: Redirect and/or error message
-                System.out.println("Hibás belépési adatok.");
+                System.out.println("Invalid login credentials.");
             } else {
                 HttpSession session = request.getSession();
                 session.setAttribute("user", user);
+                session.setAttribute("role", role);
 
-                request.getRequestDispatcher("home").forward(request, response);
+                request.getRequestDispatcher("home.jsp").forward(request, response);
             }
 
             conn.close();
