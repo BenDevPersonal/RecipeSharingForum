@@ -55,14 +55,15 @@ public class LoginServlet extends HttpServlet {
             RoleService roleService = new RoleService(roleDao);
 
             user = userService.login(username, password);
-            role = roleService.getRole(user.getRoleId());
-
-            List<Post> posts = postService.getAllPosts();
 
             if (user == null) {
-                //TO DO: Redirect and/or error message
-                System.out.println("Invalid login credentials.");
+                request.setAttribute("error", "Invalid username or password");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
             } else {
+                role = roleService.getRole(user.getRoleId());
+
+                List<Post> posts = postService.getAllPosts();
+
                 HttpSession session = request.getSession();
                 session.setAttribute("user", user);
                 session.setAttribute("role", role);
@@ -73,9 +74,13 @@ public class LoginServlet extends HttpServlet {
 
             conn.close();
         } catch (SQLException e) {
-            throw new IOException(e);
+            request.setAttribute("errorTitle", "SQLException");
+            request.setAttribute("errorMessage", e.getMessage());
+            request.getRequestDispatcher("error.jsp").forward(request, response);
         } catch (NamingException e) {
-            throw new RuntimeException(e);
+            request.setAttribute("errorTitle", "NamingException");
+            request.setAttribute("errorMessage", e.getMessage());
+            request.getRequestDispatcher("error.jsp").forward(request, response);
         }
     }
 }

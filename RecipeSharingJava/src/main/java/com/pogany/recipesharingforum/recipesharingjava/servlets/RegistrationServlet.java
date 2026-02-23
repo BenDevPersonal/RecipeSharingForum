@@ -68,7 +68,9 @@ public class RegistrationServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
-            throw new ServletException(e);
+            request.setAttribute("errorTitle", "Exception");
+            request.setAttribute("errorMessage", e.getMessage());
+            request.getRequestDispatcher("error.jsp").forward(request, response);
         }
     }
 
