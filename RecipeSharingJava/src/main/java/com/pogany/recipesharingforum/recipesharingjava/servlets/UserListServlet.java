@@ -4,7 +4,6 @@ import com.pogany.recipesharingforum.recipesharingjava.dao.UserDao;
 import com.pogany.recipesharingforum.recipesharingjava.dao.UserDaoImpl;
 import com.pogany.recipesharingforum.recipesharingjava.entities.User;
 import com.pogany.recipesharingforum.recipesharingjava.service.UserService;
-import com.pogany.recipesharingforum.recipesharingjava.service.UserServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -35,7 +34,7 @@ public class UserListServlet extends HttpServlet {
             DataSource ds = (DataSource) envCtx.lookup("jdbc/recipeforum_db");
             conn = ds.getConnection();
             UserDao userDao = new UserDaoImpl(conn);
-            UserService userService = new UserServiceImpl(userDao);
+            UserService userService = new UserService(userDao);
 
             List<User> users = userService.getAllUsers();
 
