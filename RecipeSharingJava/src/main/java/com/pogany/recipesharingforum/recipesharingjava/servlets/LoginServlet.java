@@ -1,11 +1,12 @@
 package com.pogany.recipesharingforum.recipesharingjava.servlets;
 
-import com.pogany.recipesharingforum.recipesharingjava.dao.RoleDao;
-import com.pogany.recipesharingforum.recipesharingjava.dao.RoleDaoImpl;
-import com.pogany.recipesharingforum.recipesharingjava.dao.UserDao;
-import com.pogany.recipesharingforum.recipesharingjava.dao.UserDaoImpl;
+import com.pogany.recipesharingforum.recipesharingjava.dao.*;
+import com.pogany.recipesharingforum.recipesharingjava.entities.Post;
 import com.pogany.recipesharingforum.recipesharingjava.entities.Role;
 import com.pogany.recipesharingforum.recipesharingjava.entities.User;
+import com.pogany.recipesharingforum.recipesharingjava.service.PostService;
+import com.pogany.recipesharingforum.recipesharingjava.service.RoleService;
+import com.pogany.recipesharingforum.recipesharingjava.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -20,6 +21,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 @WebServlet(name = "LoginServlet", value = "/login")
 public class LoginServlet extends HttpServlet {
@@ -46,9 +48,16 @@ public class LoginServlet extends HttpServlet {
 
             UserDao userDao = new UserDaoImpl(conn);
             RoleDao roleDao = new RoleDaoImpl(conn);
+            PostDao postDao = new PostDaoImpl(conn);
 
-            user = userDao.authUser(username, password);
-            role = roleDao.findById(user.getRoleId());
+            UserService userService = new UserService(userDao);
+            PostService postService = new PostService(postDao);
+            RoleService roleService = new RoleService(roleDao);
+
+            user = userService.login(username, password);
+            role = roleService.getRole(user.getRoleId());
+
+            List<Post> posts = postService.getAllPosts();
 
             if (user == null) {
                 //TO DO: Redirect and/or error message
@@ -57,6 +66,7 @@ public class LoginServlet extends HttpServlet {
                 HttpSession session = request.getSession();
                 session.setAttribute("user", user);
                 session.setAttribute("role", role);
+                session.setAttribute("posts", posts);
 
                 request.getRequestDispatcher("home.jsp").forward(request, response);
             }

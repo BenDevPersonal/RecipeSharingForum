@@ -14,9 +14,22 @@
 <body>
 <h1>Hello, ${sessionScope.user.login} (<a href="${pageContext.request.contextPath}/logout">logout</a>)</h1>
 <c:if test="${sessionScope.role.name == 'admin'}">
-    <a href="${pageContext.request.contextPath}/dashboard">Admin dashboard</a>
+    <a href="${pageContext.request.contextPath}/users">Admin dashboard</a>
 </c:if>
 
 <h2>Your posts</h2>
+<table border="1px">
+    <th>Title</th><th>Content</th><th>Creation date</th><th>Update date</th>
+    <c:forEach items="${sessionScope.posts}" var="post">
+        <c:if test="${post.userId == sessionScope.user.id}">
+            <tr>
+                <td>${post.title}</td>
+                <td>${post.content}</td>
+                <td>${post.creationDate}</td>
+                <td>${post.updateDate}</td>
+            </tr>
+        </c:if>
+    </c:forEach>
+</table>
 </body>
 </html>
