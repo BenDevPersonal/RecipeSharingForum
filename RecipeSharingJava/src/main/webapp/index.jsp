@@ -7,6 +7,5 @@
 <body>
 <a href="registration.jsp">Registration</a>
 <a href="login.jsp">Login</a>
-<a href="users">View Users</a>
 </body>
 </html>
