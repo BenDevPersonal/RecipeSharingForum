@@ -8,10 +8,10 @@
         <property name="connection.username">root</property>
         <property name="connection.password"></property>
         <property name="connection.driver_class">org.mariadb.jdbc.Driver</property>
-        <mapping class="com.pogany.recipesharingforum.recipesharingjava.entity.User"/>
-        <mapping class="com.pogany.recipesharingforum.recipesharingjava.entity.Post"/>
-        <mapping class="com.pogany.recipesharingforum.recipesharingjava.entity.Feedback"/>
-        <mapping class="com.pogany.recipesharingforum.recipesharingjava.entity.Role"/>
+        <mapping class="com.pogany.recipesharingforum.recipesharingjava.entities.User"/>
+        <mapping class="com.pogany.recipesharingforum.recipesharingjava.entities.Post"/>
+        <mapping class="com.pogany.recipesharingforum.recipesharingjava.entities.Feedback"/>
+        <mapping class="com.pogany.recipesharingforum.recipesharingjava.entities.Role"/>
 
     </session-factory>
 </hibernate-configuration>

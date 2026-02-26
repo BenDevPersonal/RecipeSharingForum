@@ -1,47 +1,37 @@
 package com.pogany.recipesharingforum.recipesharingjava.entities;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "user")
 public class User {
-    private int id;
-    private int roleId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
+
+    @Column(name = "login", nullable = false, length = 21)
     private String login;
-    private String password;
+
+    @Column(name = "email", nullable = false, length = 256)
     private String email;
+
+    @Column(name = "password", nullable = false, length = 127)
+    private String password;
+
+    @Column(name = "country", nullable = false, length = 45)
     private String country;
 
-    public User() {
-    }
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
-    public User(String login, String password, String email, String country, int roleId) {
-        this.login = login;
-        this.password = password;
-        this.email = email;
-        this.country = country;
-        this.roleId = roleId;
-    }
-
-    public User(int id, String login, String password, String email, String country, int roleId) {
-        this.id = id;
-        this.login = login;
-        this.password = password;
-        this.email = email;
-        this.country = country;
-        this.roleId = roleId;
-    }
-
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
-    }
-
-    public int getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
     }
 
     public String getLogin() {
@@ -52,20 +42,20 @@ public class User {
         this.login = login;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getCountry() {
@@ -75,4 +65,13 @@ public class User {
     public void setCountry(String country) {
         this.country = country;
     }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
 }

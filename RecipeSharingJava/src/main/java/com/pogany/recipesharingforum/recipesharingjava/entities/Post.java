@@ -1,49 +1,48 @@
 package com.pogany.recipesharingforum.recipesharingjava.entities;
 
-import java.sql.Date;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "post")
 public class Post {
-    private int id;
-    private int userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "title", nullable = false, length = 40)
     private String title;
+
+    @Lob
+    @Column(name = "content", nullable = false)
     private String content;
-    private Date creationDate;
-    private Date updateDate;
 
-    public Post() {
-    }
+    @Column(name = "creation_date", nullable = false)
+    private LocalDate creationDate;
 
-    public Post(int userId, String title, String content, Date creationDate, Date updateDate) {
-        this.userId = userId;
-        this.title = title;
-        this.content = content;
-        this.creationDate = creationDate;
-        this.updateDate = updateDate;
-    }
+    @Column(name = "update_date", nullable = false)
+    private LocalDate updateDate;
 
-    public Post(int id, int userId, String title, String content, Date creationDate, Date updateDate) {
-        this.id = id;
-        this.userId = userId;
-        this.title = title;
-        this.content = content;
-        this.creationDate = creationDate;
-        this.updateDate = updateDate;
-    }
-
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getTitle() {
@@ -62,19 +61,20 @@ public class Post {
         this.content = content;
     }
 
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
     }
 
-    public Date getUpdateDate() {
+    public LocalDate getUpdateDate() {
         return updateDate;
     }
 
-    public void setUpdateDate(Date updateDate) {
+    public void setUpdateDate(LocalDate updateDate) {
         this.updateDate = updateDate;
     }
+
 }
