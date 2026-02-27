@@ -1,26 +1,23 @@
 package com.pogany.recipesharingforum.recipesharingjava.entities;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "role")
 public class Role {
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
+
+    @Column(name = "name", nullable = false, length = 21)
     private String name;
 
-    public Role() {
-    }
-
-    public Role(String name) {
-        this.name = name;
-    }
-
-    public Role(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -31,4 +28,5 @@ public class Role {
     public void setName(String name) {
         this.name = name;
     }
+
 }
