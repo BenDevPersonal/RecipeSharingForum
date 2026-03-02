@@ -72,7 +72,7 @@ public class User {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRoleId(int role) {
         this.role = role;
     }
 
