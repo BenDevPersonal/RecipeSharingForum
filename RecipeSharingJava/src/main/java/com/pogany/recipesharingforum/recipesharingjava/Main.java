@@ -30,12 +30,12 @@ public class Main {
         final String DB_PASS = prop.get("pass").toString();
 
         try (Connection conn = DriverManager.getConnection(CONN_URL, DB_USER, DB_PASS)) {
-            conn.setAutoCommit(false);
 
-            UserDao userDao = new UserDaoImpl(conn);
-            PostDao postDao = new PostDaoImpl(conn);
-            CommentDao commentDao = new CommentDaoImpl(conn);
-            RoleDao roleDao = new RoleDaoImpl(conn);
+
+            UserDao userDao = new UserDaoImpl();
+            PostDao postDao = new PostDaoImpl();
+            FeedbackDao feedbackDao = new FeedbackDaoImpl();
+            RoleDao roleDao = new RoleDaoImpl();
 
             Scanner sc = new Scanner(System.in);
             boolean running = true;
@@ -53,7 +53,7 @@ public class Main {
                 switch (choice) {
                     case 1 -> userMenu(sc, userDao);
                     case 2 -> postMenu(sc, postDao);
-                    case 3 -> commentMenu(sc, commentDao);
+                    case 3 -> commentMenu(sc, feedbackDao);
                     case 0 -> running = false;
                     default -> System.out.println("Invalid option");
                 }
@@ -93,7 +93,7 @@ public class Main {
                 System.out.print("Role ID: ");
                 int roleId = sc.nextInt();
 
-                userDao.createUser(new User(login, pass, email, country, roleId));
+                userDao.createUser(new User(rs.getInt("id"), login, pass, email, country, roleId));
             }
             case 2 -> {
                 System.out.print("User ID: ");
@@ -170,7 +170,7 @@ public class Main {
                 System.out.print("Content: ");
                 String content = sc.nextLine();
 
-                postDao.createPost(new Post(userId, title, content, null, null));
+                postDao.createPost(new Post(userId, rs.getInt("user_id"), title, content, null, null));
             }
             case 2 -> {
                 System.out.print("Post ID: ");
@@ -208,7 +208,7 @@ public class Main {
         }
     }
 
-    private static void commentMenu(Scanner sc, CommentDao commentDao) throws SQLException {
+    private static void commentMenu(Scanner sc, FeedbackDao feedbackDao) throws SQLException {
         System.out.println("""
                 --- COMMENT MENU ---
                 1 - Create comment
@@ -234,7 +234,7 @@ public class Main {
                 System.out.print("Content: ");
                 String content = sc.nextLine();
 
-                commentDao.createComment(new Comment(userId, postId, rating, content));
+                feedbackDao.createComment(new Feedback(userId, postId, rating, rs.getInt("rating"), content));
             }
             case 2 -> {
                 System.out.print("Comment ID: ");
@@ -246,30 +246,30 @@ public class Main {
                 System.out.print("Content: ");
                 String content = sc.nextLine();
 
-                Comment comment = commentDao.findById(id);
+                Feedback comment = feedbackDao.findById(id);
 
                 comment.setRating(rating);
                 comment.setContent(content);
 
-                commentDao.updateComment(comment);
+                feedbackDao.updateComment(comment);
             }
             case 3 -> {
                 System.out.print("Comment ID: ");
                 int id = sc.nextInt();
-                commentDao.removeComment(commentDao.findById(id));
+                feedbackDao.removeComment(feedbackDao.findById(id));
             }
             case 4 -> {
                 System.out.print("Comment ID: ");
-                System.out.println(commentDao.findById(sc.nextInt()));
+                System.out.println(feedbackDao.findById(sc.nextInt()));
             }
             case 5 -> {
                 System.out.print("User ID: ");
-                commentDao.findByUserId(sc.nextInt())
+                feedbackDao.findByUserId(sc.nextInt())
                         .forEach(c -> System.out.println(c.getContent()));
             }
             case 6 -> {
                 System.out.print("Post ID: ");
-                commentDao.findByPostId(sc.nextInt())
+                feedbackDao.findByPostId(sc.nextInt())
                         .forEach(c -> System.out.println(c.getContent()));
             }
         }

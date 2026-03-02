@@ -40,11 +40,11 @@ public class RegistrationServlet extends HttpServlet {
         try {
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
-            DataSource ds = (DataSource) envCtx.lookup("jdbc/recipeforum_db");
 
-            try (Connection conn = ds.getConnection()) {
 
-                UserDao userDao = new UserDaoImpl(conn);
+
+
+                UserDao userDao = new UserDaoImpl();
 
                 if (userDao.findByLogin(login) != null) {
                     request.setAttribute("error", "Login already exists");
@@ -60,12 +60,12 @@ public class RegistrationServlet extends HttpServlet {
                     return;
                 }
 
-                User user = new User(login, password, email, country, 2);
+                User user = new User(rs.getInt("id"), login, password, email, country, 2);
 
                 userDao.createUser(user);
 
                 response.sendRedirect("login.jsp");
-            }
+
 
         } catch (Exception e) {
             request.setAttribute("errorTitle", "Exception");

@@ -13,6 +13,9 @@ public class Role {
     @Column(name = "name", nullable = false, length = 21)
     private String name;
 
+    public Role(int id, String name) {
+    }
+
     public Integer getId() {
         return id;
     }

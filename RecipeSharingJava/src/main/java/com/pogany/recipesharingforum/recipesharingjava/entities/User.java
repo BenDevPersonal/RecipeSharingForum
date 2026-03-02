@@ -26,6 +26,8 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+
+
     public Integer getId() {
         return id;
     }
