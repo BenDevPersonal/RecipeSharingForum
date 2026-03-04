@@ -26,6 +26,8 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+
+
     public Integer getId() {
         return id;
     }
@@ -70,7 +72,7 @@ public class User {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRoleId(int role) {
         this.role = role;
     }
 
