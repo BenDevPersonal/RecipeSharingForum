@@ -3,69 +3,42 @@ package com.pogany.recipesharingforum.recipesharingjava;
 import com.pogany.recipesharingforum.recipesharingjava.dao.*;
 import com.pogany.recipesharingforum.recipesharingjava.entities.*;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Properties;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-        Properties prop = new Properties();
+    public static void main(String[] args) throws SQLException {
 
-        try {
-            prop.load(new FileReader("src/db_conn.property"));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        UserDao userDao = new UserDaoImpl();
+        PostDao postDao = new PostDaoImpl();
+        FeedbackDao feedbackDao = new FeedbackDaoImpl();
+        RoleDao roleDao = new RoleDaoImpl();
 
-        final String CONN_URL = prop.get("url").toString();
-        final String DB_USER = prop.get("user").toString();
-        final String DB_PASS = prop.get("pass").toString();
+        Scanner sc = new Scanner(System.in);
+        boolean running = true;
 
-        try (Connection conn = DriverManager.getConnection(CONN_URL, DB_USER, DB_PASS)) {
+        while (running) {
+            System.out.println("\n=== Recipe Sharing Forum ===");
+            System.out.println("1 - User DAO demo");
+            System.out.println("2 - Post DAO demo");
+            System.out.println("3 - Comment DAO demo");
+            System.out.println("0 - Exit");
 
+            int choice = sc.nextInt();
+            sc.nextLine();
 
-            UserDao userDao = new UserDaoImpl();
-            PostDao postDao = new PostDaoImpl();
-            FeedbackDao feedbackDao = new FeedbackDaoImpl();
-            RoleDao roleDao = new RoleDaoImpl();
-
-            Scanner sc = new Scanner(System.in);
-            boolean running = true;
-
-            while (running) {
-                System.out.println("\n=== Recipe Sharing Forum ===");
-                System.out.println("1 - User DAO demo");
-                System.out.println("2 - Post DAO demo");
-                System.out.println("3 - Comment DAO demo");
-                System.out.println("0 - Exit");
-
-                int choice = sc.nextInt();
-                sc.nextLine();
-
-                switch (choice) {
-                    case 1 -> userMenu(sc, userDao);
-                    case 2 -> postMenu(sc, postDao);
-                    case 3 -> commentMenu(sc, feedbackDao);
-                    case 0 -> running = false;
-                    default -> System.out.println("Invalid option");
-                }
+            switch (choice) {
+                case 1 -> userMenu(sc, userDao, roleDao);
+                case 2 -> postMenu(sc, postDao, userDao);
+                case 3 -> commentMenu(sc, feedbackDao, userDao, postDao);
+                case 0 -> running = false;
+                default -> System.out.println("Invalid option");
             }
-            conn.commit();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    private static void userMenu(Scanner sc, UserDao userDao) throws SQLException {
+    private static void userMenu(Scanner sc, UserDao userDao, RoleDao roleDao) throws SQLException {
         System.out.println("""
                 --- USER MENU ---
                 1 - Create user
@@ -93,31 +66,34 @@ public class Main {
                 System.out.print("Role ID: ");
                 int roleId = sc.nextInt();
 
-                userDao.createUser(new User(rs.getInt("id"), login, pass, email, country, roleId));
+                Role role = roleDao.findById(roleId);
+                User user = new User();
+                user.setLogin(login);
+                user.setPassword(pass);
+                user.setEmail(email);
+                user.setCountry(country);
+                user.setRole(role);
+
+                userDao.createUser(user);
             }
             case 2 -> {
                 System.out.print("User ID: ");
                 int id = sc.nextInt();
                 sc.nextLine();
-
-                System.out.print("Login: ");
-                String login = sc.nextLine();
-                System.out.print("Password: ");
-                String pass = sc.nextLine();
-                System.out.print("Email: ");
-                String email = sc.nextLine();
-                System.out.print("Country: ");
-                String country = sc.nextLine();
-                System.out.print("Role ID: ");
-                int roleId = sc.nextInt();
-
                 User user = userDao.findById(id);
 
-                user.setLogin(login);
-                user.setPassword(pass);
-                user.setEmail(email);
-                user.setCountry(country);
-                user.setRoleId(roleId);
+                System.out.print("Login: ");
+                user.setLogin(sc.nextLine());
+                System.out.print("Password: ");
+                user.setPassword(sc.nextLine());
+                System.out.print("Email: ");
+                user.setEmail(sc.nextLine());
+                System.out.print("Country: ");
+                user.setCountry(sc.nextLine());
+                System.out.print("Role ID: ");
+                int roleId = sc.nextInt();
+                Role role = roleDao.findById(roleId);
+                user.setRole(role);
 
                 userDao.updateUser(user);
             }
@@ -126,11 +102,8 @@ public class Main {
                 int id = sc.nextInt();
                 userDao.removeUser(userDao.findById(id));
             }
-            case 4 -> {
-                List<User> users = userDao.findAll();
-                users.forEach(u ->
-                        System.out.println(u.getId() + " " + u.getLogin() + " " + u.getEmail()));
-            }
+            case 4 -> userDao.findAll()
+                    .forEach(u -> System.out.println(u.getId() + " " + u.getLogin() + " " + u.getEmail()));
             case 5 -> {
                 System.out.print("ID: ");
                 System.out.println(userDao.findById(sc.nextInt()));
@@ -146,7 +119,7 @@ public class Main {
         }
     }
 
-    private static void postMenu(Scanner sc, PostDao postDao) throws SQLException {
+    private static void postMenu(Scanner sc, PostDao postDao, UserDao userDao) throws SQLException {
         System.out.println("""
                 --- POST MENU ---
                 1 - Create post
@@ -165,26 +138,31 @@ public class Main {
                 System.out.print("User ID: ");
                 int userId = sc.nextInt();
                 sc.nextLine();
+                User user = userDao.findById(userId);
+
                 System.out.print("Title: ");
                 String title = sc.nextLine();
                 System.out.print("Content: ");
                 String content = sc.nextLine();
 
-                postDao.createPost(new Post(userId, rs.getInt("user_id"), title, content, null, null));
+                Post post = new Post();
+                post.setUser(user);
+                post.setTitle(title);
+                post.setContent(content);
+
+                postDao.createPost(post);
             }
             case 2 -> {
                 System.out.print("Post ID: ");
                 int id = sc.nextInt();
                 sc.nextLine();
-                System.out.print("Title: ");
-                String title = sc.nextLine();
-                System.out.print("Content: ");
-                String content = sc.nextLine();
 
                 Post post = postDao.findById(id);
 
-                post.setTitle(title);
-                post.setContent(content);
+                System.out.print("Title: ");
+                post.setTitle(sc.nextLine());
+                System.out.print("Content: ");
+                post.setContent(sc.nextLine());
 
                 postDao.updatePost(post);
             }
@@ -193,22 +171,22 @@ public class Main {
                 int id = sc.nextInt();
                 postDao.removePost(postDao.findById(id));
             }
-            case 4 -> postDao.findAll().forEach(p ->
-                    System.out.println(p.getId() + " " + p.getTitle() + "\n" + p.getContent()));
+            case 4 -> postDao.findAll()
+                    .forEach(p -> System.out.println(p.getId() + " " + p.getTitle() + "\n" + p.getContent()));
             case 5 -> {
                 System.out.print("User ID: ");
-                postDao.findByUserId(sc.nextInt())
+                int userId = sc.nextInt();
+                postDao.findByUserId(userId)
                         .forEach(p -> System.out.println(p.getTitle() + "\n" + p.getContent()));
             }
             case 6 -> {
                 System.out.print("Post ID: ");
-
                 System.out.println(postDao.findById(sc.nextInt()));
             }
         }
     }
 
-    private static void commentMenu(Scanner sc, FeedbackDao feedbackDao) throws SQLException {
+    private static void commentMenu(Scanner sc, FeedbackDao feedbackDao, UserDao userDao, PostDao postDao) throws SQLException {
         System.out.println("""
                 --- COMMENT MENU ---
                 1 - Create comment
@@ -234,22 +212,27 @@ public class Main {
                 System.out.print("Content: ");
                 String content = sc.nextLine();
 
-                feedbackDao.createComment(new Feedback(userId, postId, rating, rs.getInt("rating"), content));
+                User user = userDao.findById(userId);
+                Post post = postDao.findById(postId);
+
+                Feedback feedback = new Feedback();
+                feedback.setUser(user);
+                feedback.setPost(post);
+                feedback.setRating(rating);
+                feedback.setContent(content);
+
+                feedbackDao.createComment(feedback);
             }
             case 2 -> {
                 System.out.print("Comment ID: ");
                 int id = sc.nextInt();
-
-                System.out.print("Rating (1-5): ");
-                int rating = sc.nextInt();
-                sc.nextLine();
-                System.out.print("Content: ");
-                String content = sc.nextLine();
-
                 Feedback comment = feedbackDao.findById(id);
 
-                comment.setRating(rating);
-                comment.setContent(content);
+                System.out.print("Rating (1-5): ");
+                comment.setRating(sc.nextInt());
+                sc.nextLine();
+                System.out.print("Content: ");
+                comment.setContent(sc.nextLine());
 
                 feedbackDao.updateComment(comment);
             }
@@ -264,12 +247,14 @@ public class Main {
             }
             case 5 -> {
                 System.out.print("User ID: ");
-                feedbackDao.findByUserId(sc.nextInt())
+                int userId = sc.nextInt();
+                feedbackDao.findByUserId(userId)
                         .forEach(c -> System.out.println(c.getContent()));
             }
             case 6 -> {
                 System.out.print("Post ID: ");
-                feedbackDao.findByPostId(sc.nextInt())
+                int postId = sc.nextInt();
+                feedbackDao.findByPostId(postId)
                         .forEach(c -> System.out.println(c.getContent()));
             }
         }

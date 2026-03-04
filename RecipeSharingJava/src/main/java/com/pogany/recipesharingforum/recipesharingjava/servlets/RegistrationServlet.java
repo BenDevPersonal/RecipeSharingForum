@@ -1,7 +1,10 @@
 package com.pogany.recipesharingforum.recipesharingjava.servlets;
 
+import com.pogany.recipesharingforum.recipesharingjava.dao.RoleDao;
+import com.pogany.recipesharingforum.recipesharingjava.dao.RoleDaoImpl;
 import com.pogany.recipesharingforum.recipesharingjava.dao.UserDao;
 import com.pogany.recipesharingforum.recipesharingjava.dao.UserDaoImpl;
+import com.pogany.recipesharingforum.recipesharingjava.entities.Role;
 import com.pogany.recipesharingforum.recipesharingjava.entities.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,11 +12,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.Connection;
 
 @WebServlet("/register")
 public class RegistrationServlet extends HttpServlet {
@@ -38,34 +37,35 @@ public class RegistrationServlet extends HttpServlet {
         }
 
         try {
-            Context initCtx = new InitialContext();
-            Context envCtx = (Context) initCtx.lookup("java:comp/env");
+            UserDao userDao = new UserDaoImpl();
+            RoleDao roleDao = new RoleDaoImpl();
 
+            // Check if login/email already exists
+            if (userDao.findByLogin(login) != null) {
+                request.setAttribute("error", "Login already exists");
+                request.getRequestDispatcher("registration.jsp").forward(request, response);
+                return;
+            }
 
+            if (userDao.findByEmail(email) != null) {
+                request.setAttribute("error", "Email already exists");
+                request.getRequestDispatcher("registration.jsp").forward(request, response);
+                return;
+            }
 
+            // Set default role (ID 2 = regular user)
+            Role defaultRole = roleDao.findById(2);
 
-                UserDao userDao = new UserDaoImpl();
+            User user = new User();
+            user.setLogin(login);
+            user.setPassword(password);
+            user.setEmail(email);
+            user.setCountry(country);
+            user.setRole(defaultRole);
 
-                if (userDao.findByLogin(login) != null) {
-                    request.setAttribute("error", "Login already exists");
-                    request.getRequestDispatcher("registration.jsp")
-                            .forward(request, response);
-                    return;
-                }
+            userDao.createUser(user);
 
-                if (userDao.findByEmail(email) != null) {
-                    request.setAttribute("error", "Email already exists");
-                    request.getRequestDispatcher("registration.jsp")
-                            .forward(request, response);
-                    return;
-                }
-
-                User user = new User(rs.getInt("id"), login, password, email, country, 2);
-
-                userDao.createUser(user);
-
-                response.sendRedirect("login.jsp");
-
+            response.sendRedirect("login.jsp");
 
         } catch (Exception e) {
             request.setAttribute("errorTitle", "Exception");
@@ -95,4 +95,3 @@ public class RegistrationServlet extends HttpServlet {
         return null;
     }
 }
-

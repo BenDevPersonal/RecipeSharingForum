@@ -2,7 +2,6 @@ package com.pogany.recipesharingforum.recipesharingjava.entities;
 
 import jakarta.persistence.*;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 @Entity
@@ -29,8 +28,6 @@ public class Post {
 
     @Column(name = "update_date", nullable = false)
     private LocalDate updateDate;
-
-
 
     public Integer getId() {
         return id;
@@ -64,7 +61,7 @@ public class Post {
         this.content = content;
     }
 
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 

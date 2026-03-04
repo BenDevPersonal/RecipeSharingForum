@@ -25,8 +25,6 @@ public class Feedback {
     @Column(name = "content", nullable = false)
     private String content;
 
-
-
     public Integer getId() {
         return id;
     }
