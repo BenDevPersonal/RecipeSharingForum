@@ -21,7 +21,7 @@
 <table border="1px">
     <th>Title</th><th>Content</th><th>Creation date</th><th>Update date</th>
     <c:forEach items="${sessionScope.posts}" var="post">
-        <c:if test="${post.userId == sessionScope.user.id}">
+        <c:if test="${post.user.id == sessionScope.user.id}">
             <tr>
                 <td>${post.title}</td>
                 <td>${post.content}</td>
