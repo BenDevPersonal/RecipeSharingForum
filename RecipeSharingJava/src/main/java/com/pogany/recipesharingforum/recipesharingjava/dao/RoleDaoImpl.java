@@ -1,85 +1,46 @@
 package com.pogany.recipesharingforum.recipesharingjava.dao;
 
 import com.pogany.recipesharingforum.recipesharingjava.entities.Role;
-import com.pogany.recipesharingforum.recipesharingjava.entities.User;
+import com.pogany.recipesharingforum.recipesharingjava.utilities.TransactionManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RoleDaoImpl implements RoleDao {
-    private Connection conn;
-    private PreparedStatement getAllRolesPstmt;
-    private PreparedStatement getRoleByIdPstmt;
 
-    public RoleDaoImpl(Connection conn) throws SQLException {
-        this.conn = conn;
-        getAllRolesPstmt = conn.prepareStatement("SELECT * FROM role");
-        getRoleByIdPstmt = conn.prepareStatement("SELECT * FROM role WHERE id=?");
+    @Override
+    public void createRole(Role role) {
+        TransactionManager.executeVoid(em -> {
+            em.persist(role);
+            return null;
+        });
     }
 
     @Override
-    public void createRole(Role role) throws SQLException {
-        PreparedStatement createRolePstmt = conn.prepareStatement("INSERT INTO role " +
-                "(name) VALUES (?)");
-        createRolePstmt.setString(1, role.getName());
-
-        createRolePstmt.executeUpdate();
-
+    public void updateRole(Role role) {
+        TransactionManager.executeVoid(em -> {
+            em.merge(role);
+            return null;
+        });
     }
 
     @Override
-    public void updateRole(Role role) throws SQLException {
-        PreparedStatement updateRolePstmt = conn.prepareStatement("UPDATE role " +
-                "SET name = ? WHERE id = ?");
-
-        updateRolePstmt.setString(1, role.getName());
-
-        updateRolePstmt.setLong(2, role.getId());
-
-        updateRolePstmt.executeUpdate();
+    public void removeRole(Role role) {
+        TransactionManager.executeVoid(em -> {
+            em.remove(em.merge(role));
+            return null;
+        });
     }
 
     @Override
-    public void removeRole(Role role) throws SQLException {
-        PreparedStatement removeRolePstmt = conn.prepareStatement("DELETE FROM role " +
-                "WHERE id = ?");
-
-        removeRolePstmt.setLong(1, role.getId());
-
-        removeRolePstmt.executeUpdate();
+    public List<Role> findAll() {
+        return TransactionManager.execute(em ->
+                em.createQuery("SELECT r FROM Role r", Role.class)
+                        .getResultList()
+        );
     }
 
     @Override
-    public List<Role> findAll() throws SQLException {
-        ResultSet rs = getAllRolesPstmt.executeQuery();
-        List<Role> roles = new ArrayList<>();
-
-        while (rs.next()) {
-            roles.add(new Role(
-                    rs.getInt("id"),
-                    rs.getString("name")
-            ));
-        }
-
-        return roles;
-    }
-
-    @Override
-    public Role findById(int id) throws SQLException {
-        getRoleByIdPstmt.setInt(1, id);
-        ResultSet rs = getRoleByIdPstmt.executeQuery();
-
-        if (rs.next()) {
-            return new Role(
-                    rs.getInt("id"),
-                    rs.getString("name")
-            );
-        }
-
-        return null;
+    public Role findById(int id) {
+        return TransactionManager.execute(em -> em.find(Role.class, id));
     }
 }

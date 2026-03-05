@@ -43,12 +43,10 @@ public class LoginServlet extends HttpServlet {
         try {
             initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
-            DataSource ds = (DataSource) envCtx.lookup("jdbc/recipeforum_db");
-            conn = ds.getConnection();
 
-            UserDao userDao = new UserDaoImpl(conn);
-            RoleDao roleDao = new RoleDaoImpl(conn);
-            PostDao postDao = new PostDaoImpl(conn);
+            UserDao userDao = new UserDaoImpl();
+            RoleDao roleDao = new RoleDaoImpl();
+            PostDao postDao = new PostDaoImpl();
 
             UserService userService = new UserService(userDao);
             PostService postService = new PostService(postDao);
@@ -60,7 +58,7 @@ public class LoginServlet extends HttpServlet {
                 request.setAttribute("error", "Invalid username or password");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             } else {
-                role = roleService.getRole(user.getRoleId());
+                role = roleService.getRole(user.getRole().getId());
 
                 List<Post> posts = postService.getAllPosts();
 

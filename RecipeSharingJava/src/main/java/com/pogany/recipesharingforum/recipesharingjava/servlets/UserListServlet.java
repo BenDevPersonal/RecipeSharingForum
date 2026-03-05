@@ -31,9 +31,8 @@ public class UserListServlet extends HttpServlet {
         try {
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
-            DataSource ds = (DataSource) envCtx.lookup("jdbc/recipeforum_db");
-            conn = ds.getConnection();
-            UserDao userDao = new UserDaoImpl(conn);
+
+            UserDao userDao = new UserDaoImpl();
             UserService userService = new UserService(userDao);
 
             List<User> users = userService.getAllUsers();
