@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Feb 10, 2026 at 01:25 PM
+-- Generation Time: Mar 11, 2026 at 11:49 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -22,6 +22,28 @@ SET time_zone = "+00:00";
 --
 CREATE DATABASE IF NOT EXISTS `recipeforum_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `recipeforum_db`;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `allergy`
+--
+
+CREATE TABLE `allergy` (
+  `id` int(11) NOT NULL,
+  `name` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `allergy_user`
+--
+
+CREATE TABLE `allergy_user` (
+  `allergy_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -125,6 +147,19 @@ INSERT INTO `user` (`id`, `login`, `email`, `password`, `country`, `role_id`) VA
 --
 
 --
+-- Indexes for table `allergy`
+--
+ALTER TABLE `allergy`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `allergy_user`
+--
+ALTER TABLE `allergy_user`
+  ADD KEY `fk_allergyconn_user_id` (`user_id`),
+  ADD KEY `fk_allergyconn_allergy_id` (`allergy_id`);
+
+--
 -- Indexes for table `feedback`
 --
 ALTER TABLE `feedback`
@@ -159,6 +194,12 @@ ALTER TABLE `user`
 --
 
 --
+-- AUTO_INCREMENT for table `allergy`
+--
+ALTER TABLE `allergy`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
@@ -185,6 +226,13 @@ ALTER TABLE `user`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `allergy_user`
+--
+ALTER TABLE `allergy_user`
+  ADD CONSTRAINT `fk_allergyconn_allergy_id` FOREIGN KEY (`allergy_id`) REFERENCES `allergy` (`id`),
+  ADD CONSTRAINT `fk_allergyconn_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 
 --
 -- Constraints for table `feedback`
