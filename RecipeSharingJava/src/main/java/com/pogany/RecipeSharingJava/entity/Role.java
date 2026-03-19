@@ -1,17 +1,16 @@
-package com.pogany.RecipeSharingJava.entities;
+package com.pogany.RecipeSharingJava.entity;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "allergy")
-public class Allergy {
+@Table(name = "role")
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Lob
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 21)
     private String name;
 
     public Integer getId() {

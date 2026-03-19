@@ -1,4 +1,4 @@
-package com.pogany.RecipeSharingJava.entities;
+package com.pogany.RecipeSharingJava.entity;
 
 import jakarta.persistence.*;
 
