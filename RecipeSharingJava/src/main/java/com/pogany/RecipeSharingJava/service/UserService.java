@@ -1,32 +1,63 @@
 package com.pogany.RecipeSharingJava.service;
 
-import com.pogany.RecipeSharingJava.entities.User;
+import com.pogany.RecipeSharingJava.dto.CreateUserRequest;
+import com.pogany.RecipeSharingJava.dto.UserDto;
+import com.pogany.RecipeSharingJava.entity.Role;
+import com.pogany.RecipeSharingJava.entity.User;
+import com.pogany.RecipeSharingJava.exception.ResourceNotFoundException;
+import com.pogany.RecipeSharingJava.repository.RoleRepository;
 import com.pogany.RecipeSharingJava.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class UserService {
-
-    @Autowired
     private UserRepository userRepository;
+    private RoleRepository roleRepository;
 
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
-    public User findById(Integer id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public List<UserDto> findAll() {
+        return userRepository.findAll().stream()
+                .map(this::toDto)
+                .toList();
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
+    public UserDto findById(Integer id) {
+        return toDto(userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id)));
+    }
+
+    public UserDto createUser(CreateUserRequest request) {
+        Role role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + request.getRoleId()));
+
+        User user = new User();
+        user.setLogin(request.getLogin());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setCountry(request.getCountry());
+        user.setRole(role);
+
+        return toDto(userRepository.save(user));
     }
 
     public void delete(Integer id) {
         userRepository.deleteById(id);
+    }
+
+    private UserDto toDto(User user) {
+        return new UserDto(
+                user.getId(),
+                user.getLogin(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getCountry(),
+                user.getRole().getId()
+        );
     }
 }

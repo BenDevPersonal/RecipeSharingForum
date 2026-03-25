@@ -1,6 +1,7 @@
 package com.pogany.RecipeSharingJava.service;
 
-import com.pogany.RecipeSharingJava.entities.Allergy;
+import com.pogany.RecipeSharingJava.entity.Allergy;
+import com.pogany.RecipeSharingJava.exception.ResourceNotFoundException;
 import com.pogany.RecipeSharingJava.repository.AllergyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class AllergyService {
 
     public Allergy findById(Integer id) {
         return allergyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Allergy not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Allergy not found with ID: " + id));
     }
 
     public Allergy save(Allergy allergy) {
