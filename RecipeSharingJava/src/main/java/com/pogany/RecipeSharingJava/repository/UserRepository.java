@@ -1,6 +1,6 @@
 package com.pogany.RecipeSharingJava.repository;
 
-import com.pogany.RecipeSharingJava.entities.User;
+import com.pogany.RecipeSharingJava.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
