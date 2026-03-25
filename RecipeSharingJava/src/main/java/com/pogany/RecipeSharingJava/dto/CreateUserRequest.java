@@ -7,7 +7,7 @@ public class CreateUserRequest {
     private String email;
     private String password;
     private String country;
-    private Role role;
+    private Integer roleId;
 
     public CreateUserRequest() {
     }
@@ -44,11 +44,11 @@ public class CreateUserRequest {
         this.country = country;
     }
 
-    public Role getRole() {
-        return role;
+    public Integer getRoleId() {
+        return roleId;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 }

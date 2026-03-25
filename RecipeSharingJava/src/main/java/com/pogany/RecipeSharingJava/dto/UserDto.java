@@ -8,18 +8,18 @@ public class UserDto {
     private String email;
     private String password;
     private String country;
-    private Role role;
+    private Integer roleId;
 
     public UserDto() {
     }
 
-    public UserDto(Integer id, String login, String email, String password, String country, Role role) {
+    public UserDto(Integer id, String login, String email, String password, String country, Integer roleId) {
         this.id = id;
         this.login = login;
         this.email = email;
         this.password = password;
         this.country = country;
-        this.role = role;
+        this.roleId = roleId;
     }
 
     public Integer getId() {
@@ -62,11 +62,11 @@ public class UserDto {
         this.country = country;
     }
 
-    public Role getRole() {
-        return role;
+    public Integer getRoleId() {
+        return roleId;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 }
