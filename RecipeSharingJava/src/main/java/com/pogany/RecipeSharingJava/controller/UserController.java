@@ -2,6 +2,7 @@ package com.pogany.RecipeSharingJava.controller;
 
 import com.pogany.RecipeSharingJava.dto.CreateUserRequest;
 import com.pogany.RecipeSharingJava.dto.UserDto;
+import com.pogany.RecipeSharingJava.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class UserController {
         return userService.findAll();
     }
 
-    @GetMapping("/${id}")
+    @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable Integer id) {
         return userService.findById(id);
     }
