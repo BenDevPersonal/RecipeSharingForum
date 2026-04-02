@@ -11,8 +11,11 @@ import java.util.List;
 @Service
 public class AllergyService {
 
-    @Autowired
     private AllergyRepository allergyRepository;
+
+    public AllergyService(AllergyRepository allergyRepository) {
+        this.allergyRepository = allergyRepository;
+    }
 
     public List<Allergy> findAll() {
         return allergyRepository.findAll();

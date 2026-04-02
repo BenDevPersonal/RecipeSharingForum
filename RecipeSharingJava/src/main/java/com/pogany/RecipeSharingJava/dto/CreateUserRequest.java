@@ -1,7 +1,5 @@
 package com.pogany.RecipeSharingJava.dto;
 
-import com.pogany.RecipeSharingJava.entity.Role;
-
 public class CreateUserRequest {
     private String login;
     private String email;

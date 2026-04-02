@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class PostDto {
     private Integer id;
-    private Integer userId;
+    private String author;
     private String title;
     private String content;
     private LocalDate creationDate;
@@ -13,9 +13,9 @@ public class PostDto {
     public PostDto() {
     }
 
-    public PostDto(Integer id, Integer userId, String title, String content, LocalDate creationDate, LocalDate updateDate) {
+    public PostDto(Integer id, String author, String title, String content, LocalDate creationDate, LocalDate updateDate) {
         this.id = id;
-        this.userId = userId;
+        this.author = author;
         this.title = title;
         this.content = content;
         this.creationDate = creationDate;
@@ -30,12 +30,12 @@ public class PostDto {
         this.id = id;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public String getAuthor() {
+        return author;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUserId(String author) {
+        this.author = author;
     }
 
     public String getTitle() {

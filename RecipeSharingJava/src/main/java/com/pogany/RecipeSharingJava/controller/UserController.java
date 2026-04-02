@@ -34,4 +34,12 @@ public class UserController {
     public UserDto createUser(@RequestBody CreateUserRequest request) {
         return userService.createUser(request);
     }
+
+    @PutMapping("/update/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto updateUser(@PathVariable Integer id, @RequestBody CreateUserRequest request) { return userService.updateUser(id, request); }
+
+    @DeleteMapping("/delete/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUser(@PathVariable Integer id) { userService.delete(id); }
 }

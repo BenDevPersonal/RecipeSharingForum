@@ -46,7 +46,28 @@ public class UserService {
         return toDto(userRepository.save(user));
     }
 
+    public UserDto updateUser(Integer id, CreateUserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+
+        Role role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + request.getRoleId()));
+
+        user.setLogin(request.getLogin());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setCountry(request.getCountry());
+        user.setRole(role);
+
+        userRepository.save(user);
+
+        return toDto(user);
+    }
+
     public void delete(Integer id) {
+        userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+
         userRepository.deleteById(id);
     }
 
@@ -55,9 +76,8 @@ public class UserService {
                 user.getId(),
                 user.getLogin(),
                 user.getEmail(),
-                user.getPassword(),
                 user.getCountry(),
-                user.getRole().getId()
+                user.getRole().getName()
         );
     }
 }

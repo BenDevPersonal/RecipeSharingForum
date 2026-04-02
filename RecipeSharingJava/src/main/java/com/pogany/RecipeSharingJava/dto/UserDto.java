@@ -1,25 +1,21 @@
 package com.pogany.RecipeSharingJava.dto;
 
-import com.pogany.RecipeSharingJava.entity.Role;
-
 public class UserDto {
     private Integer id;
     private String login;
     private String email;
-    private String password;
     private String country;
-    private Integer roleId;
+    private String roleName;
 
     public UserDto() {
     }
 
-    public UserDto(Integer id, String login, String email, String password, String country, Integer roleId) {
+    public UserDto(Integer id, String login, String email, String country, String roleName) {
         this.id = id;
         this.login = login;
         this.email = email;
-        this.password = password;
         this.country = country;
-        this.roleId = roleId;
+        this.roleName = roleName;
     }
 
     public Integer getId() {
@@ -46,14 +42,6 @@ public class UserDto {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getCountry() {
         return country;
     }
@@ -62,11 +50,11 @@ public class UserDto {
         this.country = country;
     }
 
-    public Integer getRoleId() {
-        return roleId;
+    public String getRoleName() {
+        return roleName;
     }
 
-    public void setRoleId(Integer roleId) {
-        this.roleId = roleId;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 }

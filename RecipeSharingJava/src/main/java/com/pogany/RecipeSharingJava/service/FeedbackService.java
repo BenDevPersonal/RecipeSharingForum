@@ -1,9 +1,7 @@
 package com.pogany.RecipeSharingJava.service;
 
 import com.pogany.RecipeSharingJava.dto.CreateFeedbackDto;
-import com.pogany.RecipeSharingJava.dto.CreatePostRequest;
 import com.pogany.RecipeSharingJava.dto.FeedbackDto;
-import com.pogany.RecipeSharingJava.dto.PostDto;
 import com.pogany.RecipeSharingJava.entity.Feedback;
 import com.pogany.RecipeSharingJava.entity.Post;
 import com.pogany.RecipeSharingJava.entity.User;
@@ -11,7 +9,6 @@ import com.pogany.RecipeSharingJava.exception.ResourceNotFoundException;
 import com.pogany.RecipeSharingJava.repository.FeedbackRepository;
 import com.pogany.RecipeSharingJava.repository.PostRepository;
 import com.pogany.RecipeSharingJava.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,6 +50,13 @@ public class FeedbackService {
         feedback.setContent(request.getContent());
 
         return toDto(feedbackRepository.save(feedback));
+    }
+
+    public void delete(Integer id) {
+        feedbackRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Feedback not found with ID: " + id));
+
+        feedbackRepository.deleteById(id);
     }
 
     private FeedbackDto toDto(Feedback feedback) {
