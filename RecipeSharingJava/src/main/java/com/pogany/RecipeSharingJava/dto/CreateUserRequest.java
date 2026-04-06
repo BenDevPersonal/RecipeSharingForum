@@ -1,11 +1,16 @@
 package com.pogany.RecipeSharingJava.dto;
 
+import com.pogany.RecipeSharingJava.entity.Allergy;
+
+import java.util.Set;
+
 public class CreateUserRequest {
     private String login;
     private String email;
     private String password;
     private String country;
     private Integer roleId;
+    private Set<Integer> allergyIds;
 
     public CreateUserRequest() {
     }
@@ -48,5 +53,13 @@ public class CreateUserRequest {
 
     public void setRoleId(Integer roleId) {
         this.roleId = roleId;
+    }
+
+    public Set<Integer> getAllergyIds() {
+        return allergyIds;
+    }
+
+    public void setAllergyIds(Set<Integer> allergyIds) {
+        this.allergyIds = allergyIds;
     }
 }

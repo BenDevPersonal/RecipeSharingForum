@@ -52,6 +52,23 @@ public class FeedbackService {
         return toDto(feedbackRepository.save(feedback));
     }
 
+    public FeedbackDto updateFeedback(Integer id, CreateFeedbackDto request) {
+        Feedback feedback = feedbackRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Feedback not found with ID: " + id));
+
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + request.getUserId()));
+        Post post = postRepository.findById(request.getPostId())
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with ID: " + request.getPostId()));
+
+        feedback.setUser(user);
+        feedback.setPost(post);
+        feedback.setRating(request.getRating());
+        feedback.setContent(request.getContent());
+
+        return toDto(feedbackRepository.save(feedback));
+    }
+
     public void delete(Integer id) {
         feedbackRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Feedback not found with ID: " + id));
@@ -62,7 +79,7 @@ public class FeedbackService {
     private FeedbackDto toDto(Feedback feedback) {
         return new FeedbackDto(
             feedback.getId(),
-            feedback.getUser().getId(),
+            feedback.getUser().getLogin(),
             feedback.getPost().getId(),
             feedback.getRating(),
             feedback.getContent()

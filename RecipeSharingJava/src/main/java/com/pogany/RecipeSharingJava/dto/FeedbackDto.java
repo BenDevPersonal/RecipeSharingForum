@@ -2,7 +2,7 @@ package com.pogany.RecipeSharingJava.dto;
 
 public class FeedbackDto {
     private Integer id;
-    private Integer userId;
+    private String author;
     private Integer postId;
     private Integer rating;
     private String content;
@@ -10,9 +10,9 @@ public class FeedbackDto {
     public FeedbackDto() {
     }
 
-    public FeedbackDto(Integer id, Integer userId, Integer postId, Integer rating, String content) {
+    public FeedbackDto(Integer id, String author, Integer postId, Integer rating, String content) {
         this.id = id;
-        this.userId = userId;
+        this.author = author;
         this.postId = postId;
         this.rating = rating;
         this.content = content;
@@ -26,12 +26,12 @@ public class FeedbackDto {
         this.id = id;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public String getAuthor() {
+        return author;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setAuthor(String authpr) {
+        this.author = author;
     }
 
     public Integer getPostId() {

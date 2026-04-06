@@ -1,6 +1,7 @@
 package com.pogany.RecipeSharingJava.dto;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 public class PostDto {
     private Integer id;
@@ -9,17 +10,21 @@ public class PostDto {
     private String content;
     private LocalDate creationDate;
     private LocalDate updateDate;
+    private Set<String> allergies;
+    private Set<String> categories;
 
     public PostDto() {
     }
 
-    public PostDto(Integer id, String author, String title, String content, LocalDate creationDate, LocalDate updateDate) {
+    public PostDto(Integer id, String author, String title, String content, LocalDate creationDate, LocalDate updateDate, Set<String> allergies, Set<String> categories) {
         this.id = id;
         this.author = author;
         this.title = title;
         this.content = content;
         this.creationDate = creationDate;
         this.updateDate = updateDate;
+        this.allergies = allergies;
+        this.categories = categories;
     }
 
     public Integer getId() {
@@ -68,5 +73,25 @@ public class PostDto {
 
     public void setUpdateDate(LocalDate updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public Set<String> getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(Set<String> allergies) {
+        this.allergies = allergies;
+    }
+
+    public Set<String> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<String> categories) {
+        this.categories = categories;
     }
 }

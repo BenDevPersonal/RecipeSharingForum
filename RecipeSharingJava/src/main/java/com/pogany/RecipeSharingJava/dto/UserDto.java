@@ -1,21 +1,25 @@
 package com.pogany.RecipeSharingJava.dto;
 
+import java.util.Set;
+
 public class UserDto {
     private Integer id;
     private String login;
     private String email;
     private String country;
     private String roleName;
+    private Set<String> allergies;
 
     public UserDto() {
     }
 
-    public UserDto(Integer id, String login, String email, String country, String roleName) {
+    public UserDto(Integer id, String login, String email, String country, String roleName, Set<String> allergies) {
         this.id = id;
         this.login = login;
         this.email = email;
         this.country = country;
         this.roleName = roleName;
+        this.allergies = allergies;
     }
 
     public Integer getId() {
@@ -56,5 +60,13 @@ public class UserDto {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public Set<String> getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(Set<String> allergies) {
+        this.allergies = allergies;
     }
 }

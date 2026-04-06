@@ -2,6 +2,10 @@ package com.pogany.RecipeSharingJava.entity;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Table(name = "user")
 public class User {
@@ -19,12 +23,21 @@ public class User {
     @Column(name = "password", nullable = false, length = 127)
     private String password;
 
-    @Column(name = "country", nullable = false, length = 45)
-    private String country;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "country", nullable = false)
+    private Country country;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "allergy_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "allergy_id")
+    )
+    private Set<Allergy> allergies = new HashSet<>();
 
     public Integer getId() {
         return id;
@@ -58,11 +71,11 @@ public class User {
         this.password = password;
     }
 
-    public String getCountry() {
+    public Country getCountry() {
         return country;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(Country country) {
         this.country = country;
     }
 
@@ -74,4 +87,11 @@ public class User {
         this.role = role;
     }
 
+    public Set<Allergy> getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(Set<Allergy> allergies) {
+        this.allergies = allergies;
+    }
 }

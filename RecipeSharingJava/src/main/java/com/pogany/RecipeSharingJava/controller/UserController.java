@@ -29,6 +29,11 @@ public class UserController {
         return userService.findById(id);
     }
 
+    @GetMapping("/{login}")
+    public UserDto getUserByLogin(@PathVariable String login) {
+        return userService.findByLogin(login);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto createUser(@RequestBody CreateUserRequest request) {

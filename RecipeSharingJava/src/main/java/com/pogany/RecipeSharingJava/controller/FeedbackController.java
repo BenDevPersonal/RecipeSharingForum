@@ -35,6 +35,10 @@ public class FeedbackController {
         return feedbackService.createFeedback(request);
     }
 
+    @PutMapping("/update/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public FeedbackDto updateFeedback(@PathVariable Integer id, @RequestBody CreateFeedbackDto request) { return feedbackService.updateFeedback(id, request); }
+
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteFeedback(@PathVariable Integer id) { feedbackService.delete(id); }

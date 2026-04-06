@@ -3,6 +3,8 @@ package com.pogany.RecipeSharingJava.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "post")
@@ -28,6 +30,22 @@ public class Post {
 
     @Column(name = "update_date", nullable = false)
     private LocalDate updateDate;
+
+    @ManyToMany
+    @JoinTable(
+            name = "allergy_post",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "allergy_id")
+    )
+    private Set<Allergy> allergies = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "category_post",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<Category> categories = new HashSet<>();
 
     public Integer getId() {
         return id;
@@ -77,4 +95,19 @@ public class Post {
         this.updateDate = updateDate;
     }
 
+    public Set<Allergy> getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(Set<Allergy> allergies) {
+        this.allergies = allergies;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
 }

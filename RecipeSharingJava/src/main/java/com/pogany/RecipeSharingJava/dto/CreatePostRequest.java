@@ -1,6 +1,7 @@
 package com.pogany.RecipeSharingJava.dto;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 public class CreatePostRequest {
     private Integer userId;
@@ -8,6 +9,8 @@ public class CreatePostRequest {
     private String content;
     private LocalDate creationDate;
     private LocalDate updateDate;
+    private Set<Integer> allergyIds;
+    private Set<Integer> categoryIds;
 
     public CreatePostRequest() {
     }
@@ -50,5 +53,21 @@ public class CreatePostRequest {
 
     public void setUpdateDate(LocalDate updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public Set<Integer> getAllergyIds() {
+        return allergyIds;
+    }
+
+    public void setAllergyIds(Set<Integer> allergyIds) {
+        this.allergyIds = allergyIds;
+    }
+
+    public Set<Integer> getCategoryIds() {
+        return categoryIds;
+    }
+
+    public void setCategoryIds(Set<Integer> categoryIds) {
+        this.categoryIds = categoryIds;
     }
 }
