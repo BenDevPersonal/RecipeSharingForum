@@ -1,17 +1,23 @@
-package com.pogany.RecipeSharingJava.entities;
+package com.pogany.RecipeSharingJava.entity;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
-@Table(name = "role")
-public class Role {
+@Table(name = "category")
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "name", nullable = false, length = 21)
+    @Column(name = "name", nullable = false, length = 50)
     private String name;
+
+    @ManyToMany(mappedBy = "categories")
+    private Set<Post> posts = new HashSet<>();
 
     public Integer getId() {
         return id;

@@ -1,18 +1,16 @@
-package com.pogany.RecipeSharingJava.entities;
+package com.pogany.RecipeSharingJava.dto;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "allergy")
-public class Allergy {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+public class AllergyDto {
     private Integer id;
-
-    @Lob
-    @Column(name = "name", nullable = false)
     private String name;
+
+    public AllergyDto() {
+    }
+
+    public AllergyDto(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     public Integer getId() {
         return id;
@@ -29,5 +27,4 @@ public class Allergy {
     public void setName(String name) {
         this.name = name;
     }
-
 }
