@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 11, 2026 at 11:49 AM
+-- Generation Time: Apr 06, 2026 at 04:27 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -34,6 +34,39 @@ CREATE TABLE `allergy` (
   `name` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `allergy`
+--
+
+INSERT INTO `allergy` (`id`, `name`) VALUES
+(1, 'Gluten'),
+(2, 'Lactose'),
+(3, 'Dairy'),
+(4, 'Eggs'),
+(5, 'Peanuts'),
+(6, 'Tree nuts'),
+(7, 'Soy'),
+(8, 'Wheat'),
+(9, 'Fish'),
+(10, 'Shellfish'),
+(11, 'Sesame'),
+(12, 'Corn'),
+(13, 'Sugar'),
+(14, 'Caffeine'),
+(15, 'Alcohol'),
+(16, 'Chocolate');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `allergy_post`
+--
+
+CREATE TABLE `allergy_post` (
+  `allergy_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- --------------------------------------------------------
 
 --
@@ -44,6 +77,201 @@ CREATE TABLE `allergy_user` (
   `allergy_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `category`
+--
+
+CREATE TABLE `category` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `category`
+--
+
+INSERT INTO `category` (`id`, `name`) VALUES
+(1, 'Vegan'),
+(2, 'Dessert'),
+(6, 'Cooking'),
+(7, 'Baking'),
+(8, 'No cooking/baking required'),
+(9, 'Quickly done'),
+(10, 'Original recipe');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `category_post`
+--
+
+CREATE TABLE `category_post` (
+  `category_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `country`
+--
+
+CREATE TABLE `country` (
+  `code` varchar(3) NOT NULL,
+  `name` varchar(52) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `country`
+--
+
+INSERT INTO `country` (`code`, `name`) VALUES
+('AFG', 'Afghanistan'),
+('AGO', 'Angola'),
+('ALB', 'Albania'),
+('AND', 'Andorra'),
+('ARE', 'United Arab Emirates'),
+('ARG', 'Argentina'),
+('ARM', 'Armenia'),
+('AUS', 'Australia'),
+('AUT', 'Austria'),
+('AZE', 'Azerbaijan'),
+('BDI', 'Burundi'),
+('BEL', 'Belgium'),
+('BEN', 'Benin'),
+('BFA', 'Burkina Faso'),
+('BGD', 'Bangladesh'),
+('BGR', 'Bulgaria'),
+('BHR', 'Bahrain'),
+('BHS', 'Bahamas'),
+('BIH', 'Bosnia and Herzegovina'),
+('BLR', 'Belarus'),
+('BLZ', 'Belize'),
+('BOL', 'Bolivia'),
+('BRA', 'Brazil'),
+('BRN', 'Brunei'),
+('BTN', 'Bhutan'),
+('BWA', 'Botswana'),
+('CAN', 'Canada'),
+('CHE', 'Switzerland'),
+('CHL', 'Chile'),
+('CHN', 'China'),
+('CMR', 'Cameroon'),
+('COL', 'Colombia'),
+('COM', 'Comoros'),
+('CRI', 'Costa Rica'),
+('CUB', 'Cuba'),
+('CYP', 'Cyprus'),
+('CZE', 'Czech Republic'),
+('DEU', 'Germany'),
+('DNK', 'Denmark'),
+('DOM', 'Dominican Republic'),
+('DZA', 'Algeria'),
+('ECU', 'Ecuador'),
+('EGY', 'Egypt'),
+('ESP', 'Spain'),
+('EST', 'Estonia'),
+('ETH', 'Ethiopia'),
+('FIN', 'Finland'),
+('FRA', 'France'),
+('GBR', 'United Kingdom'),
+('GEO', 'Georgia'),
+('GHA', 'Ghana'),
+('GRC', 'Greece'),
+('GTM', 'Guatemala'),
+('HND', 'Honduras'),
+('HRV', 'Croatia'),
+('HTI', 'Haiti'),
+('HUN', 'Hungary'),
+('IDN', 'Indonesia'),
+('IND', 'India'),
+('IRL', 'Ireland'),
+('IRN', 'Iran'),
+('IRQ', 'Iraq'),
+('ISL', 'Iceland'),
+('ISR', 'Israel'),
+('ITA', 'Italy'),
+('JAM', 'Jamaica'),
+('JOR', 'Jordan'),
+('JPN', 'Japan'),
+('KAZ', 'Kazakhstan'),
+('KEN', 'Kenya'),
+('KGZ', 'Kyrgyzstan'),
+('KHM', 'Cambodia'),
+('KOR', 'South Korea'),
+('KWT', 'Kuwait'),
+('LAO', 'Laos'),
+('LBN', 'Lebanon'),
+('LBY', 'Libya'),
+('LKA', 'Sri Lanka'),
+('LTU', 'Lithuania'),
+('LUX', 'Luxembourg'),
+('LVA', 'Latvia'),
+('MAR', 'Morocco'),
+('MCO', 'Monaco'),
+('MDA', 'Moldova'),
+('MDG', 'Madagascar'),
+('MDV', 'Maldives'),
+('MEX', 'Mexico'),
+('MKD', 'North Macedonia'),
+('MLI', 'Mali'),
+('MLT', 'Malta'),
+('MMR', 'Myanmar'),
+('MNE', 'Montenegro'),
+('MNG', 'Mongolia'),
+('MOZ', 'Mozambique'),
+('MYS', 'Malaysia'),
+('NAM', 'Namibia'),
+('NER', 'Niger'),
+('NGA', 'Nigeria'),
+('NIC', 'Nicaragua'),
+('NLD', 'Netherlands'),
+('NOR', 'Norway'),
+('NPL', 'Nepal'),
+('NZL', 'New Zealand'),
+('OMN', 'Oman'),
+('PAK', 'Pakistan'),
+('PAN', 'Panama'),
+('PER', 'Peru'),
+('PHL', 'Philippines'),
+('POL', 'Poland'),
+('PRK', 'North Korea'),
+('PRT', 'Portugal'),
+('PRY', 'Paraguay'),
+('QAT', 'Qatar'),
+('ROU', 'Romania'),
+('RUS', 'Russia'),
+('SAU', 'Saudi Arabia'),
+('SDN', 'Sudan'),
+('SGP', 'Singapore'),
+('SLV', 'El Salvador'),
+('SRB', 'Serbia'),
+('SVK', 'Slovakia'),
+('SVN', 'Slovenia'),
+('SWE', 'Sweden'),
+('SYR', 'Syria'),
+('TCD', 'Chad'),
+('THA', 'Thailand'),
+('TJK', 'Tajikistan'),
+('TKM', 'Turkmenistan'),
+('TUN', 'Tunisia'),
+('TUR', 'Turkey'),
+('TWN', 'Taiwan'),
+('TZA', 'Tanzania'),
+('UGA', 'Uganda'),
+('UKR', 'Ukraine'),
+('URY', 'Uruguay'),
+('USA', 'United States'),
+('UZB', 'Uzbekistan'),
+('VEN', 'Venezuela'),
+('VNM', 'Vietnam'),
+('YEM', 'Yemen'),
+('ZAF', 'South Africa'),
+('ZMB', 'Zambia'),
+('ZWE', 'Zimbabwe');
 
 -- --------------------------------------------------------
 
@@ -126,7 +354,7 @@ CREATE TABLE `user` (
   `login` varchar(21) NOT NULL,
   `email` varchar(256) NOT NULL,
   `password` varchar(127) NOT NULL,
-  `country` varchar(45) NOT NULL,
+  `country` varchar(3) NOT NULL,
   `role_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -135,11 +363,11 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `login`, `email`, `password`, `country`, `role_id`) VALUES
-(1, 'chefanna', 'chefanna@gmail.com', 'hashed_pw_anna', 'Italy', 2),
-(2, 'foodie_mark', 'mark.foodie@yahoo.com', 'hashed_pw_mark', 'USA', 2),
-(3, 'spicequeen', 'spicequeen@outlook.com', 'hashed_pw_spice', 'India', 2),
-(4, 'homecook_john', 'john.cook@gmail.com', 'hashed_pw_john', 'Canada', 2),
-(5, 'baker_lily', 'lily.bakes@gmail.com', 'hashed_pw_lily', 'France', 2),
+(1, 'chefanna', 'chefanna@gmail.com', 'hashed_pw_anna', 'HUN', 2),
+(2, 'foodie_mark', 'mark.foodie@yahoo.com', 'hashed_pw_mark', 'HUN', 2),
+(3, 'spicequeen', 'spicequeen@outlook.com', 'hashed_pw_spice', 'HUN', 2),
+(4, 'homecook_john', 'john.cook@gmail.com', 'hashed_pw_john', 'HUN', 2),
+(5, 'baker_lily', 'lily.bakes@gmail.com', 'hashed_pw_lily', 'HUN', 2),
 (7, 'admin', 'admin@recipeforum.com', 'hashed_admin_pw', 'HUN', 1);
 
 --
@@ -153,11 +381,37 @@ ALTER TABLE `allergy`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `allergy_post`
+--
+ALTER TABLE `allergy_post`
+  ADD KEY `allergy_id` (`allergy_id`,`post_id`),
+  ADD KEY `post_id` (`post_id`);
+
+--
 -- Indexes for table `allergy_user`
 --
 ALTER TABLE `allergy_user`
   ADD KEY `fk_allergyconn_user_id` (`user_id`),
   ADD KEY `fk_allergyconn_allergy_id` (`allergy_id`);
+
+--
+-- Indexes for table `category`
+--
+ALTER TABLE `category`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `category_post`
+--
+ALTER TABLE `category_post`
+  ADD KEY `category_id` (`category_id`,`post_id`),
+  ADD KEY `post_id` (`post_id`);
+
+--
+-- Indexes for table `country`
+--
+ALTER TABLE `country`
+  ADD PRIMARY KEY (`code`);
 
 --
 -- Indexes for table `feedback`
@@ -187,7 +441,8 @@ ALTER TABLE `user`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`login`),
   ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `fk_role_id` (`role_id`);
+  ADD KEY `fk_role_id` (`role_id`),
+  ADD KEY `country` (`country`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -197,7 +452,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `allergy`
 --
 ALTER TABLE `allergy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `category`
+--
+ALTER TABLE `category`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `feedback`
@@ -228,11 +489,25 @@ ALTER TABLE `user`
 --
 
 --
+-- Constraints for table `allergy_post`
+--
+ALTER TABLE `allergy_post`
+  ADD CONSTRAINT `allergy_post_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`),
+  ADD CONSTRAINT `allergy_post_ibfk_2` FOREIGN KEY (`allergy_id`) REFERENCES `allergy` (`id`);
+
+--
 -- Constraints for table `allergy_user`
 --
 ALTER TABLE `allergy_user`
   ADD CONSTRAINT `fk_allergyconn_allergy_id` FOREIGN KEY (`allergy_id`) REFERENCES `allergy` (`id`),
   ADD CONSTRAINT `fk_allergyconn_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `category_post`
+--
+ALTER TABLE `category_post`
+  ADD CONSTRAINT `category_post_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`),
+  ADD CONSTRAINT `category_post_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`);
 
 --
 -- Constraints for table `feedback`
@@ -251,7 +526,8 @@ ALTER TABLE `post`
 -- Constraints for table `user`
 --
 ALTER TABLE `user`
-  ADD CONSTRAINT `fk_role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`);
+  ADD CONSTRAINT `fk_role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`),
+  ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`country`) REFERENCES `country` (`code`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
