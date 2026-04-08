@@ -1,22 +1,21 @@
 import { useState, createContext } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import './App.css'
 import { Home } from './pages/Home'
 import { Navbar } from './components/Navbar'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 export const AppContext = createContext();
 
-function App() {
-  const [user, setUser] = useState("None");
-
-  const client = new QueryClient({
+const client = new QueryClient({
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false
       }
     }
   });
+
+function App() {
+  const [user, setUser] = useState("None");
 
   return (
     <AppContext.Provider value={ {user, setUser} }>
