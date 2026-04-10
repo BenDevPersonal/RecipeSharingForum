@@ -4,16 +4,28 @@ export const api = Axios.create({
   baseURL: "http://localhost:8080",
 });
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const customError = {
-      message:
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.",
-      status: error.response?.status,
-    };
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
 
-    return Promise.reject(customError);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    }
+
+    return Promise.reject({
+      message:
+        err.response?.data?.message ||
+        "Something went wrong",
+    });
   }
 );

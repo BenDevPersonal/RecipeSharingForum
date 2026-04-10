@@ -3,6 +3,7 @@ import { AppContext } from "../App";
 import { useQuery } from "@tanstack/react-query";
 import { getCategories } from "../api/categories";
 import { getRecipes } from "../api/recipes";
+import { ErrorMessage } from "../components/ErrorMessage";
 
 export function Home() {
   const { user } = useContext(AppContext);
@@ -161,14 +162,6 @@ function RecipeCard({ recipe }) {
           {recipe.category?.name}
         </p>
       </div>
-    </div>
-  );
-}
-
-function ErrorMessage({ message }) {
-  return (
-    <div className="mb-6 p-4 rounded-lg bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-      {message}
     </div>
   );
 }
