@@ -1,14 +1,12 @@
-import { useState, createContext } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Home } from "./pages/Home";
-import { Profile } from "./pages/Profile";
-import { Post } from "./pages/Post";
-import { CreatePost } from "./pages/CreatePost";
-import { Search } from "./pages/Search";
-import { User } from "./pages/User";
-import { Navbar } from "./components/Navbar";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "./components/ThemeProvider";
+import { useState, createContext } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Home } from './pages/Home'
+import { Profile } from './pages/Profile'
+import { Register } from "./pages/Register";
+import { Login } from "./pages/Login";
+import { Navbar } from './components/Navbar'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from './components/ThemeProvider'
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -34,12 +32,10 @@ function App() {
               <Navbar />
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/post/:id" element={<Post />} />
-                <Route path="/create-post" element={<CreatePost />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/user/:id" element={<User />} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="*" element={<>Page Not Found</>} />
+                 <Route path="/register" element={<Register />} />
+                 <Route path="/login" element={<Login />} />
+                <Route path="/*" element={<>Page Not Found</>} />
               </Routes>
             </Router>
           </ThemeProvider>

@@ -196,6 +196,13 @@ export function Navbar() {
                     <Link to="/" className="hover:text-accent">Home</Link>
                     <Link to="/profile" className="hover:text-accent">Profile</Link>
 
+                    <Link to="/register" className="hover:text-accent transition">
+                         Register
+                    </Link>
+                    <Link to="/login" className="hover:text-accent transition">
+                         login
+                    </Link>
+
                     <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} className="hidden sm:flex" />
 
                     {isAuth && (
