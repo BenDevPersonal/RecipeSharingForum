@@ -4,6 +4,8 @@ import { Home } from './pages/Home'
 import { Profile } from './pages/Profile'
 import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { AdminRoute } from "./components/AdminRoute";
 import { Navbar } from './components/Navbar'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from './components/ThemeProvider'
@@ -36,6 +38,7 @@ function App() {
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                  <Route path="/register" element={<Register />} />
                  <Route path="/login" element={<Login />} />
+                 <Route path="/admin" element={<AdminRoute> <AdminDashboard /> </AdminRoute>} />
                 <Route path="/*" element={<>Page Not Found</>} />
               </Routes>
             </Router>
