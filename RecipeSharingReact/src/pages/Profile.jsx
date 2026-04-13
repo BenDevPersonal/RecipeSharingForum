@@ -1,81 +1,146 @@
-import { useQuery } from "@tanstack/react-query";
-import { getProfile } from "../api/user";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getUserById, updateProfile } from "../api/users";
 import { ErrorMessage } from "../components/ErrorMessage";
 
+const MOCK_USER_ID = 1;
+
 export function Profile() {
-  const {
-    data: user,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["profile"],
-    queryFn: getProfile,
+  const queryClient = useQueryClient();
+  const [editMode, setEditMode] = useState(false);
+  const [form, setForm] = useState(null);
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["me"],
+    queryFn: () => getUserById(MOCK_USER_ID),
   });
 
-  if (isLoading) {
-    return (
-      <div className="p-10 text-center text-gray-500">
-        Loading profile...
-      </div>
-    );
+  const mutation = useMutation({
+    mutationFn: (updated) => updateProfile(MOCK_USER_ID, updated),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(["me"], updated);
+      setEditMode(false);
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setForm({
+        login: data.login,
+        password: "",
+        country: data.country,
+        allergies: data.allergies.join(", "),
+        role: data.role,
+        email: data.email,
+      });
+    }
+  }, [data]);
+
+  if (isLoading) return <div className="p-10 text-gray-500">Loading profile...</div>;
+  if (isError) return <ErrorMessage message={error.message} />;
+  if (!form) return null;
+
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  if (isError) {
-  return (
-    <div className="p-10">
-      <ErrorMessage message={error.message} className="text-center" />
-    </div>
-  );
-}
+  function handleSave() {
+    mutation.mutate({
+      login: form.login,
+      password: form.password,
+      country: form.country,
+      allergies: form.allergies
+        .split(",")
+        .map((a) => a.trim())
+        .filter(Boolean),
+      email: form.email,
+      role: form.role,
+    });
+  }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-10">
-      
-      <h1 className="text-4xl font-bold mb-8 text-center">
-        👤 Profile
-      </h1>
+    <div className="max-w-2xl mx-auto px-6 py-10 space-y-6">
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-soft p-8 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">My Profile</h1>
 
-        <ProfileField label="Login" value={user.login} />
-        <ProfileField label="Email" value={user.email} />
-        <ProfileField label="Country" value={user.country?.name} />
+        {!editMode ? (
+          <button
+            onClick={() => setEditMode(true)}
+            className="px-4 py-2 bg-accent text-white rounded-xl hover:bg-accentDark"
+          >
+            Edit Profile
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setEditMode(false)}
+              className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded-xl"
+            >
+              Cancel
+            </button>
 
-        <ProfileField
-          label="Password"
-          value="••••••••"
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 bg-accent text-white rounded-xl hover:bg-accentDark"
+            >
+              Save
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-soft space-y-4">
+
+        <Field label="Login" value={form.login} editMode={editMode} name="login" onChange={handleChange} />
+
+        <Field label="Email" value={form.email} editMode={false} />
+
+        <Field label="Country" value={form.country} editMode={editMode} name="country" onChange={handleChange} />
+
+        <Field label="Role" value={form.role} editMode={false} />
+
+        <Field
+          label="Allergies"
+          value={Array.isArray(form.allergies) ? form.allergies.join(", ") : form.allergies}
+          editMode={editMode}
+          name="allergies"
+          onChange={handleChange}
         />
 
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Role
-          </p>
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              user.role?.name === "admin"
-                ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                : "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-            }`}
-          >
-            {user.role?.name}
-          </span>
-        </div>
+        {editMode && (
+          <Field
+            label="Password"
+            value={form.password}
+            editMode={true}
+            name="password"
+            type="password"
+            onChange={handleChange}
+          />
+        )}
 
       </div>
+
     </div>
   );
 }
 
-function ProfileField({ label, value }) {
+function Field({ label, value, editMode, name, onChange, type = "text" }) {
   return (
     <div>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-        {label}
-      </p>
-      <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
-        {value || "-"}
-      </p>
+      <p className="text-sm text-gray-500">{label}</p>
+
+      {editMode && name ? (
+        <input
+          name={name}
+          value={value}
+          onChange={onChange}
+          type={type}
+          className="w-full px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+        />
+      ) : (
+        <p className="font-medium">{value || "-"}</p>
+      )}
     </div>
   );
 }
