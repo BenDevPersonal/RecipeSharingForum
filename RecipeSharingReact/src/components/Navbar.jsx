@@ -193,15 +193,19 @@ export function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-6 text-sm font-medium">
-                    <Link to="/" className="hover:text-accent">Home</Link>
-                    <Link to="/profile" className="hover:text-accent">Profile</Link>
+                    <Link to="/" className="hover:text-accent transition">Home</Link>
+                    <Link to="/profile" className="hover:text-accent transition">Profile</Link>
 
+                    {!isAuth && (
+                        <div className="flex items-center gap-4">
                     <Link to="/register" className="hover:text-accent transition">
                          Register
                     </Link>
                     <Link to="/login" className="hover:text-accent transition">
-                         login
+                         Login
                     </Link>
+                        </div>
+                    )}
 
                     <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} className="hidden sm:flex" />
 

@@ -5,6 +5,13 @@ import { ErrorMessage } from "../components/ErrorMessage";
 
 const MOCK_USER_ID = 1;
 
+const mockAllergies = [
+  "Gluten",
+  "Lactose",
+  "Nuts",
+  "Eggs",
+];
+
 export function Profile() {
   const queryClient = useQueryClient();
   const [editMode, setEditMode] = useState(false);
@@ -29,7 +36,7 @@ export function Profile() {
         login: data.login,
         password: "",
         country: data.country,
-        allergies: data.allergies.join(", "),
+        allergies: data.allergies || [],
         role: data.role,
         email: data.email,
       });
@@ -44,15 +51,25 @@ export function Profile() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  function toggleAllergy(allergy) {
+    setForm((prev) => {
+      const exists = prev.allergies.includes(allergy);
+
+      return {
+        ...prev,
+        allergies: exists
+          ? prev.allergies.filter((a) => a !== allergy)
+          : [...prev.allergies, allergy],
+      };
+    });
+  }
+
   function handleSave() {
     mutation.mutate({
       login: form.login,
       password: form.password,
       country: form.country,
-      allergies: form.allergies
-        .split(",")
-        .map((a) => a.trim())
-        .filter(Boolean),
+      allergies: form.allergies,
       email: form.email,
       role: form.role,
     });
@@ -67,7 +84,7 @@ export function Profile() {
         {!editMode ? (
           <button
             onClick={() => setEditMode(true)}
-            className="px-4 py-2 bg-accent text-white rounded-xl hover:bg-accentDark"
+            className="px-4 py-2 bg-accent text-white rounded-xl"
           >
             Edit Profile
           </button>
@@ -82,7 +99,7 @@ export function Profile() {
 
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-accent text-white rounded-xl hover:bg-accentDark"
+              className="px-4 py-2 bg-accent text-white rounded-xl"
             >
               Save
             </button>
@@ -100,13 +117,32 @@ export function Profile() {
 
         <Field label="Role" value={form.role} editMode={false} />
 
-        <Field
-          label="Allergies"
-          value={Array.isArray(form.allergies) ? form.allergies.join(", ") : form.allergies}
-          editMode={editMode}
-          name="allergies"
-          onChange={handleChange}
-        />
+        {/* ✅ NEW ALLERGIES UI */}
+        <div>
+          <p className="text-sm text-gray-500">Allergies</p>
+
+          {editMode ? (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {mockAllergies.map((a) => (
+                <button
+                  key={a}
+                  onClick={() => toggleAllergy(a)}
+                  className={`px-3 py-1 rounded-full border text-sm transition ${
+                    form.allergies.includes(a)
+                      ? "bg-red-500 text-white border-red-500"
+                      : "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="font-medium">
+              {form.allergies.length ? form.allergies.join(", ") : "-"}
+            </p>
+          )}
+        </div>
 
         {editMode && (
           <Field

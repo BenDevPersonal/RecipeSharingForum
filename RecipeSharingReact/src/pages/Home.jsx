@@ -5,9 +5,11 @@ import { getCategories } from "../api/categories";
 import { getRecipes } from "../api/recipes";
 import { useNavigate } from "react-router-dom";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { useAuth } from "../context/AuthContext";
 
 export function Home() {
   const { user } = useContext(AppContext);
+  const { isAuth } = useAuth();
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -48,6 +50,15 @@ export function Home() {
             ? `Welcome back, ${user}!`
             : "Start sharing your recipes today"}
         </p>
+
+        {isAuth && (
+          <button
+            onClick={() => navigate("/create")}
+            className="mt-6 px-6 py-2 rounded-xl bg-accent text-white font-medium hover:opacity-90 transition"
+          >
+            + Create Recipe
+          </button>
+        )}
       </div>
 
       <div>

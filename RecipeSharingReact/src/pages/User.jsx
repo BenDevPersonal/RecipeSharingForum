@@ -21,7 +21,6 @@ export function User() {
       <h1 className="text-3xl font-bold">{data.login}</h1>
 
       <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-soft space-y-3">
-        <p><span className="font-semibold">Email:</span> {data.email}</p>
         <p><span className="font-semibold">Country:</span> {data.country}</p>
         <p><span className="font-semibold">Role:</span> {data.role}</p>
 

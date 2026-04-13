@@ -159,7 +159,6 @@ function ResultCard({ item, type, query, navigate }) {
       className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer"
     >
       <div className="font-semibold">{highlight(item.login)}</div>
-      <div className="text-sm text-gray-500">{item.email}</div>
     </div>
   );
 }

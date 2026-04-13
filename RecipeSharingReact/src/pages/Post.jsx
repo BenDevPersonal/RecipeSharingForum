@@ -1,5 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const mockPosts = [
   {
@@ -39,6 +41,10 @@ function getPostById(id) {
 export function Post() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuth } = useAuth();
+
+  const [rating, setRating] = useState(0);
+  const [text, setText] = useState("");
 
   const { data: post, isLoading } = useQuery({
     queryKey: ["post", id],
@@ -78,26 +84,19 @@ export function Post() {
     <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-soft p-6 space-y-3">
-
         <h1 className="text-3xl font-bold">{post.title}</h1>
 
         <p className="text-gray-500">by {post.author}</p>
 
         <div className="flex flex-wrap gap-2 text-xs">
           {post.categories.map((c) => (
-            <span
-              key={c}
-              className="px-2 py-1 rounded-full bg-accent text-white"
-            >
+            <span key={c} className="px-2 py-1 rounded-full bg-accent text-white">
               {c}
             </span>
           ))}
 
           {post.allergies.map((a) => (
-            <span
-              key={a}
-              className="px-2 py-1 rounded-full bg-red-500 text-white"
-            >
+            <span key={a} className="px-2 py-1 rounded-full bg-red-500 text-white">
               no {a}
             </span>
           ))}
@@ -122,10 +121,7 @@ export function Post() {
         <h2 className="text-xl font-semibold">Feedback</h2>
 
         {post.feedbacks.map((f, i) => (
-          <div
-            key={i}
-            className="bg-white dark:bg-gray-900 rounded-2xl shadow-soft p-4"
-          >
+          <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl shadow-soft p-4">
             <div className="flex justify-between">
               <span className="font-medium">{f.author}</span>
               <span className="text-accent font-semibold">
@@ -139,6 +135,39 @@ export function Post() {
           </div>
         ))}
       </div>
+
+      {isAuth ? (
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-soft p-6 space-y-4">
+          <h3 className="font-semibold">Leave feedback</h3>
+
+          <div className="flex gap-2">
+            {[1,2,3,4,5].map((s) => (
+              <button
+                key={s}
+                onClick={() => setRating(s)}
+                className={`text-2xl ${s <= rating ? "text-yellow-400" : "text-gray-300"}`}
+              >
+                ★
+              </button>
+            ))}
+          </div>
+
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="w-full p-3 rounded-xl bg-gray-100 dark:bg-gray-800"
+            placeholder="Write your feedback..."
+          />
+
+          <button className="px-4 py-2 bg-accent text-white rounded-xl">
+            Submit
+          </button>
+        </div>
+      ) : (
+        <div className="text-center text-gray-500">
+          Login to leave feedback
+        </div>
+      )}
 
     </div>
   );
