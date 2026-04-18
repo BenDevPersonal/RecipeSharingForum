@@ -7,15 +7,15 @@ import { Search } from "./pages/Search";
 import { User } from "./pages/User";
 import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { AdminRoute } from "./components/AdminRoute";
+import { Navbar } from './components/Navbar'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from './components/ThemeProvider'
+import { ProtectedRoute } from './components/ProtectedRoute'
 import { CreatePost } from "./pages/CreatePost";
 import { EditPost } from "./pages/EditPost";
-
-import { Navbar } from "./components/Navbar";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "./components/ThemeProvider";
-
 import { AuthProvider } from "./context/AuthProvider";
-import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -27,6 +27,8 @@ const client = new QueryClient({
 
 function App() {
   return (
+    <AppContext.Provider value={{ user, setUser }}>
+    </AppContext.Provider>
     <QueryClientProvider client={client}>
       <AuthProvider>
         <ThemeProvider>
@@ -68,6 +70,8 @@ function App() {
 
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
+                
+              <Route path="/admin" element={<AdminRoute> <AdminDashboard /> </AdminRoute>} />
 
               <Route path="/*" element={<>Page Not Found</>} />
             </Routes>
