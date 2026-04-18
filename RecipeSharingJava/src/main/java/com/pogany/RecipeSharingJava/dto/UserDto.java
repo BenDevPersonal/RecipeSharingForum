@@ -1,5 +1,6 @@
 package com.pogany.RecipeSharingJava.dto;
 
+import java.util.List;
 import java.util.Set;
 
 public class UserDto {
@@ -7,18 +8,18 @@ public class UserDto {
     private String login;
     private String email;
     private String country;
-    private String roleName;
-    private Set<String> allergies;
+    private String role;
+    private List<String> allergies;
 
     public UserDto() {
     }
 
-    public UserDto(Integer id, String login, String email, String country, String roleName, Set<String> allergies) {
+    public UserDto(Integer id, String login, String email, String country, String roleName, List<String> allergies) {
         this.id = id;
         this.login = login;
         this.email = email;
         this.country = country;
-        this.roleName = roleName;
+        this.role = roleName;
         this.allergies = allergies;
     }
 
@@ -54,19 +55,19 @@ public class UserDto {
         this.country = country;
     }
 
-    public String getRoleName() {
-        return roleName;
+    public String getRole() {
+        return role;
     }
 
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
+    public void setRole(String role) {
+        this.role = role;
     }
 
-    public Set<String> getAllergies() {
+    public List<String> getAllergies() {
         return allergies;
     }
 
-    public void setAllergies(Set<String> allergies) {
+    public void setAllergies(List<String> allergies) {
         this.allergies = allergies;
     }
 }

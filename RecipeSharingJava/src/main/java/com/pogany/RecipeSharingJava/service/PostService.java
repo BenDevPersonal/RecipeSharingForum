@@ -1,37 +1,46 @@
 package com.pogany.RecipeSharingJava.service;
 
-import com.pogany.RecipeSharingJava.dto.CreatePostRequest;
-import com.pogany.RecipeSharingJava.dto.PostDto;
-import com.pogany.RecipeSharingJava.entity.Allergy;
-import com.pogany.RecipeSharingJava.entity.Category;
-import com.pogany.RecipeSharingJava.entity.Post;
-import com.pogany.RecipeSharingJava.entity.User;
+import com.pogany.RecipeSharingJava.dto.*;
+import com.pogany.RecipeSharingJava.entity.*;
 import com.pogany.RecipeSharingJava.exception.ResourceNotFoundException;
-import com.pogany.RecipeSharingJava.repository.AllergyRepository;
-import com.pogany.RecipeSharingJava.repository.CategoryRepository;
-import com.pogany.RecipeSharingJava.repository.PostRepository;
-import com.pogany.RecipeSharingJava.repository.UserRepository;
+import com.pogany.RecipeSharingJava.repository.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class PostService {
 
-    private UserRepository userRepository;
-    private PostRepository postRepository;
-    private CategoryRepository categoryRepository;
-    private AllergyRepository allergyRepository;
+    private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final CategoryRepository categoryRepository;
+    private final AllergyRepository allergyRepository;
+    private final FeedbackRepository feedbackRepository;
 
-    public PostService(UserRepository userRepository, PostRepository postRepository, CategoryRepository categoryRepository, AllergyRepository allergyRepository) {
+    public PostService(
+            UserRepository userRepository,
+            PostRepository postRepository,
+            CategoryRepository categoryRepository,
+            AllergyRepository allergyRepository,
+            FeedbackRepository feedbackRepository
+    ) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
         this.allergyRepository = allergyRepository;
+        this.feedbackRepository = feedbackRepository;
+    }
+
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String login = auth.getName();
+
+        return userRepository.findByLogin(login)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + login));
     }
 
     public List<PostDto> findAll() {
@@ -41,87 +50,128 @@ public class PostService {
     }
 
     public PostDto findById(Integer id) {
-        return toDto(postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found with ID: " + id)));
+        return toDto(
+                postRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Post not found with ID: " + id))
+        );
+    }
+
+    public List<PostDto> search(String q, String category, String allergy) {
+        return postRepository.findAll().stream()
+                .filter(p -> q == null ||
+                        p.getTitle().toLowerCase().contains(q.toLowerCase()) ||
+                        p.getContent().toLowerCase().contains(q.toLowerCase()))
+                .filter(p -> category == null || category.isBlank() ||
+                        p.getCategories().stream().anyMatch(c -> c.getName().equalsIgnoreCase(category)))
+                .filter(p -> allergy == null || allergy.isBlank() ||
+                        p.getAllergies().stream().anyMatch(a -> a.getName().equalsIgnoreCase(allergy)))
+                .map(this::toDto)
+                .toList();
     }
 
     public PostDto createPost(CreatePostRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + request.getUserId()));
+
+        User user = getCurrentUser();
 
         Post post = new Post();
         post.setUser(user);
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
-        post.setCreationDate(request.getCreationDate());
-        post.setUpdateDate(request.getUpdateDate());
+        post.setCreationDate(LocalDate.now());
+        post.setUpdateDate(LocalDate.now());
 
-        if (request.getAllergyIds() != null && !request.getAllergyIds().isEmpty()) {
-            Set<Allergy> allergies = new HashSet<>(allergyRepository.findAllById(request.getAllergyIds()));
-            post.setAllergies(allergies);
-        } else {
-            post.setAllergies(new HashSet<>());
+        post.setAllergies(new ArrayList<>());
+        post.setCategories(new ArrayList<>());
+
+        if (request.getAllergyIds() != null) {
+            post.getAllergies().addAll(
+                    allergyRepository.findAllById(request.getAllergyIds())
+            );
         }
 
-        if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
-            Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategoryIds()));
-            post.setCategories(categories);
-        } else {
-            post.setCategories(new HashSet<>());
+        if (request.getCategoryIds() != null) {
+            post.getCategories().addAll(
+                    categoryRepository.findAllById(request.getCategoryIds())
+            );
         }
 
         return toDto(postRepository.save(post));
     }
 
     public PostDto updatePost(Integer id, CreatePostRequest request) {
+
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with ID: " + id));
 
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + request.getUserId()));
+        User currentUser = getCurrentUser();
 
-        post.setUser(user);
+        if (!post.getUser().getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("You cannot edit someone else's post");
+        }
+
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
-        post.setCreationDate(request.getCreationDate());
         post.setUpdateDate(LocalDate.now());
 
-        if (request.getAllergyIds() != null && !request.getAllergyIds().isEmpty()) {
-            Set<Allergy> allergies = new HashSet<>(allergyRepository.findAllById(request.getAllergyIds()));
-            post.setAllergies(allergies);
-        } else {
-            post.setAllergies(new HashSet<>());
+        post.getAllergies().clear();
+        post.getCategories().clear();
+
+        if (request.getAllergyIds() != null) {
+            post.getAllergies().addAll(
+                    allergyRepository.findAllById(request.getAllergyIds())
+            );
         }
 
-        if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
-            Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategoryIds()));
-            post.setCategories(categories);
-        } else {
-            post.setCategories(new HashSet<>());
+        if (request.getCategoryIds() != null) {
+            post.getCategories().addAll(
+                    categoryRepository.findAllById(request.getCategoryIds())
+            );
         }
 
-        postRepository.save(post);
-
-        return toDto(post);
+        return toDto(postRepository.save(post));
     }
 
     public void delete(Integer id) {
-        postRepository.findById(id)
+
+        Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with ID: " + id));
 
-        postRepository.deleteById(id);
+        User currentUser = getCurrentUser();
+
+        if (!post.getUser().getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("You cannot delete someone else's post");
+        }
+
+        postRepository.delete(post);
     }
 
     private PostDto toDto(Post post) {
+
+        User user = post.getUser();
+
+        List<FeedbackDto> feedbacks = feedbackRepository.findByPostId(post.getId())
+                .stream()
+                .map(f -> new FeedbackDto(
+                        f.getId(),
+                        f.getUser().getId(),
+                        f.getUser().getLogin(),
+                        post.getId(),
+                        f.getRating(),
+                        f.getContent()
+                ))
+                .toList();
+
         return new PostDto(
                 post.getId(),
-                post.getUser().getLogin(),
+                user.getId(),
+                user.getLogin(),
                 post.getTitle(),
                 post.getContent(),
                 post.getCreationDate(),
                 post.getUpdateDate(),
-                post.getAllergies().stream().map(Allergy::getName).collect(Collectors.toSet()),
-                post.getCategories().stream().map(Category::getName).collect(Collectors.toSet())
+                post.getAllergies().stream().map(Allergy::getName).toList(),
+                post.getCategories().stream().map(Category::getName).toList(),
+                feedbacks
         );
     }
 }

@@ -1,19 +1,18 @@
 package com.pogany.RecipeSharingJava.dto;
 
-import com.pogany.RecipeSharingJava.entity.Allergy;
+import jakarta.persistence.criteria.CriteriaBuilder;
 
-import java.util.Set;
+import java.util.List;
 
 public class CreateUserRequest {
     private String login;
     private String email;
     private String password;
     private String country;
-    private Integer roleId;
-    private Set<Integer> allergyIds;
+    private String role;
+    private List<Integer> allergies;
 
-    public CreateUserRequest() {
-    }
+    public CreateUserRequest() {}
 
     public String getLogin() {
         return login;
@@ -47,19 +46,19 @@ public class CreateUserRequest {
         this.country = country;
     }
 
-    public Integer getRoleId() {
-        return roleId;
+    public String getRole() {
+        return role;
     }
 
-    public void setRoleId(Integer roleId) {
-        this.roleId = roleId;
+    public void setRole(String role) {
+        this.role = role;
     }
 
-    public Set<Integer> getAllergyIds() {
-        return allergyIds;
+    public List<Integer> getAllergies() {
+        return allergies;
     }
 
-    public void setAllergyIds(Set<Integer> allergyIds) {
-        this.allergyIds = allergyIds;
+    public void setAllergies(List<Integer> allergies) {
+        this.allergies = allergies;
     }
 }

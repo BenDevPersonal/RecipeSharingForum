@@ -1,12 +1,12 @@
 package com.pogany.RecipeSharingJava.dto;
 
-public class CreateFeedbackDto {
+public class CreateFeedbackRequest {
     private Integer userId;
     private Integer postId;
     private Integer rating;
     private String content;
 
-    public CreateFeedbackDto() {
+    public CreateFeedbackRequest() {
     }
 
     public Integer getUserId() {
