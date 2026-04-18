@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCategories } from "../api/categories";
-import { getPosts } from "../api/posts"; // ✅ changed
+import { getPosts } from "../api/posts";
 import { useNavigate } from "react-router-dom";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { useAuth } from "../context/useAuth";
@@ -32,10 +32,9 @@ export function Home() {
     error: recErrObj,
   } = useQuery({
     queryKey: ["posts"],
-    queryFn: getPosts, // ✅ no param anymore
+    queryFn: getPosts,
   });
 
-  // 🔥 FILTER LOGIC HERE
   const filteredPosts = useMemo(() => {
     if (!posts) return [];
 

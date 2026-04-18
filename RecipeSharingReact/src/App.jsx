@@ -27,8 +27,6 @@ const client = new QueryClient({
 
 function App() {
   return (
-    <AppContext.Provider value={{ user, setUser }}>
-    </AppContext.Provider>
     <QueryClientProvider client={client}>
       <AuthProvider>
         <ThemeProvider>
@@ -70,7 +68,7 @@ function App() {
 
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
-                
+
               <Route path="/admin" element={<AdminRoute> <AdminDashboard /> </AdminRoute>} />
 
               <Route path="/*" element={<>Page Not Found</>} />

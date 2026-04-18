@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { searchPosts, searchUsers } from "../api/search";
 import { getPosts } from "../api/posts";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { SkeletonSection } from "../components/Skeleton";
 import { useMemo } from "react";
 
 export function Search() {
@@ -59,8 +60,17 @@ export function Search() {
     }
 
     if (isLoading) {
-        return <div className="p-10 text-gray-500">Searching...</div>;
-    }
+    return (
+        <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
+            <h1 className="text-2xl font-bold">Searching "{q}"...</h1>
+
+            <div className="space-y-6">
+                <SkeletonSection title="Posts" />
+                <SkeletonSection title="Users" />
+            </div>
+        </div>
+    );
+}
 
     if (isError) {
         return <ErrorMessage message={error.message} />;
