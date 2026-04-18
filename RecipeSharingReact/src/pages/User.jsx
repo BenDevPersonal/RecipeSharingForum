@@ -43,7 +43,7 @@ export function User() {
             </h1>
 
             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl space-y-3 border border-gray-100 dark:border-gray-800">
-                <div className="flex items-center gap-2 mt-2">
+                <div className="items-center gap-2 mt-2">
                     <span className="font-semibold">Badge: </span>
                     <div className="inline-flex w-fit text-xs px-2 py-1 rounded-full 
                         text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900
