@@ -8,19 +8,22 @@ export function ThemeProvider({ children }) {
   );
 
   useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const listener = (e) => setDarkMode(e.matches);
-    media.addEventListener("change", listener);
+    const root = document.documentElement;
 
     if (darkMode) {
-      document.documentElement.classList.add("dark");
+      root.classList.add("dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      root.classList.remove("dark");
     }
-
-    return () => media.removeEventListener("change", listener);
   }, [darkMode]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const listener = (e) => setDarkMode(e.matches);
+
+    media.addEventListener("change", listener);
+    return () => media.removeEventListener("change", listener);
+  }, []);
 
   const toggleTheme = () => setDarkMode((prev) => !prev);
 

@@ -1,23 +1,38 @@
 package com.pogany.RecipeSharingJava.dto;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 public class PostDto {
+
     private Integer id;
+    private Integer authorId;
     private String author;
     private String title;
     private String content;
     private LocalDate creationDate;
     private LocalDate updateDate;
-    private Set<String> allergies;
-    private Set<String> categories;
+    private List<String> allergies;
+    private List<String> categories;
+    private List<FeedbackDto> feedbacks;
 
     public PostDto() {
     }
 
-    public PostDto(Integer id, String author, String title, String content, LocalDate creationDate, LocalDate updateDate, Set<String> allergies, Set<String> categories) {
+    public PostDto(
+            Integer id,
+            Integer authorId,
+            String author,
+            String title,
+            String content,
+            LocalDate creationDate,
+            LocalDate updateDate,
+            List<String> allergies,
+            List<String> categories,
+            List<FeedbackDto> feedbacks
+    ) {
         this.id = id;
+        this.authorId = authorId;
         this.author = author;
         this.title = title;
         this.content = content;
@@ -25,73 +40,46 @@ public class PostDto {
         this.updateDate = updateDate;
         this.allergies = allergies;
         this.categories = categories;
+        this.feedbacks = feedbacks;
     }
 
     public Integer getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public Integer getAuthorId() {
+        return authorId;
     }
 
     public String getAuthor() {
         return author;
     }
 
-    public void setUserId(String author) {
-        this.author = author;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getContent() {
         return content;
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
     public LocalDate getCreationDate() {
         return creationDate;
-    }
-
-    public void setCreationDate(LocalDate creationDate) {
-        this.creationDate = creationDate;
     }
 
     public LocalDate getUpdateDate() {
         return updateDate;
     }
 
-    public void setUpdateDate(LocalDate updateDate) {
-        this.updateDate = updateDate;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public Set<String> getAllergies() {
+    public List<String> getAllergies() {
         return allergies;
     }
 
-    public void setAllergies(Set<String> allergies) {
-        this.allergies = allergies;
-    }
-
-    public Set<String> getCategories() {
+    public List<String> getCategories() {
         return categories;
     }
 
-    public void setCategories(Set<String> categories) {
-        this.categories = categories;
+    public List<FeedbackDto> getFeedbacks() {
+        return feedbacks;
     }
 }
