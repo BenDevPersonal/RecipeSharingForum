@@ -1,19 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "./ThemeProvider";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { useEffect, useRef, useState } from "react";
-
-const mockCategories = [
-    { id: 1, name: "dessert" },
-    { id: 2, name: "italian" },
-    { id: 3, name: "indian" },
-];
-
-const mockAllergies = [
-    { id: 1, name: "nuts" },
-    { id: 2, name: "gluten" },
-    { id: 3, name: "eggs" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getCategories } from "../api/categories";
+import { getAllergies } from "../api/allergies";
 
 export function Navbar() {
     const { toggleTheme, darkMode } = useTheme();
@@ -29,12 +20,22 @@ export function Navbar() {
 
     const filterRef = useRef(null);
 
+    const { data: apiCategories = [] } = useQuery({
+        queryKey: ["categories"],
+        queryFn: getCategories,
+    });
+
+    const { data: apiAllergies = [] } = useQuery({
+        queryKey: ["allergies"],
+        queryFn: getAllergies,
+    });
+
     function handleSearch() {
         if (!query.trim()) return;
 
         navigate(
-            `/search?q=${query}&mode=${mode}&categories=${categories.join(",")}&allergies=${allergies.join(",")}`
-        );
+    `/search?q=${query}&mode=${mode}&category=${categories.join(",")}&allergy=${allergies.join(",")}`
+);
 
         setShowFilters(false);
     }
@@ -154,7 +155,7 @@ export function Navbar() {
                         <div>
                             <p className="text-xs font-semibold mb-2">Categories</p>
                             <div className="flex flex-wrap gap-2">
-                                {mockCategories.map((c) => (
+                                {apiCategories.map((c) => (
                                     <button
                                         key={c.id}
                                         onClick={() => toggleMulti(setCategories, categories, c.name)}
@@ -173,7 +174,7 @@ export function Navbar() {
                         <div>
                             <p className="text-xs font-semibold mb-2">Exclude allergies</p>
                             <div className="flex flex-wrap gap-2">
-                                {mockAllergies.map((a) => (
+                                {apiAllergies.map((a) => (
                                     <button
                                         key={a.id}
                                         onClick={() => toggleMulti(setAllergies, allergies, a.name)}
@@ -198,12 +199,12 @@ export function Navbar() {
 
                     {!isAuth && (
                         <div className="flex items-center gap-4">
-                    <Link to="/register" className="hover:text-accent transition">
-                         Register
-                    </Link>
-                    <Link to="/login" className="hover:text-accent transition">
-                         Login
-                    </Link>
+                            <Link to="/register" className="hover:text-accent transition">
+                                Register
+                            </Link>
+                            <Link to="/login" className="hover:text-accent transition">
+                                Login
+                            </Link>
                         </div>
                     )}
 

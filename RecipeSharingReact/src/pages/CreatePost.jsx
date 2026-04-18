@@ -1,21 +1,17 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../context/useAuth";
 
-const mockCategories = [
-  { id: 1, name: "Breakfast" },
-  { id: 2, name: "Lunch" },
-  { id: 3, name: "Dinner" },
-  { id: 4, name: "Dessert" },
-  { id: 5, name: "Vegan" },
-];
-
-const mockAllergies = [
-  { id: 1, name: "Gluten" },
-  { id: 2, name: "Lactose" },
-  { id: 3, name: "Nuts" },
-  { id: 4, name: "Eggs" },
-];
+import { createPost } from "../api/posts";
+import { getCategories } from "../api/categories";
+import { getAllergies } from "../api/allergies";
 
 export function CreatePost() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const [post, setPost] = useState({
     title: "",
     content: "",
@@ -28,15 +24,55 @@ export function CreatePost() {
     content: false,
   });
 
-  function toggleItem(field, item) {
+  const [backendError, setBackendError] = useState("");
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  });
+
+  const { data: allergies = [] } = useQuery({
+    queryKey: ["allergies"],
+    queryFn: getAllergies,
+  });
+
+  const mutation = useMutation({
+    mutationFn: createPost,
+
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["posts"]);
+      setBackendError("");
+
+      setPost({
+        title: "",
+        content: "",
+        categories: [],
+        allergies: [],
+      });
+
+      navigate(`/post/${data.id}`);
+    },
+
+    onError: (error) => {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error.message ||
+        "Something went wrong";
+
+      setBackendError(message);
+    },
+  });
+
+  function toggleItem(field, name) {
     setPost((prev) => {
-      const exists = prev[field].includes(item);
+      const exists = prev[field].includes(name);
 
       return {
         ...prev,
         [field]: exists
-          ? prev[field].filter((x) => x !== item)
-          : [...prev[field], item],
+          ? prev[field].filter((x) => x !== name)
+          : [...prev[field], name],
       };
     });
   }
@@ -48,29 +84,45 @@ export function CreatePost() {
     };
 
     setErrors(newErrors);
-
     return !newErrors.title && !newErrors.content;
   }
 
   function handleSubmit() {
     if (!validate()) return;
 
-    console.log(post);
+    if (!user?.id) {
+      setBackendError("You must be logged in to create a post.");
+      return;
+    }
 
-    setPost({
-      title: "",
-      content: "",
-      categories: [],
-      allergies: [],
+    mutation.mutate({
+      title: post.title,
+      content: post.content,
+      userId: user.id,
+
+      categoryIds: categories
+        .filter((c) => post.categories.includes(c.name))
+        .map((c) => c.id),
+
+      allergyIds: allergies
+        .filter((a) => post.allergies.includes(a.name))
+        .map((a) => a.id),
+
+      creationDate: new Date().toISOString().split("T")[0],
+      updateDate: new Date().toISOString().split("T")[0],
     });
-
-    setErrors({ title: false, content: false });
   }
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
 
       <h1 className="text-3xl font-bold">Create Post</h1>
+
+      {backendError && (
+        <div className="p-4 rounded-xl bg-red-100 text-red-700 border border-red-300">
+          {backendError}
+        </div>
+      )}
 
       <div className="space-y-4">
 
@@ -103,14 +155,14 @@ export function CreatePost() {
         {errors.content && (
           <p className="text-red-500 text-sm">Content is required</p>
         )}
-
       </div>
 
+      {/* CATEGORIES */}
       <div>
         <h2 className="text-lg font-semibold mb-3">Categories</h2>
 
         <div className="flex flex-wrap gap-2">
-          {mockCategories.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => toggleItem("categories", cat.name)}
@@ -126,11 +178,12 @@ export function CreatePost() {
         </div>
       </div>
 
+      {/* ALLERGIES */}
       <div>
         <h2 className="text-lg font-semibold mb-3">Allergies</h2>
 
         <div className="flex flex-wrap gap-2">
-          {mockAllergies.map((allergy) => (
+          {allergies.map((allergy) => (
             <button
               key={allergy.id}
               onClick={() => toggleItem("allergies", allergy.name)}
@@ -148,11 +201,11 @@ export function CreatePost() {
 
       <button
         onClick={handleSubmit}
-        className="px-6 py-3 bg-accent text-white rounded-full hover:bg-accentDark transition shadow-soft"
+        disabled={mutation.isPending}
+        className="px-6 py-3 bg-accent text-white rounded-full hover:bg-accentDark transition shadow-soft disabled:opacity-50"
       >
-        Publish Post
+        {mutation.isPending ? "Publishing..." : "Publish Post"}
       </button>
-
     </div>
   );
 }

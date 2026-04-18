@@ -1,31 +1,44 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getUserById, updateProfile } from "../api/users";
+import { getMe, getUserById, updateProfile } from "../api/users";
+import { getAllergies } from "../api/meta";
 import { ErrorMessage } from "../components/ErrorMessage";
-
-const MOCK_USER_ID = 1;
-
-const mockAllergies = [
-  "Gluten",
-  "Lactose",
-  "Nuts",
-  "Eggs",
-];
 
 export function Profile() {
   const queryClient = useQueryClient();
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState(null);
 
-  const { data, isLoading, isError, error } = useQuery({
+  const {
+    data: me,
+    isLoading: meLoading,
+    isError: meError,
+    error: meErr,
+  } = useQuery({
     queryKey: ["me"],
-    queryFn: () => getUserById(MOCK_USER_ID),
+    queryFn: getMe,
+  });
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["profile", me?.id],
+    enabled: !!me?.id,
+    queryFn: () => getUserById(me.id),
+  });
+
+  const { data: allAllergies } = useQuery({
+    queryKey: ["allergies"],
+    queryFn: getAllergies,
   });
 
   const mutation = useMutation({
-    mutationFn: (updated) => updateProfile(MOCK_USER_ID, updated),
+    mutationFn: (updated) => updateProfile(me.id, updated),
     onSuccess: (updated) => {
-      queryClient.setQueryData(["me"], updated);
+      queryClient.setQueryData(["profile", me.id], updated);
       setEditMode(false);
     },
   });
@@ -43,7 +56,10 @@ export function Profile() {
     }
   }, [data]);
 
-  if (isLoading) return <div className="p-10 text-gray-500">Loading profile...</div>;
+  if (meLoading || isLoading)
+    return <div className="p-10 text-gray-500">Loading profile...</div>;
+
+  if (meError) return <ErrorMessage message={meErr.message} />;
   if (isError) return <ErrorMessage message={error.message} />;
   if (!form) return null;
 
@@ -51,27 +67,34 @@ export function Profile() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function toggleAllergy(allergy) {
+  function toggleAllergy(allergyName) {
     setForm((prev) => {
-      const exists = prev.allergies.includes(allergy);
+      const list = prev.allergies || [];
+      const exists = list.includes(allergyName);
 
       return {
         ...prev,
         allergies: exists
-          ? prev.allergies.filter((a) => a !== allergy)
-          : [...prev.allergies, allergy],
+          ? list.filter((a) => a !== allergyName)
+          : [...list, allergyName],
       };
     });
   }
 
   function handleSave() {
+    const allergyIds =
+      allAllergies
+        ?.filter((a) => form.allergies.includes(a.name))
+        .map((a) => a.id) || [];
+
     mutation.mutate({
       login: form.login,
-      password: form.password,
+      password: form.password || null,
       country: form.country,
-      allergies: form.allergies,
-      email: form.email,
       role: form.role,
+      allergyIds,
+
+      email: form.email,
     });
   }
 
@@ -109,31 +132,43 @@ export function Profile() {
 
       <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-soft space-y-4">
 
-        <Field label="Login" value={form.login} editMode={editMode} name="login" onChange={handleChange} />
+        <Field
+          label="Login"
+          value={form.login}
+          editMode={editMode}
+          name="login"
+          onChange={handleChange}
+        />
 
         <Field label="Email" value={form.email} editMode={false} />
 
-        <Field label="Country" value={form.country} editMode={editMode} name="country" onChange={handleChange} />
+        <Field
+          label="Country"
+          value={form.country}
+          editMode={editMode}
+          name="country"
+          onChange={handleChange}
+        />
 
         <Field label="Role" value={form.role} editMode={false} />
 
-        {/* ✅ NEW ALLERGIES UI */}
         <div>
           <p className="text-sm text-gray-500">Allergies</p>
 
           {editMode ? (
             <div className="flex flex-wrap gap-2 mt-2">
-              {mockAllergies.map((a) => (
+              {allAllergies?.map((a) => (
                 <button
-                  key={a}
-                  onClick={() => toggleAllergy(a)}
+                  key={a.id}
+                  type="button"
+                  onClick={() => toggleAllergy(a.name)}
                   className={`px-3 py-1 rounded-full border text-sm transition ${
-                    form.allergies.includes(a)
+                    form.allergies.includes(a.name)
                       ? "bg-red-500 text-white border-red-500"
                       : "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                   }`}
                 >
-                  {a}
+                  {a.name}
                 </button>
               ))}
             </div>
@@ -154,9 +189,7 @@ export function Profile() {
             onChange={handleChange}
           />
         )}
-
       </div>
-
     </div>
   );
 }

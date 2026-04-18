@@ -1,63 +1,107 @@
-import { useState } from "react";
-import { register } from "../api/auth";
+import { useEffect, useState } from "react";
+import { register as registerApi, login as loginApi } from "../api/auth";
+import { getAllergies, getCountries } from "../api/meta";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 
 export function Register() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const inputClass =
+    "w-full p-3 rounded-lg border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent";
+
   const [form, setForm] = useState({
     login: "",
     email: "",
     password: "",
-    countryId: "",
+    countryCode: "",
     allergyIds: [],
   });
 
   const [error, setError] = useState("");
+  const [countries, setCountries] = useState([]);
+  const [allergies, setAllergies] = useState([]);
+  const [allergyQuery, setAllergyQuery] = useState("");
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [c, a] = await Promise.all([getCountries(), getAllergies()]);
+        setCountries(c);
+        setAllergies(a);
+      } catch {
+        setError("Failed to load form data");
+      }
+    };
 
-  const handleAllergyChange = (e) => {
-    const value = parseInt(e.target.value);
+    load();
+  }, []);
 
-    setForm((prev) => ({
-      ...prev,
-      allergyIds: prev.allergyIds.includes(value)
-        ? prev.allergyIds.filter((id) => id !== value)
-        : [...prev.allergyIds, value],
+  const handleChange = (e) =>
+    setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  const addAllergy = (id) =>
+    setForm((p) => ({
+      ...p,
+      allergyIds: p.allergyIds.includes(id)
+        ? p.allergyIds
+        : [...p.allergyIds, id],
     }));
-  };
+
+  const removeAllergy = (id) =>
+    setForm((p) => ({
+      ...p,
+      allergyIds: p.allergyIds.filter((x) => x !== id),
+    }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
-      await register(form);
-      alert("Registered successfully!");
+      // 1. register user
+      await registerApi(form);
+
+      // 2. auto-login
+      const token = await loginApi({
+        login: form.login,
+        password: form.password,
+      });
+
+      // 3. IMPORTANT: sync auth context (NO localStorage manual write)
+      login(token);
+
+      // 4. redirect
+      navigate("/");
     } catch (err) {
-      setError(err.message);
+      setError(
+        err.response?.data?.message ||
+          err.response?.data ||
+          err.message ||
+          "Registration failed"
+      );
     }
   };
 
+  const filteredAllergies = allergies.filter((a) =>
+    a.name.toLowerCase().includes(allergyQuery.toLowerCase())
+  );
+
   return (
     <div className="max-w-md mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        📝 Register
-      </h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">📝 Register</h1>
 
       {error && <ErrorMessage message={error} />}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-
         <input
           name="login"
           placeholder="Login"
           value={form.login}
           onChange={handleChange}
-          className="w-full p-3 rounded-lg border text-gray-900 dark:text-white bg-white dark:bg-gray-900"
+          className={inputClass}
           required
         />
 
@@ -67,7 +111,7 @@ export function Register() {
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full p-3 rounded-lg border text-gray-900 dark:text-white bg-white dark:bg-gray-900"
+          className={inputClass}
           required
         />
 
@@ -77,38 +121,62 @@ export function Register() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full p-3 rounded-lg border text-gray-900 dark:text-white bg-white dark:bg-gray-900"
+          className={inputClass}
           required
         />
 
-        <input
-          name="country"
-
-          placeholder="Country "
-          value={form.country}
+        <select
+          name="countryCode"
+          value={form.countryCode}
           onChange={handleChange}
-          className="w-full p-3 rounded-lg border text-gray-900 dark:text-white bg-white dark:bg-gray-900"
+          className={inputClass}
           required
-        />
+        >
+          <option value="">Select country</option>
+          {countries.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
+        </select>
 
-        {/* Optional allergies */}
         <div>
           <p className="text-sm mb-2">Allergies (optional)</p>
 
-          <label className="block">
-            <input type="checkbox" value={1} onChange={handleAllergyChange} />
-            Peanut
-          </label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {allergies
+              .filter((a) => form.allergyIds.includes(a.id))
+              .map((a) => (
+                <span
+                  key={a.id}
+                  onClick={() => removeAllergy(a.id)}
+                  className="bg-accent text-white px-2 py-1 rounded-full text-sm cursor-pointer"
+                >
+                  {a.name} ✕
+                </span>
+              ))}
+          </div>
 
-          <label className="block">
-            <input type="checkbox" value={2} onChange={handleAllergyChange} />
-            Gluten
-          </label>
+          <input
+            placeholder="Search allergies..."
+            value={allergyQuery}
+            onChange={(e) => setAllergyQuery(e.target.value)}
+            className={inputClass}
+          />
 
-          <label className="block">
-            <input type="checkbox" value={3} onChange={handleAllergyChange} />
-            Milk
-          </label>
+          <div className="border rounded-lg max-h-40 overflow-y-auto mt-2">
+            {filteredAllergies
+              .filter((a) => !form.allergyIds.includes(a.id))
+              .map((a) => (
+                <div
+                  key={a.id}
+                  onClick={() => addAllergy(a.id)}
+                  className="p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  {a.name}
+                </div>
+              ))}
+          </div>
         </div>
 
         <button

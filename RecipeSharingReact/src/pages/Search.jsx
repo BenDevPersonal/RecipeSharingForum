@@ -1,176 +1,313 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { searchPosts, searchUsers } from "../api/search";
+import { getPosts } from "../api/posts";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { useMemo } from "react";
 
 export function Search() {
-  const [params] = useSearchParams();
-  const navigate = useNavigate();
+    const [params] = useSearchParams();
+    const navigate = useNavigate();
 
-  const q = params.get("q") || "";
-  const mode = params.get("mode") || "all";
-  const category = params.get("category") || "";
-  const allergy = params.get("allergy") || "";
+    const { data: allPosts = [] } = useQuery({
+        queryKey: ["allPosts"],
+        queryFn: () => getPosts(),
+    });
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["search", q, mode, category, allergy],
-    queryFn: () => runSearch(q, mode, category, allergy),
-    enabled: !!q,
-  });
+    const q = params.get("q") || "";
+    const mode = params.get("mode") || "all";
+    const category = params.get("category") || "";
+    const allergy = params.get("allergy") || "";
 
-  function runSearch(q, mode, category, allergy) {
-    if (mode === "posts") {
-      return searchPosts(q, category, allergy).then((posts) => ({
-        posts,
-        users: [],
-      }));
+    const {
+        data = { posts: [], users: [] },
+        isLoading,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ["search", q, mode, category, allergy],
+        queryFn: () => runSearch(q, mode, category, allergy),
+        enabled: !!q,
+    });
+
+    function runSearch(q, mode, category, allergy) {
+        if (mode === "posts") {
+            return searchPosts(q, category, allergy).then((posts) => ({
+                posts: posts || [],
+                users: [],
+            }));
+        }
+
+        if (mode === "users") {
+            return searchUsers(q).then((users) => ({
+                posts: [],
+                users: users || [],
+            }));
+        }
+
+        return Promise.all([
+            searchPosts(q, category, allergy),
+            searchUsers(q),
+        ]).then(([posts, users]) => ({
+            posts: posts || [],
+            users: users || [],
+        }));
     }
 
-    if (mode === "users") {
-      return searchUsers(q).then((users) => ({
-        posts: [],
-        users,
-      }));
+    if (!q) {
+        return <div className="p-10 text-gray-500">No search query</div>;
     }
 
-    return Promise.all([
-      searchPosts(q, category, allergy),
-      searchUsers(q),
-    ]).then(([posts, users]) => ({
-      posts,
-      users,
-    }));
-  }
+    if (isLoading) {
+        return <div className="p-10 text-gray-500">Searching...</div>;
+    }
 
-  if (!q) {
-    return <div className="p-10 text-gray-500">No search query</div>;
-  }
+    if (isError) {
+        return <ErrorMessage message={error.message} />;
+    }
 
-  if (isLoading) {
-    return <div className="p-10 text-gray-500">Searching...</div>;
-  }
-
-  if (isError) {
-    return <ErrorMessage message={error.message} />;
-  }
-
-  return (
-    <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
-      <h1 className="text-2xl font-bold">
-        Results for "{q}"
-      </h1>
-
-      <SearchResults data={data} query={q} navigate={navigate} />
-    </div>
-  );
-}
-
-function SearchResults({ data, query, navigate }) {
-  const sortedPosts = useMemo(() => {
-    return [...(data.posts || [])].sort((a, b) => b.rating - a.rating);
-  }, [data.posts]);
-
-  return (
-    <>
-      <ResultSection
-        title="Posts"
-        items={sortedPosts}
-        type="post"
-        query={query}
-        navigate={navigate}
-      />
-
-      <ResultSection
-        title="Users"
-        items={data.users}
-        type="user"
-        query={query}
-        navigate={navigate}
-      />
-    </>
-  );
-}
-
-function ResultSection({ title, items, type, query, navigate }) {
-  if (!items || items.length === 0) return null;
-
-  return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">{title}</h2>
-
-      <div className="space-y-3">
-        {items.map((item) => (
-          <ResultCard
-            key={item.id}
-            item={item}
-            type={type}
-            query={query}
-            navigate={navigate}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ResultCard({ item, type, query, navigate }) {
-  function highlight(text) {
-    if (!query) return text;
-
-    const parts = String(text).split(new RegExp(`(${query})`, "gi"));
-
-    return parts.map((part, i) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span key={i} className="text-accent font-semibold">
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  }
-
-  if (type === "post") {
     return (
-      <div
-        onClick={() => navigate(`/post/${item.id}`)}
-        className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer"
-      >
-        <div className="font-semibold">{highlight(item.title)}</div>
+        <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
+            <h1 className="text-2xl font-bold">Results for "{q}"</h1>
 
-        <div className="text-sm text-gray-500 mt-1">
-          {item.author}
+            <SearchResults
+                data={data}
+                query={q}
+                navigate={navigate}
+                params={params}
+                allPosts={allPosts}
+            />
         </div>
-
-        <div className="text-yellow-500 text-sm mt-2 flex items-center gap-2">
-          {renderStars(item.rating)}
-          <span className="text-gray-500">
-            {item.rating?.toFixed?.(1) ?? item.rating}
-          </span>
-        </div>
-      </div>
     );
-  }
-
-  return (
-    <div
-      onClick={() => navigate(`/user/${item.id}`)}
-      className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer"
-    >
-      <div className="font-semibold">{highlight(item.login)}</div>
-    </div>
-  );
 }
 
-function renderStars(rating = 0) {
-  const full = Math.round(rating);
-  const empty = 5 - full;
+function getAvgRating(post) {
+    const feedbacks = post.feedbacks || [];
 
-  return (
-    <>
-      {"★".repeat(full)}
-      {"☆".repeat(empty)}
-    </>
-  );
+    if (!feedbacks.length) return 0;
+
+    return Number(
+        (
+            feedbacks.reduce((sum, f) => sum + (f.rating || 0), 0) /
+            feedbacks.length
+        ).toFixed(1)
+    );
+}
+
+function applyFilters(posts, category, allergy) {
+    const categories = category ? category.split(",").filter(Boolean) : [];
+    const allergies = allergy ? allergy.split(",").filter(Boolean) : [];
+
+    return posts.filter((post) => {
+        const postCategories = post.categories || [];
+        const postAllergies = post.allergies || [];
+
+        const categoryMatch =
+            categories.length === 0 ||
+            categories.some((c) => postCategories.includes(c));
+
+        const allergyMatch =
+            allergies.length === 0 ||
+            !allergies.some((a) => postAllergies.includes(a));
+
+        return categoryMatch && allergyMatch;
+    });
+}
+
+function SearchResults({ data, query, navigate, params, allPosts }) {
+    const sortedPosts = useMemo(() => {
+        const filtered = applyFilters(
+            data.posts,
+            params.get("category") || "",
+            params.get("allergy") || ""
+        );
+
+        return [...filtered].sort(
+            (a, b) => getAvgRating(b) - getAvgRating(a)
+        );
+    }, [data.posts, params]);
+
+    return (
+        <>
+            <ResultSection
+                title="Posts"
+                items={sortedPosts}
+                type="post"
+                query={query}
+                navigate={navigate}
+            />
+
+            <ResultSection
+                title="Users"
+                items={data.users}
+                type="user"
+                query={query}
+                navigate={navigate}
+                allPosts={allPosts}
+            />
+        </>
+    );
+}
+
+function ResultSection({ title, items, type, query, navigate, allPosts }) {
+    if (!items || items.length === 0) return null;
+
+    return (
+        <div className="space-y-4">
+            <h2 className="text-xl font-semibold">{title}</h2>
+
+            <div className="space-y-3">
+                {items.map((item) => (
+                    <ResultCard
+                        key={item.id}
+                        item={item}
+                        type={type}
+                        query={query}
+                        navigate={navigate}
+                        allPosts={allPosts}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function ResultCard({ item, type, query, navigate, allPosts = [] }) {
+    function highlight(text) {
+        if (!query) return text;
+
+        const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const parts = String(text).split(new RegExp(`(${safeQuery})`, "gi"));
+
+        return parts.map((part, i) =>
+            part.toLowerCase() === query.toLowerCase() ? (
+                <span key={i} className="text-accent font-semibold">
+                    {part}
+                </span>
+            ) : (
+                part
+            )
+        );
+    }
+
+    if (type === "post") {
+        const avg = getAvgRating(item);
+
+        const isEdited =
+            item.updateDate && item.creationDate
+                ? item.updateDate !== item.creationDate
+                : false;
+
+        return (
+            <div
+                onClick={() => navigate(`/post/${item.id}`)}
+                className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer space-y-2"
+            >
+                <div className="font-semibold">{highlight(item.title)}</div>
+
+                <div className="text-sm text-gray-500">
+                    by {item.author}
+                </div>
+
+                <div className="flex items-center gap-2">
+                    {avg ? (
+                        <span className="text-sm px-3 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300">
+                            {avg} ★
+                        </span>
+                    ) : (
+                        <span className="text-sm text-gray-400">No ratings</span>
+                    )}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    {item.categories?.map((c) => (
+                        <span
+                            key={c}
+                            className="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                        >
+                            {c}
+                        </span>
+                    ))}
+
+                    {item.allergies?.map((a) => (
+                        <span
+                            key={a}
+                            className="text-xs px-2 py-1 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
+                        >
+                            {a}
+                        </span>
+                    ))}
+                </div>
+
+                <div className="text-xs text-gray-500 flex gap-2">
+                    <span>Created: {item.creationDate}</span>
+                    {isEdited && <span>(edited)</span>}
+                </div>
+            </div>
+        );
+    }
+
+    const userPosts = allPosts.filter((p) => p.authorId === item.id);
+
+    const now = Date.now();
+
+    const ratings = userPosts.flatMap((p) => {
+        const postTime = new Date(p.creationDate).getTime();
+
+        const weight = 1 / (1 + (now - postTime) / (1000 * 60 * 60 * 24 * 30));
+
+        return (p.feedbacks || []).map((f) => ({
+            rating: f.rating || 0,
+            weight,
+        }));
+    });
+
+    let reputation = 0;
+    let avg = 0;
+
+    if (ratings.length) {
+        const weightedSum = ratings.reduce(
+            (sum, r) => sum + r.rating * r.weight,
+            0
+        );
+
+        const weightSum = ratings.reduce(
+            (sum, r) => sum + r.weight,
+            0
+        );
+
+        avg = weightedSum / weightSum;
+
+        const diff = avg - 2.5;
+
+        reputation = Math.round(diff * ratings.length);
+    }
+
+    let badge = "Newbie";
+
+    if (reputation > 50) badge = "Chef Legend 👑";
+    else if (reputation > 20) badge = "Master Cook 🔥";
+    else if (reputation > 5) badge = "Skilled Cook 👨‍🍳";
+    else if (reputation >= 1) badge = "Home Cook";
+    else if (reputation == 0) badge = "Newbie";
+    else badge = "Burnt Toast 💀";
+
+    return (
+        <div
+            onClick={() => navigate(`/user/${item.id}`)}
+            className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer space-y-1"
+        >
+            <div className="font-semibold">{highlight(item.login)}</div>
+
+            <div className="inline-flex w-fit text-xs px-2 py-1 rounded-full 
+            text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900
+            border border-green-200 dark:border-green-300">
+                {badge}
+            </div>
+
+            <div className="text-xs text-gray-500">
+                Reputation: {reputation}
+            </div>
+        </div>
+    );
 }
