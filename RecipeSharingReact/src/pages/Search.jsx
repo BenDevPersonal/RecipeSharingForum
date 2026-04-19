@@ -4,6 +4,7 @@ import { searchPosts, searchUsers } from "../api/search";
 import { getPosts } from "../api/posts";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { SkeletonSection } from "../components/Skeleton";
+import { highlightParts } from "../utils/highlight"
 import { useMemo } from "react";
 
 export function Search() {
@@ -60,17 +61,17 @@ export function Search() {
     }
 
     if (isLoading) {
-    return (
-        <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
-            <h1 className="text-2xl font-bold">Searching "{q}"...</h1>
+        return (
+            <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
+                <h1 className="text-2xl font-bold">Searching "{q}"...</h1>
 
-            <div className="space-y-6">
-                <SkeletonSection title="Posts" />
-                <SkeletonSection title="Users" />
+                <div className="space-y-6">
+                    <SkeletonSection title="Posts" />
+                    <SkeletonSection title="Users" />
+                </div>
             </div>
-        </div>
-    );
-}
+        );
+    }
 
     if (isError) {
         return <ErrorMessage message={error.message} />;
@@ -183,23 +184,6 @@ function ResultSection({ title, items, type, query, navigate, allPosts }) {
 }
 
 function ResultCard({ item, type, query, navigate, allPosts = [] }) {
-    function highlight(text) {
-        if (!query) return text;
-
-        const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const parts = String(text).split(new RegExp(`(${safeQuery})`, "gi"));
-
-        return parts.map((part, i) =>
-            part.toLowerCase() === query.toLowerCase() ? (
-                <span key={i} className="text-accent font-semibold">
-                    {part}
-                </span>
-            ) : (
-                part
-            )
-        );
-    }
-
     if (type === "post") {
         const avg = getAvgRating(item);
 
@@ -207,6 +191,18 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
             item.updateDate && item.creationDate
                 ? item.updateDate !== item.creationDate
                 : false;
+
+        function highlight(text, query) {
+            return highlightParts(text, query).map((part, i) =>
+                part.match ? (
+                    <span key={i} className="text-accent font-semibold">
+                        {part.text}
+                    </span>
+                ) : (
+                    part.text
+                )
+            );
+        }
 
         return (
             <div

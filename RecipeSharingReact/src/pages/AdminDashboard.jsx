@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SkeletonSection } from "../components/Skeleton";
 import { DropdownMenu } from "../components/DropdownMenu";
+import { highlightParts } from "../utils/highlight";
 import { getMe, getUsers, updateProfile, deleteUser } from "../api/users";
 import { getPosts, deletePost } from "../api/posts";
 import { getFeedbacks, deleteFeedback } from "../api/feedbacks";
@@ -154,6 +155,18 @@ function UsersTab() {
     };
   }
 
+  function highlight(text, query) {
+    return highlightParts(text, query).map((part, i) =>
+      part.match ? (
+        <span key={i} className="text-accent font-semibold">
+          {part.text}
+        </span>
+      ) : (
+        part.text
+      )
+    );
+  }
+
   if (isLoading) return <SkeletonSection title="Users" />;
 
   if (!users.length)
@@ -175,7 +188,7 @@ function UsersTab() {
                 <span
                   onClick={() => navigate(`/user/${u.id}`)}
                   className="font-semibold text-lg cursor-pointer hover:underline w-fit"
-                >{u.login}
+                >{highlight(u.login, search)}
                 </span>
               </div>
 
@@ -253,6 +266,18 @@ function PostsTab() {
     );
   }
 
+  function highlight(text, query) {
+    return highlightParts(text, query).map((part, i) =>
+      part.match ? (
+        <span key={i} className="text-accent font-semibold">
+          {part.text}
+        </span>
+      ) : (
+        part.text
+      )
+    );
+  }
+
   if (isLoading) return <SkeletonSection title="Posts" />;
 
   return (
@@ -282,7 +307,7 @@ function PostsTab() {
                   onClick={() => navigate(`/post/${p.id}`)}
                   className="font-semibold cursor-pointer hover:underline w-fit"
                 >
-                  {p.title}
+                  {highlight(p.title, search)}
                 </div>
 
                 {/* AUTHOR */}
@@ -551,6 +576,18 @@ function FeedbacksTab() {
     String(f.postId).includes(search)
   );
 
+  function highlight(text, query) {
+    return highlightParts(text, query).map((part, i) =>
+      part.match ? (
+        <span key={i} className="text-accent font-semibold">
+          {part.text}
+        </span>
+      ) : (
+        part.text
+      )
+    );
+  }
+
   if (isLoading) return <SkeletonSection title="Feedbacks" />;
 
   return (
@@ -573,7 +610,7 @@ function FeedbacksTab() {
                 </span>
               </div>
               <div className="font-semibold">
-                Content: {f.content}
+                Content: {highlight(f.content, search)}
               </div>
               <div className="text-xs text-gray-500">
                 <span
