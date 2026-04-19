@@ -2,6 +2,7 @@ package com.pogany.RecipeSharingJava.service;
 
 import com.pogany.RecipeSharingJava.dto.*;
 import com.pogany.RecipeSharingJava.entity.*;
+import com.pogany.RecipeSharingJava.enums.NotificationType;
 import com.pogany.RecipeSharingJava.exception.ResourceNotFoundException;
 import com.pogany.RecipeSharingJava.repository.*;
 import org.springframework.security.core.Authentication;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PostService {
@@ -20,19 +22,15 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private final AllergyRepository allergyRepository;
     private final FeedbackRepository feedbackRepository;
+    private NotificationService notificationService;
 
-    public PostService(
-            UserRepository userRepository,
-            PostRepository postRepository,
-            CategoryRepository categoryRepository,
-            AllergyRepository allergyRepository,
-            FeedbackRepository feedbackRepository
-    ) {
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-        this.categoryRepository = categoryRepository;
-        this.allergyRepository = allergyRepository;
+    public PostService(NotificationService notificationService, FeedbackRepository feedbackRepository, AllergyRepository allergyRepository, CategoryRepository categoryRepository, PostRepository postRepository, UserRepository userRepository) {
+        this.notificationService = notificationService;
         this.feedbackRepository = feedbackRepository;
+        this.allergyRepository = allergyRepository;
+        this.categoryRepository = categoryRepository;
+        this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
     private User getCurrentUser() {
@@ -142,8 +140,25 @@ public class PostService {
             throw new IllegalArgumentException("You cannot delete someone else's post");
         }
 
+        User postOwner = post.getUser();
+        String postTitle = post.getTitle();
+
         postRepository.delete(post);
+
+        CreateNotificationRequest req = new CreateNotificationRequest();
+        req.setType(NotificationType.POST_DELETED);
+        req.setPostId(null);
+        req.setMetadata(Map.of(
+                "postTitle", postTitle,
+                "actorName", currentUser.getLogin()
+        ));
+
+        notificationService.create(
+                postOwner.getId(),
+                req
+        );
     }
+
 
     private PostDto toDto(Post post) {
 

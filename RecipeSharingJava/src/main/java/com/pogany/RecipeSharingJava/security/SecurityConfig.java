@@ -1,4 +1,4 @@
-package com.pogany.RecipeSharingJava.config;
+package com.pogany.RecipeSharingJava.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/posts/**").permitAll()
                         .requestMatchers("/api/recipes/**").permitAll()
+                        .requestMatchers("/api/notifications/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
@@ -68,7 +69,7 @@ public class SecurityConfig {
         ));
 
         config.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS"
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
         ));
 
         config.setAllowedHeaders(List.of("*"));

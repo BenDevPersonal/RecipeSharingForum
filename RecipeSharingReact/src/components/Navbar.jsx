@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "./ThemeProvider";
+import { NotificationBell } from "./NotificationBell";
 import { useAuth } from "../context/useAuth";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +19,7 @@ export function Navbar() {
         enabled: isAuth,
     });
 
-    const canAccessAdmin = isAuth && ["admin", "manager"].includes(me?.role);
+    const canAccessAdmin = isAuth && ["admin", "manager", "moderator"].includes(me?.role);
 
     const [query, setQuery] = useState("");
     const [showFilters, setShowFilters] = useState(false);
@@ -210,6 +211,8 @@ export function Navbar() {
                             Admin
                         </Link>
                     )}
+
+                    {isAuth && <NotificationBell />}
 
                     {!isAuth && (
                         <div className="flex items-center gap-4">
