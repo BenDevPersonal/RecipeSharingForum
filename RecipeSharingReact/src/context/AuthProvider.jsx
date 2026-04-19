@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
 
   const isAuth = !!token;
 
+  // LOGIN
   const login = useCallback((newToken) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);

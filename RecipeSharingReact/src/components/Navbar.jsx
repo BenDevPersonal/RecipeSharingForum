@@ -5,11 +5,20 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCategories } from "../api/categories";
 import { getAllergies } from "../api/allergies";
+import { getMe } from "../api/users";
 
 export function Navbar() {
     const { toggleTheme, darkMode } = useTheme();
     const { isAuth, logout } = useAuth();
     const navigate = useNavigate();
+
+    const { data: me } = useQuery({
+        queryKey: ["me"],
+        queryFn: getMe,
+        enabled: isAuth,
+    });
+
+    const canAccessAdmin = isAuth && ["admin", "manager"].includes(me?.role);
 
     const [query, setQuery] = useState("");
     const [showFilters, setShowFilters] = useState(false);
@@ -34,8 +43,8 @@ export function Navbar() {
         if (!query.trim()) return;
 
         navigate(
-    `/search?q=${query}&mode=${mode}&category=${categories.join(",")}&allergy=${allergies.join(",")}`
-);
+            `/search?q=${query}&mode=${mode}&category=${categories.join(",")}&allergy=${allergies.join(",")}`
+        );
 
         setShowFilters(false);
     }
@@ -126,11 +135,10 @@ export function Navbar() {
                     )}
 
                     <div
-                        className={`absolute top-14 left-1/2 -translate-x-1/2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-4 space-y-4 z-50 transition-all duration-200 origin-top ${
-                            showFilters
-                                ? "opacity-100 scale-100"
-                                : "opacity-0 scale-95 pointer-events-none"
-                        }`}
+                        className={`absolute top-14 left-1/2 -translate-x-1/2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-4 space-y-4 z-50 transition-all duration-200 origin-top ${showFilters
+                            ? "opacity-100 scale-100"
+                            : "opacity-0 scale-95 pointer-events-none"
+                            }`}
                     >
 
                         <div>
@@ -140,11 +148,10 @@ export function Navbar() {
                                     <button
                                         key={m}
                                         onClick={() => setMode(m)}
-                                        className={`px-3 py-1 rounded-full text-xs border ${
-                                            mode === m
-                                                ? "bg-accent text-white"
-                                                : "bg-gray-100 dark:bg-gray-800"
-                                        }`}
+                                        className={`px-3 py-1 rounded-full text-xs border ${mode === m
+                                            ? "bg-accent text-white"
+                                            : "bg-gray-100 dark:bg-gray-800"
+                                            }`}
                                     >
                                         {m}
                                     </button>
@@ -159,11 +166,10 @@ export function Navbar() {
                                     <button
                                         key={c.id}
                                         onClick={() => toggleMulti(setCategories, categories, c.name)}
-                                        className={`px-3 py-1 rounded-full text-xs border ${
-                                            categories.includes(c.name)
-                                                ? "bg-accent text-white"
-                                                : "bg-gray-100 dark:bg-gray-800"
-                                        }`}
+                                        className={`px-3 py-1 rounded-full text-xs border ${categories.includes(c.name)
+                                            ? "bg-accent text-white"
+                                            : "bg-gray-100 dark:bg-gray-800"
+                                            }`}
                                     >
                                         {c.name}
                                     </button>
@@ -178,11 +184,10 @@ export function Navbar() {
                                     <button
                                         key={a.id}
                                         onClick={() => toggleMulti(setAllergies, allergies, a.name)}
-                                        className={`px-3 py-1 rounded-full text-xs border ${
-                                            allergies.includes(a.name)
-                                                ? "bg-red-500 text-white"
-                                                : "bg-gray-100 dark:bg-gray-800"
-                                        }`}
+                                        className={`px-3 py-1 rounded-full text-xs border ${allergies.includes(a.name)
+                                            ? "bg-red-500 text-white"
+                                            : "bg-gray-100 dark:bg-gray-800"
+                                            }`}
                                     >
                                         {a.name}
                                     </button>
@@ -196,6 +201,15 @@ export function Navbar() {
                 <div className="flex items-center gap-6 text-sm font-medium">
                     <Link to="/" className="hover:text-accent transition">Home</Link>
                     <Link to="/profile" className="hover:text-accent transition">Profile</Link>
+
+                    {canAccessAdmin && (
+                        <Link
+                            to="/admin"
+                            className="hover:text-accent transition"
+                        >
+                            Admin
+                        </Link>
+                    )}
 
                     {!isAuth && (
                         <div className="flex items-center gap-4">
@@ -226,14 +240,12 @@ function ThemeToggle({ darkMode, toggleTheme, className }) {
     return (
         <button
             onClick={toggleTheme}
-            className={`relative inline-flex items-center w-14 h-7 rounded-full transition-colors duration-300 ${
-                darkMode ? "bg-accent" : "bg-gray-300"
-            } ${className}`}
+            className={`relative inline-flex items-center w-14 h-7 rounded-full transition-colors duration-300 ${darkMode ? "bg-accent" : "bg-gray-300"
+                } ${className}`}
         >
             <span
-                className={`absolute left-1 top-1 w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 flex items-center justify-center text-xs ${
-                    darkMode ? "translate-x-7" : ""
-                }`}
+                className={`absolute left-1 top-1 w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 flex items-center justify-center text-xs ${darkMode ? "translate-x-7" : ""
+                    }`}
             >
                 {darkMode ? "🌙" : "☀️"}
             </span>

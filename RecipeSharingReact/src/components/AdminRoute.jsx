@@ -21,7 +21,9 @@ export function AdminRoute({ children }) {
         return <div className="p-10 text-gray-500">Checking permissions...</div>;
     }
 
-    if (!user || user.role !== "admin") {
+    const allowedRoles = ["admin", "manager"];
+
+    if (!user || !allowedRoles.includes(user.role)) {
         return <Navigate to="/" replace />;
     }
 
