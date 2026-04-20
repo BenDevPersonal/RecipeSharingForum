@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getMyNotifications,
   getUnreadCount,
@@ -9,6 +9,7 @@ import {
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const wrapperRef = useRef(null);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications"],
@@ -23,22 +24,45 @@ export function NotificationBell() {
   const markAllMutation = useMutation({
     mutationFn: markAllAsRead,
     onSuccess: () => {
-      queryClient.invalidateQueries(["notifications"]);
-      queryClient.invalidateQueries(["notifications-unread"]);
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications-unread"] });
     }
   });
 
+  // ✅ close on ESC + outside click
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    function handleClickOutside(e) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={wrapperRef}>
       {/* Bell */}
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen(prev => !prev)}
         className="relative text-xl hover:text-accent"
       >
         🔔
 
         {unread > 0 && (
-          <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] px-1 rounded-full">
+          <span className="relative -top-3 -left-1 bg-red-500 text-white text-[10px] px-1 rounded-full">
             {unread}
           </span>
         )}
