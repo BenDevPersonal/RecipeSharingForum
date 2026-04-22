@@ -5,6 +5,7 @@ import com.pogany.RecipeSharingJava.dto.PostDto;
 import com.pogany.RecipeSharingJava.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -37,10 +38,13 @@ public class PostController {
         return postService.search(q, category, allergy);
     }
 
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
-    public PostDto createPost(@RequestBody CreatePostRequest request) {
-        return postService.createPost(request);
+    public PostDto createPost(
+            @RequestPart("data") CreatePostRequest request,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
+    ) {
+        return postService.createPost(request, images);
     }
 
     @PutMapping("/update/{id}")

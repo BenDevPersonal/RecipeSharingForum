@@ -15,6 +15,7 @@ public class PostDto {
     private List<String> allergies;
     private List<String> categories;
     private List<FeedbackDto> feedbacks;
+    private List<String> images;
 
     public PostDto() {
     }
@@ -29,7 +30,8 @@ public class PostDto {
             LocalDate updateDate,
             List<String> allergies,
             List<String> categories,
-            List<FeedbackDto> feedbacks
+            List<FeedbackDto> feedbacks,
+            List<String> images
     ) {
         this.id = id;
         this.authorId = authorId;
@@ -41,6 +43,7 @@ public class PostDto {
         this.allergies = allergies;
         this.categories = categories;
         this.feedbacks = feedbacks;
+        this.images = images;
     }
 
     public Integer getId() {
@@ -81,5 +84,8 @@ public class PostDto {
 
     public List<FeedbackDto> getFeedbacks() {
         return feedbacks;
+    }
+    public List<String> getImages() {
+        return images;
     }
 }

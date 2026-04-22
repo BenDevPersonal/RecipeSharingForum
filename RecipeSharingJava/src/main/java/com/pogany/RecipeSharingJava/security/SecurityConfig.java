@@ -1,4 +1,4 @@
-package com.pogany.RecipeSharingJava.config;
+package com.pogany.RecipeSharingJava.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/posts/**").permitAll()
                         .requestMatchers("/api/recipes/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()

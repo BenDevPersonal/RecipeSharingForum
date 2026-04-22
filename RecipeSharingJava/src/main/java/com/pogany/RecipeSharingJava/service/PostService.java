@@ -7,7 +7,12 @@ import com.pogany.RecipeSharingJava.repository.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,19 +25,23 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private final AllergyRepository allergyRepository;
     private final FeedbackRepository feedbackRepository;
+    private final PostImageRepository postImageRepository;
 
     public PostService(
             UserRepository userRepository,
             PostRepository postRepository,
             CategoryRepository categoryRepository,
             AllergyRepository allergyRepository,
-            FeedbackRepository feedbackRepository
-    ) {
+            FeedbackRepository feedbackRepository,
+            PostImageRepository postImageRepository
+
+            ) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
         this.allergyRepository = allergyRepository;
         this.feedbackRepository = feedbackRepository;
+        this.postImageRepository = postImageRepository;
     }
 
     private User getCurrentUser() {
@@ -69,7 +78,7 @@ public class PostService {
                 .toList();
     }
 
-    public PostDto createPost(CreatePostRequest request) {
+    public PostDto createPost(CreatePostRequest request, List<MultipartFile> images) {
 
         User user = getCurrentUser();
 
@@ -83,6 +92,8 @@ public class PostService {
         post.setAllergies(new ArrayList<>());
         post.setCategories(new ArrayList<>());
 
+
+
         if (request.getAllergyIds() != null) {
             post.getAllergies().addAll(
                     allergyRepository.findAllById(request.getAllergyIds())
@@ -93,6 +104,27 @@ public class PostService {
             post.getCategories().addAll(
                     categoryRepository.findAllById(request.getCategoryIds())
             );
+        }
+
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile file : images) {
+                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+
+                Path path = Paths.get("RecipeSharingForum/post_images/" + fileName);
+
+                try {
+                    Files.createDirectories(path.getParent());
+                    Files.write(path, file.getBytes());
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to save image", e);
+                }
+
+                PostImage img = new PostImage();
+                img.setPost(post);
+                img.setImageUrl(fileName);
+
+                postImageRepository.save(img);
+            }
         }
 
         return toDto(postRepository.save(post));
@@ -161,6 +193,12 @@ public class PostService {
                 ))
                 .toList();
 
+        List<String> images = post.getImages()
+                .stream()
+                .map(PostImage::getImageUrl)
+                .toList();
+
+
         return new PostDto(
                 post.getId(),
                 user.getId(),
@@ -171,7 +209,8 @@ public class PostService {
                 post.getUpdateDate(),
                 post.getAllergies().stream().map(Allergy::getName).toList(),
                 post.getCategories().stream().map(Category::getName).toList(),
-                feedbacks
+                feedbacks,
+                images
         );
     }
 }

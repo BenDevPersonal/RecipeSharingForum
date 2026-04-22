@@ -10,13 +10,41 @@ export const getPosts = async () => {
   return res.data;
 };
 
-export const createPost = async (data) => {
-  const res = await api.post(`/api/posts`, data);
+export const createPost = async (data, images) => {
+  const formData = new FormData();
+
+  // JSON part (post data)
+  formData.append(
+    "data",
+    new Blob([JSON.stringify(data)], { type: "application/json" })
+  );
+
+  // images part
+  if (images && images.length > 0) {
+    images.forEach((img) => {
+      formData.append("images", img);
+    });
+  }
+
+  const res = await api.post("/api/posts", formData);
   return res.data;
 };
 
-export const updatePost = async (id, data) => {
-  const res = await api.put(`/api/posts/update/${id}`, data);
+export const updatePost = async (id, data, images) => {
+  const formData = new FormData();
+
+  formData.append(
+    "data",
+    new Blob([JSON.stringify(data)], { type: "application/json" })
+  );
+
+  if (images && images.length > 0) {
+    images.forEach((img) => {
+      formData.append("images", img);
+    });
+  }
+
+  const res = await api.put(`/api/posts/update/${id}`, formData);
   return res.data;
 };
 
