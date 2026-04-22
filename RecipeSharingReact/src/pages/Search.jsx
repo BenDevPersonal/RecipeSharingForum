@@ -1,7 +1,8 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import { searchPosts, searchUsers } from "../api/search";
 import { getPosts } from "../api/posts";
+import { getBlacklists, isBlacklistedUser } from "../api/blacklist";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { SkeletonSection } from "../components/Skeleton";
 import { highlightParts } from "../utils/highlight"
@@ -14,6 +15,11 @@ export function Search() {
     const { data: allPosts = [] } = useQuery({
         queryKey: ["allPosts"],
         queryFn: () => getPosts(),
+    });
+
+    const blacklistedIds = useQuery({
+        queryKey: ["blacklist-all"],
+        queryFn: () => getBlacklists()
     });
 
     const q = params.get("q") || "";
@@ -31,6 +37,10 @@ export function Search() {
         queryFn: () => runSearch(q, mode, category, allergy),
         enabled: !!q,
     });
+
+    function filterBlacklistedPosts(posts, blacklistedIds = []) {
+        return posts.filter((post) => !blacklistedIds.includes(post.authorId));
+    }
 
     function runSearch(q, mode, category, allergy) {
         if (mode === "posts") {
@@ -184,6 +194,18 @@ function ResultSection({ title, items, type, query, navigate, allPosts }) {
 }
 
 function ResultCard({ item, type, query, navigate, allPosts = [] }) {
+    function highlight(text, q) {
+        return highlightParts(text, q).map((part, i) =>
+            part.match ? (
+                <span key={i} className="text-accent font-semibold">
+                    {part.text}
+                </span>
+            ) : (
+                part.text
+            )
+        );
+    }
+
     if (type === "post") {
         const avg = getAvgRating(item);
 
@@ -192,24 +214,12 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
                 ? item.updateDate !== item.creationDate
                 : false;
 
-        function highlight(text, query) {
-            return highlightParts(text, query).map((part, i) =>
-                part.match ? (
-                    <span key={i} className="text-accent font-semibold">
-                        {part.text}
-                    </span>
-                ) : (
-                    part.text
-                )
-            );
-        }
-
         return (
             <div
                 onClick={() => navigate(`/post/${item.id}`)}
                 className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer space-y-2"
             >
-                <div className="font-semibold">{highlight(item.title)}</div>
+                <div className="font-semibold">{highlight(item.title, query)}</div>
 
                 <div className="text-sm text-gray-500">
                     by {item.author}
@@ -303,7 +313,7 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
             onClick={() => navigate(`/user/${item.id}`)}
             className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer space-y-1"
         >
-            <div className="font-semibold">{highlight(item.login)}</div>
+            <div className="font-semibold">{highlight(item.login, query)}</div>
 
             <div className="inline-flex w-fit text-xs px-2 py-1 rounded-full 
             text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900

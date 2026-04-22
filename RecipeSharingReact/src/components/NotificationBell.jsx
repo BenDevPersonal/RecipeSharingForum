@@ -89,7 +89,7 @@ export function NotificationBell() {
               notifications.map(n => (
                 <div
                   key={n.id}
-                  className={`p-3 text-sm border-b border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                  className={`p-3 text-sm border-t border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 ${
                     !n.read ? "font-semibold" : "opacity-70"
                   }`}
                 >

@@ -1,25 +1,139 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getUserById } from "../api/users";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getUserById, getMe } from "../api/users";
 import { getPosts } from "../api/posts";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { computeReputation, getBadge } from "../utils/reputation";
+import { followUser, unfollowUser, isFollowingUser, getFollowerCount } from "../api/follows";
+import { blacklistUser, unblacklistUser, isBlacklistedUser } from "../api/blacklist";
 
 export function User() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
+    // USER
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ["user", id],
         queryFn: () => getUserById(id),
     });
 
+    // POSTS
     const { data: posts } = useQuery({
         queryKey: ["userPosts", id],
         queryFn: () => getPosts(),
         select: (data) => data.filter((p) => p.authorId === Number(id)),
     });
 
+    // ME
+    const { data: me } = useQuery({
+        queryKey: ["me"],
+        queryFn: getMe,
+    });
+
+    // RELATIONSHIP STATE
+    const { data: isFollowing = false } = useQuery({
+        queryKey: ["isFollowing", id],
+        queryFn: () => isFollowingUser(id),
+        enabled: !!id,
+    });
+
+    const { data: isBlacklisted = false } = useQuery({
+        queryKey: ["isBlacklisted", id],
+        queryFn: () => isBlacklistedUser(id),
+        enabled: !!id,
+    });
+
+    // COUNT
+
+    const { data: followerCount = 0 } = useQuery({
+        queryKey: ["followers", id],
+        queryFn: () => getFollowerCount(id),
+        enabled: !!id,
+    });
+
+    const isBlocked = isBlacklisted;
+
+    // MUTATIONS
+    const followMutation = useMutation({
+        mutationFn: followUser,
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ["isFollowing", id] });
+
+            const prev = queryClient.getQueryData(["isFollowing", id]);
+
+            queryClient.setQueryData(["isFollowing", id], true);
+
+            return { prev };
+        },
+        onError: (_err, _vars, ctx) => {
+            queryClient.setQueryData(["isFollowing", id], ctx.prev);
+        },
+        onSuccess: () => {
+            queryClient.setQueryData(["followers", id], (old = 0) => old + 1);
+        }
+    });
+
+    const unfollowMutation = useMutation({
+        mutationFn: unfollowUser,
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ["isFollowing", id] });
+
+            const prev = queryClient.getQueryData(["isFollowing", id]);
+
+            queryClient.setQueryData(["isFollowing", id], false);
+
+            return { prev };
+        },
+        onError: (_err, _vars, ctx) => {
+            queryClient.setQueryData(["isFollowing", id], ctx.prev);
+        },
+        onSuccess: () => {
+            queryClient.setQueryData(["followers", id], (old = 0) =>
+                Math.max(0, old - 1)
+            );
+        }
+    });
+
+    const blacklistMutation = useMutation({
+        mutationFn: blacklistUser,
+        onMutate: async () => {
+            const prevFollow = queryClient.getQueryData(["isFollowing", id]);
+            const prevBlock = queryClient.getQueryData(["isBlacklisted", id]);
+
+            queryClient.setQueryData(["isBlacklisted", id], true);
+            queryClient.setQueryData(["isFollowing", id], false);
+
+            return { prevFollow, prevBlock };
+        },
+        onError: (_err, _vars, ctx) => {
+            queryClient.setQueryData(["isBlacklisted", id], ctx.prevBlock);
+            queryClient.setQueryData(["isFollowing", id], ctx.prevFollow);
+        },
+        onSuccess: () => {
+            queryClient.setQueryData(["followers", id], (old = 0) =>
+                Math.max(0, old - 1)
+            );
+        }
+    });
+
+    const unblacklistMutation = useMutation({
+        mutationFn: unblacklistUser,
+        onMutate: async () => {
+            const prev = queryClient.getQueryData(["isBlacklisted", id]);
+
+            queryClient.setQueryData(["isBlacklisted", id], false);
+
+            return { prev };
+        },
+        onError: (_err, _vars, ctx) => {
+            queryClient.setQueryData(["isBlacklisted", id], ctx.prev);
+        }
+    });
+
+    const isMe = me?.id === Number(id);
+
+    // LOADING / ERROR
     if (isLoading) {
         return (
             <div className="max-w-2xl mx-auto px-6 py-10 space-y-6 animate-pulse">
@@ -42,6 +156,48 @@ export function User() {
                 {data.login}
             </h1>
 
+            {/* ACTION BUTTONS */}
+            {!isMe && (
+                <div className="flex gap-3">
+
+                    {/* FOLLOW / UNFOLLOW */}
+                    <button
+                        disabled={followMutation.isPending || unfollowMutation.isPending || isBlacklisted}
+                        onClick={() =>
+                            isFollowing
+                                ? unfollowMutation.mutate(data.id)
+                                : followMutation.mutate(data.id)
+                        }
+                        className={`px-4 py-2 rounded-xl text-white transition ${isBlacklisted
+                            ? "bg-gray-500 hover:bg-gray-600 cursor-not-allowed"
+                            : isFollowing
+                                ? "bg-gray-500 hover:bg-gray-600"
+                                : "bg-accent hover:opacity-90"
+                            } disabled:opacity-50`}
+                    >
+                        {isFollowing ? "Unfollow" : "Follow"}
+                    </button>
+
+                    {/* BLACKLIST / UNBLACKLIST */}
+                    <button
+                        disabled={blacklistMutation.isPending || unblacklistMutation.isPending}
+                        onClick={() =>
+                            isBlacklisted
+                                ? unblacklistMutation.mutate(data.id)
+                                : blacklistMutation.mutate(data.id)
+                        }
+                        className={`px-4 py-2 rounded-xl text-white transition ${isBlacklisted
+                            ? "bg-gray-600 hover:bg-gray-700"
+                            : "bg-red-500 hover:opacity-90"
+                            } disabled:opacity-50`}
+                    >
+                        {isBlacklisted ? "Unblacklist" : "Blacklist"}
+                    </button>
+
+                </div>
+            )}
+
+            {/* USER INFO */}
             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl space-y-3 border border-gray-100 dark:border-gray-800">
                 <div className="items-center gap-2 mt-2">
                     <span className="font-semibold">Badge: </span>
@@ -55,6 +211,8 @@ export function User() {
                         Reputation: {reputation}
                     </div>
                 </div>
+
+                <p><span className="font-semibold">Followers:</span> {followerCount}</p>
                 <p><span className="font-semibold">Country:</span> {data.country}</p>
                 <p><span className="font-semibold">Role:</span> {data.role}</p>
 
@@ -74,6 +232,7 @@ export function User() {
                 </div>
             </div>
 
+            {/* POSTS */}
             <div className="space-y-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     Posts

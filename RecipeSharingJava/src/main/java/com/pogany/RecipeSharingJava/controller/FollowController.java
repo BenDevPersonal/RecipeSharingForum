@@ -25,6 +25,14 @@ public class FollowController {
     @GetMapping("/{id}")
     public FollowDto getFollowById(@PathVariable Integer id) { return followService.findById(id); }
 
+    @GetMapping("/is-following/{id}")
+    public boolean isFollowing(@PathVariable Integer id) { return followService.isFollowing(id); }
+
+    @GetMapping("/count/{id}")
+    public long getFollowerCount(@PathVariable Integer id) {
+        return followService.getFollowerCount(id);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public FollowDto createFollow(@RequestBody CreateFollowRequest request) { return followService.create(request); }
@@ -36,4 +44,8 @@ public class FollowController {
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteFollow(@PathVariable Integer id) { followService.delete(id); }
+
+    @DeleteMapping("/user/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void unfollowUser(@PathVariable Integer id) { followService.unfollowUser(id); }
 }

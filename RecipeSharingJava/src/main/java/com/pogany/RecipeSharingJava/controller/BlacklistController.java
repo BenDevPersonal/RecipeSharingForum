@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/blacklists")
+@RequestMapping("/api/blacklist")
 public class BlacklistController {
     private BlacklistService blacklistService;
 
@@ -25,6 +25,9 @@ public class BlacklistController {
     @GetMapping("/{id}")
     public BlacklistDto getBlacklistById(@PathVariable Integer id) { return blacklistService.findById(id); }
 
+    @GetMapping("/is-blacklisted/{id}")
+    public boolean isBlacklisted(@PathVariable Integer id) { return blacklistService.isBlacklisted(id); }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BlacklistDto createBlacklist(@RequestBody CreateBlacklistRequest request) { return blacklistService.create(request); }
@@ -38,4 +41,8 @@ public class BlacklistController {
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteBlacklist(@PathVariable Integer id) { blacklistService.delete(id); }
+
+    @DeleteMapping("/user/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void unblacklistUser(@PathVariable Integer id) { blacklistService.unblacklistUser(id); }
 }
