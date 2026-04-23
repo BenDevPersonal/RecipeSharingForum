@@ -34,6 +34,11 @@ public class UserSettingService {
                 .orElseThrow(() -> new ResourceNotFoundException("User Setting not found: " + id)));
     }
 
+    public UserSettingDto findByUserId(Integer userId) {
+        return toDto(userSettingRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User Setting not found: " + userId)));
+    }
+
     public UserSettingDto create(CreateUserSettingRequest request) {
         User user = userRepository.findByLogin(getCurrentUser().getLogin())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + getCurrentUser().getLogin()));

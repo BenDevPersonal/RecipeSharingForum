@@ -23,7 +23,10 @@ public class UserSettingController {
     public List<UserSettingDto> getUserSettings() { return userSettingService.findALl(); }
 
     @GetMapping("{id}")
-    public UserSettingDto getUserSetting(@PathVariable Integer id) {  return userSettingService.findById(id); }
+    public UserSettingDto getSetting(@PathVariable Integer id) {  return userSettingService.findById(id); }
+
+    @GetMapping("/user/{userId}")
+    public UserSettingDto getUserSetting(@PathVariable Integer userId) { return userSettingService.findByUserId(userId); }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

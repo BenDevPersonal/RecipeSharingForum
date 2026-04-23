@@ -1,12 +1,13 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { searchPosts, searchUsers } from "../api/search";
 import { getPosts } from "../api/posts";
-import { getBlacklists, isBlacklistedUser } from "../api/blacklist";
+import { getBlacklists } from "../api/blacklist";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { SkeletonSection } from "../components/Skeleton";
-import { highlightParts } from "../utils/highlight"
+import { highlightParts } from "../utils/highlight";
 import { useMemo } from "react";
+import { getBadge } from "../utils/reputation";
 
 export function Search() {
     const [params] = useSearchParams();
@@ -17,10 +18,17 @@ export function Search() {
         queryFn: () => getPosts(),
     });
 
-    const blacklistedIds = useQuery({
+    // ✅ FETCH BLACKLIST
+    const { data: blacklistData = [] } = useQuery({
         queryKey: ["blacklist-all"],
-        queryFn: () => getBlacklists()
+        queryFn: () => getBlacklists(),
     });
+
+    // ✅ EXTRACT IDS
+    const blacklistedIds = useMemo(
+        () => blacklistData.map((b) => b.blacklistedUserId),
+        [blacklistData]
+    );
 
     const q = params.get("q") || "";
     const mode = params.get("mode") || "all";
@@ -37,10 +45,6 @@ export function Search() {
         queryFn: () => runSearch(q, mode, category, allergy),
         enabled: !!q,
     });
-
-    function filterBlacklistedPosts(posts, blacklistedIds = []) {
-        return posts.filter((post) => !blacklistedIds.includes(post.authorId));
-    }
 
     function runSearch(q, mode, category, allergy) {
         if (mode === "posts") {
@@ -97,6 +101,7 @@ export function Search() {
                 navigate={navigate}
                 params={params}
                 allPosts={allPosts}
+                blacklistedIds={blacklistedIds} // ✅ PASS HERE
             />
         </div>
     );
@@ -120,22 +125,33 @@ function applyFilters(posts, category, allergy) {
     const allergies = allergy ? allergy.split(",").filter(Boolean) : [];
 
     return posts.filter((post) => {
-        const postCategories = post.categories || [];
-        const postAllergies = post.allergies || [];
+        const postCategories = post.categories ?? [];
+        const postAllergies = post.allergies ?? [];
 
         const categoryMatch =
             categories.length === 0 ||
             categories.some((c) => postCategories.includes(c));
 
+        // ✅ NORMALISE EVERYTHING TO STRINGS
+        const postAllergySet = new Set(
+            postAllergies.map(a =>
+                typeof a === "object" ? a.name : a
+            )
+        );
+
+        const selectedAllergies = allergies.map(a => a.toLowerCase());
+
         const allergyMatch =
-            allergies.length === 0 ||
-            !allergies.some((a) => postAllergies.includes(a));
+            selectedAllergies.length === 0 ||
+            !selectedAllergies.some(a =>
+                postAllergySet.has(a.toLowerCase())
+            );
 
         return categoryMatch && allergyMatch;
     });
 }
 
-function SearchResults({ data, query, navigate, params, allPosts }) {
+function SearchResults({ data, query, navigate, params, allPosts, blacklistedIds }) {
     const sortedPosts = useMemo(() => {
         const filtered = applyFilters(
             data.posts,
@@ -143,10 +159,15 @@ function SearchResults({ data, query, navigate, params, allPosts }) {
             params.get("allergy") || ""
         );
 
-        return [...filtered].sort(
+        // ✅ FILTER OUT BLACKLISTED USERS
+        const withoutBlacklisted = filtered.filter(
+            (post) => !blacklistedIds.includes(post.authorId)
+        );
+
+        return [...withoutBlacklisted].sort(
             (a, b) => getAvgRating(b) - getAvgRating(a)
         );
-    }, [data.posts, params]);
+    }, [data.posts, params, blacklistedIds]);
 
     return (
         <>
@@ -237,19 +258,13 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
 
                 <div className="flex flex-wrap gap-2">
                     {item.categories?.map((c) => (
-                        <span
-                            key={c}
-                            className="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                        >
+                        <span key={c} className="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
                             {c}
                         </span>
                     ))}
 
                     {item.allergies?.map((a) => (
-                        <span
-                            key={a}
-                            className="text-xs px-2 py-1 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
-                        >
+                        <span key={a} className="text-xs px-2 py-1 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">
                             {a}
                         </span>
                     ))}
@@ -269,7 +284,6 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
 
     const ratings = userPosts.flatMap((p) => {
         const postTime = new Date(p.creationDate).getTime();
-
         const weight = 1 / (1 + (now - postTime) / (1000 * 60 * 60 * 24 * 30));
 
         return (p.feedbacks || []).map((f) => ({
@@ -279,34 +293,18 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
     });
 
     let reputation = 0;
-    let avg = 0;
 
     if (ratings.length) {
-        const weightedSum = ratings.reduce(
-            (sum, r) => sum + r.rating * r.weight,
-            0
-        );
+        const weightedSum = ratings.reduce((sum, r) => sum + r.rating * r.weight, 0);
+        const weightSum = ratings.reduce((sum, r) => sum + r.weight, 0);
 
-        const weightSum = ratings.reduce(
-            (sum, r) => sum + r.weight,
-            0
-        );
-
-        avg = weightedSum / weightSum;
-
+        const avg = weightedSum / weightSum;
         const diff = avg - 2.5;
 
         reputation = Math.round(diff * ratings.length);
     }
 
-    let badge = "Newbie";
-
-    if (reputation > 50) badge = "Chef Legend 👑";
-    else if (reputation > 20) badge = "Master Cook 🔥";
-    else if (reputation > 5) badge = "Skilled Cook 👨‍🍳";
-    else if (reputation >= 1) badge = "Home Cook";
-    else if (reputation == 0) badge = "Newbie";
-    else badge = "Burnt Toast 💀";
+    let badge = getBadge(reputation);
 
     return (
         <div

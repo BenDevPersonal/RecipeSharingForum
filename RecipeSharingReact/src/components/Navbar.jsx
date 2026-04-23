@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getCategories } from "../api/categories";
 import { getAllergies } from "../api/allergies";
 import { getMe } from "../api/users";
+import { getUserSetting } from "../api/settings";
 
 export function Navbar() {
     const { toggleTheme, darkMode } = useTheme();
@@ -19,14 +20,24 @@ export function Navbar() {
         enabled: isAuth,
     });
 
-    const canAccessAdmin = isAuth && ["admin", "manager", "moderator"].includes(me?.role);
+    const { data: settings } = useQuery({
+        queryKey: ["settings", me?.id],
+        enabled: !!me?.id,
+        queryFn: () => getUserSetting(me.id),
+        retry: false,
+    });
+
+    const canAccessAdmin =
+        isAuth && ["admin", "manager", "moderator"].includes(me?.role);
 
     const [query, setQuery] = useState("");
     const [showFilters, setShowFilters] = useState(false);
 
     const [mode, setMode] = useState("all");
     const [categories, setCategories] = useState([]);
-    const [allergies, setAllergies] = useState([]);
+
+    // IMPORTANT: this now truly means "exclude these allergies"
+    const [excludedAllergies, setExcludedAllergies] = useState([]);
 
     const filterRef = useRef(null);
 
@@ -40,11 +51,38 @@ export function Navbar() {
         queryFn: getAllergies,
     });
 
+    // ----------------------------
+    // FIXED AUTO FILTER
+    // ----------------------------
+    const didInitAutoFilter = useRef(false);
+
+    useEffect(() => {
+        if (!settings || !apiAllergies?.length) return;
+        if (didInitAutoFilter.current) return;
+
+        if (!settings.autoFilterAllergy) return;
+
+        const userAllergyIds = settings.allergyIds || [];
+
+        const userAllergyNames = apiAllergies
+            .filter((a) => userAllergyIds.includes(a.id))
+            .map((a) => a.name);
+
+        setExcludedAllergies(userAllergyNames)
+
+        didInitAutoFilter.current = true;
+    }, [settings, apiAllergies]);
+
+    // ----------------------------
+    // SEARCH
+    // ----------------------------
     function handleSearch() {
         if (!query.trim()) return;
 
         navigate(
-            `/search?q=${query}&mode=${mode}&category=${categories.join(",")}&allergy=${allergies.join(",")}`
+            `/search?q=${query}&mode=${mode}&category=${categories.join(
+                ","
+            )}&allergy=${excludedAllergies.join(",")}`
         );
 
         setShowFilters(false);
@@ -103,45 +141,47 @@ export function Navbar() {
                         ⚙️
                     </button>
 
-                    {(categories.length > 0 || allergies.length > 0 || mode !== "all") && (
-                        <div className="absolute left-0 top-12 w-full">
-                            <div className="flex flex-wrap gap-2 mt-2 p-2 rounded-xl bg-white/70 dark:bg-gray-900/70 backdrop-blur border border-gray-200 dark:border-gray-700 shadow-soft">
+                    {(categories.length > 0 ||
+                        excludedAllergies.length > 0 ||
+                        mode !== "all") && (
+                            <div className="absolute left-0 top-12 w-full">
+                                <div className="flex flex-wrap gap-2 mt-2 p-2 rounded-xl bg-white/70 dark:bg-gray-900/70 backdrop-blur border border-gray-200 dark:border-gray-700 shadow-soft">
 
-                                {mode !== "all" && (
-                                    <span className="px-2 py-1 text-xs rounded-full bg-accent text-white">
-                                        {mode}
-                                    </span>
-                                )}
+                                    {mode !== "all" && (
+                                        <span className="px-2 py-1 text-xs rounded-full bg-accent text-white">
+                                            {mode}
+                                        </span>
+                                    )}
 
-                                {categories.map((c) => (
-                                    <span
-                                        key={c}
-                                        className="px-2 py-1 text-xs rounded-full bg-green-500 text-white"
-                                    >
-                                        {c}
-                                    </span>
-                                ))}
+                                    {categories.map((c) => (
+                                        <span
+                                            key={c}
+                                            className="px-2 py-1 text-xs rounded-full bg-green-500 text-white"
+                                        >
+                                            {c}
+                                        </span>
+                                    ))}
 
-                                {allergies.map((a) => (
-                                    <span
-                                        key={a}
-                                        className="px-2 py-1 text-xs rounded-full bg-red-500 text-white"
-                                    >
-                                        no {a}
-                                    </span>
-                                ))}
+                                    {excludedAllergies.map((a) => (
+                                        <span
+                                            key={a}
+                                            className="px-2 py-1 text-xs rounded-full bg-red-500 text-white"
+                                        >
+                                            no {a}
+                                        </span>
+                                    ))}
 
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
+                    {/* FILTER PANEL (UNCHANGED UI) */}
                     <div
                         className={`absolute top-14 left-1/2 -translate-x-1/2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-4 space-y-4 z-50 transition-all duration-200 origin-top ${showFilters
-                            ? "opacity-100 scale-100"
-                            : "opacity-0 scale-95 pointer-events-none"
+                                ? "opacity-100 scale-100"
+                                : "opacity-0 scale-95 pointer-events-none"
                             }`}
                     >
-
                         <div>
                             <p className="text-xs font-semibold mb-2">Search type</p>
                             <div className="flex gap-2">
@@ -150,8 +190,8 @@ export function Navbar() {
                                         key={m}
                                         onClick={() => setMode(m)}
                                         className={`px-3 py-1 rounded-full text-xs border ${mode === m
-                                            ? "bg-accent text-white"
-                                            : "bg-gray-100 dark:bg-gray-800"
+                                                ? "bg-accent text-white"
+                                                : "bg-gray-100 dark:bg-gray-800"
                                             }`}
                                     >
                                         {m}
@@ -166,10 +206,12 @@ export function Navbar() {
                                 {apiCategories.map((c) => (
                                     <button
                                         key={c.id}
-                                        onClick={() => toggleMulti(setCategories, categories, c.name)}
+                                        onClick={() =>
+                                            toggleMulti(setCategories, categories, c.name)
+                                        }
                                         className={`px-3 py-1 rounded-full text-xs border ${categories.includes(c.name)
-                                            ? "bg-accent text-white"
-                                            : "bg-gray-100 dark:bg-gray-800"
+                                                ? "bg-accent text-white"
+                                                : "bg-gray-100 dark:bg-gray-800"
                                             }`}
                                     >
                                         {c.name}
@@ -184,10 +226,16 @@ export function Navbar() {
                                 {apiAllergies.map((a) => (
                                     <button
                                         key={a.id}
-                                        onClick={() => toggleMulti(setAllergies, allergies, a.name)}
-                                        className={`px-3 py-1 rounded-full text-xs border ${allergies.includes(a.name)
-                                            ? "bg-red-500 text-white"
-                                            : "bg-gray-100 dark:bg-gray-800"
+                                        onClick={() =>
+                                            toggleMulti(
+                                                setExcludedAllergies,
+                                                excludedAllergies,
+                                                a.name
+                                            )
+                                        }
+                                        className={`px-3 py-1 rounded-full text-xs border ${excludedAllergies.includes(a.name)
+                                                ? "bg-red-500 text-white"
+                                                : "bg-gray-100 dark:bg-gray-800"
                                             }`}
                                     >
                                         {a.name}
@@ -195,19 +243,19 @@ export function Navbar() {
                                 ))}
                             </div>
                         </div>
-
                     </div>
                 </div>
 
                 <div className="flex items-center gap-6 text-sm font-medium">
-                    <Link to="/" className="hover:text-accent transition">Home</Link>
-                    <Link to="/profile" className="hover:text-accent transition">Profile</Link>
+                    <Link to="/" className="hover:text-accent transition">
+                        Home
+                    </Link>
+                    <Link to="/profile" className="hover:text-accent transition">
+                        Profile
+                    </Link>
 
                     {canAccessAdmin && (
-                        <Link
-                            to="/admin"
-                            className="hover:text-accent transition"
-                        >
+                        <Link to="/admin" className="hover:text-accent transition">
                             Admin
                         </Link>
                     )}
@@ -225,7 +273,11 @@ export function Navbar() {
                         </div>
                     )}
 
-                    <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} className="hidden sm:flex" />
+                    <ThemeToggle
+                        darkMode={darkMode}
+                        toggleTheme={toggleTheme}
+                        className="hidden sm:flex"
+                    />
 
                     {isAuth && (
                         <button onClick={logout} className="text-red-500 hover:underline">
@@ -233,7 +285,6 @@ export function Navbar() {
                         </button>
                     )}
                 </div>
-
             </div>
         </nav>
     );

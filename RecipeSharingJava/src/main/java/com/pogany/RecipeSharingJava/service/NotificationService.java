@@ -164,7 +164,7 @@ public class NotificationService {
     private String buildMessage(NotificationType type, Map<String, Object> meta) {
         return switch (type) {
             case FEEDBACK_RECEIVED ->
-                    meta.getOrDefault("actorName", "Someone") + " left feedback on your post " + meta.get("postTitle");
+                    meta.getOrDefault("actorName", "Someone") + " left feedback on your post \"" + meta.get("postTitle") + "\"";
             case FEEDBACK_DELETED -> "Your feedback from \"" + meta.getOrDefault("postTitle", "a post") + "\" was deleted";
             case POST_DELETED -> "Your post \"" + meta.get("postTitle") + "\" was deleted";
             case FOLLOWER_GAINED -> meta.getOrDefault("actorName", "Someone") + " started following you";

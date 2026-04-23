@@ -18,6 +18,6 @@ export const isBlacklistedUser = async (id) => {
 };
 
 export const getBlacklists = async () => {
-    const res = await api.get(`/api/blacklist/`)
+    const res = await api.get(`/api/blacklist`)
     return res.data;
 }
