@@ -2,6 +2,7 @@ package com.pogany.RecipeSharingJava.service;
 
 import com.pogany.RecipeSharingJava.dto.*;
 import com.pogany.RecipeSharingJava.entity.*;
+import com.pogany.RecipeSharingJava.enums.NotificationType;
 import com.pogany.RecipeSharingJava.exception.ResourceNotFoundException;
 import com.pogany.RecipeSharingJava.repository.*;
 import org.springframework.security.core.Authentication;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PostService {
@@ -20,19 +23,17 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private final AllergyRepository allergyRepository;
     private final FeedbackRepository feedbackRepository;
+    private NotificationService notificationService;
+    private FollowRepository followRepository;
 
-    public PostService(
-            UserRepository userRepository,
-            PostRepository postRepository,
-            CategoryRepository categoryRepository,
-            AllergyRepository allergyRepository,
-            FeedbackRepository feedbackRepository
-    ) {
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-        this.categoryRepository = categoryRepository;
-        this.allergyRepository = allergyRepository;
+    public PostService(FollowRepository followRepository, NotificationService notificationService, FeedbackRepository feedbackRepository, AllergyRepository allergyRepository, CategoryRepository categoryRepository, PostRepository postRepository, UserRepository userRepository) {
+        this.followRepository = followRepository;
+        this.notificationService = notificationService;
         this.feedbackRepository = feedbackRepository;
+        this.allergyRepository = allergyRepository;
+        this.categoryRepository = categoryRepository;
+        this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
     private User getCurrentUser() {
@@ -57,14 +58,33 @@ public class PostService {
     }
 
     public List<PostDto> search(String q, String category, String allergy) {
+        List<String> categories = (category == null || category.isBlank())
+                ? List.of()
+                : Arrays.stream(category.split(","))
+                .map(String::toLowerCase)
+                .toList();
+
+        List<String> allergies = (allergy == null || allergy.isBlank())
+                ? List.of()
+                : Arrays.stream(allergy.split(","))
+                .map(String::toLowerCase)
+                .toList();
+
         return postRepository.findAll().stream()
                 .filter(p -> q == null ||
                         p.getTitle().toLowerCase().contains(q.toLowerCase()) ||
                         p.getContent().toLowerCase().contains(q.toLowerCase()))
-                .filter(p -> category == null || category.isBlank() ||
-                        p.getCategories().stream().anyMatch(c -> c.getName().equalsIgnoreCase(category)))
-                .filter(p -> allergy == null || allergy.isBlank() ||
-                        p.getAllergies().stream().anyMatch(a -> a.getName().equalsIgnoreCase(allergy)))
+
+                .filter(p -> categories.isEmpty() ||
+                        p.getCategories().stream()
+                                .map(c -> c.getName().toLowerCase())
+                                .anyMatch(categories::contains))
+
+                .filter(p -> allergies.isEmpty() ||
+                        p.getAllergies().stream()
+                                .map(a -> a.getName().toLowerCase())
+                                .noneMatch(allergies::contains))
+
                 .map(this::toDto)
                 .toList();
     }
@@ -92,6 +112,25 @@ public class PostService {
         if (request.getCategoryIds() != null) {
             post.getCategories().addAll(
                     categoryRepository.findAllById(request.getCategoryIds())
+            );
+        }
+
+        List<Follow> followers = followRepository.findAllByFollowedUser(user);
+
+        CreateNotificationRequest req = new CreateNotificationRequest();
+        req.setType(NotificationType.POST_CREATED_BY_FOLLOWED_USER);
+        req.setPostId(post.getId());
+        req.setMetadata(Map.of(
+                "postTitle", post.getTitle(),
+                "actorName", user.getLogin()
+        ));
+
+        for (Follow follow : followers) {
+            User follower = follow.getFollowingUser();
+
+            notificationService.create(
+                    follower.getId(),
+                    req
             );
         }
 
@@ -142,8 +181,25 @@ public class PostService {
             throw new IllegalArgumentException("You cannot delete someone else's post");
         }
 
+        User postOwner = post.getUser();
+        String postTitle = post.getTitle();
+
         postRepository.delete(post);
+
+        CreateNotificationRequest req = new CreateNotificationRequest();
+        req.setType(NotificationType.POST_DELETED);
+        req.setPostId(null);
+        req.setMetadata(Map.of(
+                "postTitle", postTitle,
+                "actorName", currentUser.getLogin()
+        ));
+
+        notificationService.create(
+                postOwner.getId(),
+                req
+        );
     }
+
 
     private PostDto toDto(Post post) {
 

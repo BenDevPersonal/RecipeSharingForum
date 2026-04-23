@@ -7,10 +7,13 @@ import { createPost } from "../api/posts";
 import { getCategories } from "../api/categories";
 import { getAllergies } from "../api/allergies";
 
+import { parseJwt } from "../utils/jwt";
+
 export function CreatePost() {
-  const { user } = useAuth();
+  const { token, isAuth } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const user = token ? parseJwt(token)?.sub : null;
 
   const [post, setPost] = useState({
     title: "",
@@ -90,7 +93,7 @@ export function CreatePost() {
   function handleSubmit() {
     if (!validate()) return;
 
-    if (!user?.id) {
+    if (!isAuth) {
       setBackendError("You must be logged in to create a post.");
       return;
     }
