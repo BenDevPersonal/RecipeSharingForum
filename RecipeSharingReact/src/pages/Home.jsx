@@ -194,11 +194,14 @@ function RecipeCard({ recipe, navigate }) {
       onClick={() => navigate(`/post/${recipe.id}`)}
       className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden cursor-pointer"
     >
-      <img
-        src={recipe.imageUrl}
-        alt={recipe.title}
-        className="h-44 w-full object-cover"
-      />
+
+      {recipe.images?.length > 0 && (
+        <img
+          src={`http://localhost:8080/images/${recipe.images[0]}`}
+          alt={recipe.title}
+          className="h-44 w-full object-cover"
+        />
+      )}
 
       <div className="p-4">
         <h3 className="font-semibold">{recipe.title}</h3>

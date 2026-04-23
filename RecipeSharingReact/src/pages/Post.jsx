@@ -233,6 +233,17 @@ export function Post() {
           {post.content}
         </p>
 
+        <div className="grid gap-4 mt-4">
+          {post.images?.map((img, i) => (
+            <img
+              key={i}
+              src={`http://localhost:8080/images/${img}`}
+              className="rounded-xl w-full object-cover"
+              alt={`post-image-${i}`}
+            />
+          ))}
+        </div>
+
         <div className="text-xs text-gray-500 flex gap-2">
           <span>Created: {post.creationDate}</span>
           {isEdited && <span>(edited)</span>}

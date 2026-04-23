@@ -15,6 +15,8 @@ export function CreatePost() {
   const queryClient = useQueryClient();
   const user = token ? parseJwt(token)?.sub : null;
 
+const [images, setImages] = useState([]);
+
   const [post, setPost] = useState({
     title: "",
     content: "",
@@ -39,33 +41,35 @@ export function CreatePost() {
     queryFn: getAllergies,
   });
 
-  const mutation = useMutation({
-    mutationFn: createPost,
+ const mutation = useMutation({
+   mutationFn: ({ data, images }) => createPost(data, images),
 
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(["posts"]);
-      setBackendError("");
+   onSuccess: (data) => {
+     queryClient.invalidateQueries(["posts"]);
+     setBackendError("");
 
-      setPost({
-        title: "",
-        content: "",
-        categories: [],
-        allergies: [],
-      });
+     setPost({
+       title: "",
+       content: "",
+       categories: [],
+       allergies: [],
+     });
 
-      navigate(`/post/${data.id}`);
-    },
+     setImages([]); // 👈 reset images
 
-    onError: (error) => {
-      const message =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error.message ||
-        "Something went wrong";
+     navigate(`/post/${data.id}`);
+   },
 
-      setBackendError(message);
-    },
-  });
+   onError: (error) => {
+     const message =
+       error?.response?.data?.message ||
+       error?.response?.data?.error ||
+       error.message ||
+       "Something went wrong";
+
+     setBackendError(message);
+   },
+ });
 
   function toggleItem(field, name) {
     setPost((prev) => {
@@ -98,7 +102,7 @@ export function CreatePost() {
       return;
     }
 
-    mutation.mutate({
+    const data = {
       title: post.title,
       content: post.content,
       userId: user.id,
@@ -113,6 +117,11 @@ export function CreatePost() {
 
       creationDate: new Date().toISOString().split("T")[0],
       updateDate: new Date().toISOString().split("T")[0],
+    };
+
+    mutation.mutate({
+      data,
+      images,
     });
   }
 
@@ -158,6 +167,17 @@ export function CreatePost() {
         {errors.content && (
           <p className="text-red-500 text-sm">Content is required</p>
         )}
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mb-2">add Images</h2>
+
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => setImages([...e.target.files])}
+        />
       </div>
 
       {/* CATEGORIES */}
