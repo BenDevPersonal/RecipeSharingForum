@@ -152,17 +152,23 @@ public class PostService {
                 postImageRepository.save(img);
             }
         }
-      
-      List<Follow> followers = followRepository.findAllByFollowedUser(user);
 
+// 🔥 SAVE POST FIRST (IMPORTANT)
+        Post savedPost = postRepository.save(post);
+
+// 🔔 NOW FETCH FOLLOWERS
+        List<Follow> followers = followRepository.findAllByFollowedUser(user);
+
+// 🔔 CREATE NOTIFICATION
         CreateNotificationRequest req = new CreateNotificationRequest();
         req.setType(NotificationType.POST_CREATED_BY_FOLLOWED_USER);
-        req.setPostId(post.getId());
+        req.setPostId(savedPost.getId()); // FIXED
         req.setMetadata(Map.of(
-                "postTitle", post.getTitle(),
+                "postTitle", savedPost.getTitle(),
                 "actorName", user.getLogin()
         ));
 
+// 🔔 SEND NOTIFICATIONS
         for (Follow follow : followers) {
             User follower = follow.getFollowingUser();
 
@@ -172,8 +178,10 @@ public class PostService {
             );
         }
 
-        return toDto(postRepository.save(post));
+// ✅ RETURN SAVED POST
+        return toDto(savedPost);
     }
+//Azért hagytami it a chatgpt szőveget hogy tudjad hogy mit csináltam és miért
 
     public PostDto updatePost(Integer id, CreatePostRequest request) {
 
