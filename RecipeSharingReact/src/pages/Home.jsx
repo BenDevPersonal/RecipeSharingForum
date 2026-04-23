@@ -7,6 +7,9 @@ import { ErrorMessage } from "../components/ErrorMessage";
 import { useAuth } from "../context/useAuth";
 import { parseJwt } from "../utils/jwt";
 
+import { getMe } from "../api/users";
+import { getUserSetting } from "../api/settings";
+
 export function Home() {
   const { isAuth, token } = useAuth();
   const navigate = useNavigate();
@@ -15,6 +18,28 @@ export function Home() {
 
   const user = token ? parseJwt(token)?.sub : null;
 
+  // -----------------------------
+  // USER
+  // -----------------------------
+  const { data: me } = useQuery({
+    queryKey: ["me"],
+    queryFn: getMe,
+    enabled: isAuth,
+  });
+
+  // -----------------------------
+  // SETTINGS
+  // -----------------------------
+  const { data: settings } = useQuery({
+    queryKey: ["settings", me?.id],
+    queryFn: () => getUserSetting(me.id),
+    enabled: !!me?.id,
+    retry: false,
+  });
+
+  // -----------------------------
+  // DATA
+  // -----------------------------
   const {
     data: categories,
     isLoading: catLoading,
@@ -35,19 +60,40 @@ export function Home() {
     queryFn: getPosts,
   });
 
+  // -----------------------------
+  // AUTO ALLERGY EXCLUSION
+  // -----------------------------
+  const excludedAllergies = useMemo(() => {
+    if (!settings?.autoFilterAllergy) return [];
+
+    // API returns: ["Peanuts"] already
+    return me?.allergies || [];
+  }, [settings, me]);
+
+  // -----------------------------
+  // FILTER POSTS
+  // -----------------------------
   const filteredPosts = useMemo(() => {
     if (!posts) return [];
 
-    if (!selectedCategory) return posts;
+    return posts.filter((post) => {
+      // CATEGORY FILTER
+      const categoryMatch =
+        !selectedCategory ||
+        post.categories?.includes(
+          categories?.find((c) => c.id === selectedCategory)?.name
+        );
 
-    const selected = categories?.find((c) => c.id === selectedCategory);
+      // ALLERGY FILTER (AUTO)
+      const allergyMatch =
+        excludedAllergies.length === 0 ||
+        !post.allergies?.some((a) =>
+          excludedAllergies.includes(a)
+        );
 
-    if (!selected) return posts;
-
-    return posts.filter((post) =>
-      post.categories?.includes(selected.name)
-    );
-  }, [posts, selectedCategory, categories]);
+      return categoryMatch && allergyMatch;
+    });
+  }, [posts, selectedCategory, categories, excludedAllergies]);
 
   function handleCategoryClick(id) {
     setSelectedCategory((prev) => (prev === id ? null : id));
@@ -86,9 +132,7 @@ export function Home() {
       <div>
         <h2 className="text-2xl font-semibold mb-4">Categories</h2>
 
-        {catError && (
-          <ErrorMessage message={catErrObj?.message} />
-        )}
+        {catError && <ErrorMessage message={catErrObj?.message} />}
 
         {catLoading ? (
           <p>Loading categories...</p>
@@ -97,9 +141,7 @@ export function Home() {
             <button
               onClick={() => setSelectedCategory(null)}
               className={`px-5 py-2 rounded-full border ${
-                selectedCategory === null
-                  ? "bg-accent text-white"
-                  : ""
+                selectedCategory === null ? "bg-accent text-white" : ""
               }`}
             >
               All
@@ -126,9 +168,7 @@ export function Home() {
       <div>
         <h2 className="text-2xl font-semibold mb-6">Latest Recipes</h2>
 
-        {recError && (
-          <ErrorMessage message={recErrObj?.message} />
-        )}
+        {recError && <ErrorMessage message={recErrObj?.message} />}
 
         {recLoading ? (
           <p>Loading recipes...</p>

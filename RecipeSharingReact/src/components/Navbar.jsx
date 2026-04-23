@@ -36,7 +36,6 @@ export function Navbar() {
     const [mode, setMode] = useState("all");
     const [categories, setCategories] = useState([]);
 
-    // IMPORTANT: this now truly means "exclude these allergies"
     const [excludedAllergies, setExcludedAllergies] = useState([]);
 
     const filterRef = useRef(null);
@@ -52,26 +51,14 @@ export function Navbar() {
     });
 
     // ----------------------------
-    // FIXED AUTO FILTER
+    // AUTO ALLERGY FILTER (FIXED)
     // ----------------------------
-    const didInitAutoFilter = useRef(false);
-
     useEffect(() => {
-        if (!settings || !apiAllergies?.length) return;
-        if (didInitAutoFilter.current) return;
+        if (!settings?.autoFilterAllergy) return;
+        if (!me?.allergies) return;
 
-        if (!settings.autoFilterAllergy) return;
-
-        const userAllergyIds = settings.allergyIds || [];
-
-        const userAllergyNames = apiAllergies
-            .filter((a) => userAllergyIds.includes(a.id))
-            .map((a) => a.name);
-
-        setExcludedAllergies(userAllergyNames)
-
-        didInitAutoFilter.current = true;
-    }, [settings, apiAllergies]);
+        setExcludedAllergies(me.allergies);
+    }, [settings, me]);
 
     // ----------------------------
     // SEARCH
@@ -91,7 +78,7 @@ export function Navbar() {
     function toggleMulti(setter, list, value) {
         setter(
             list.includes(value)
-                ? list.filter((v) => v !== value)
+                ? list.filter(v => v !== value)
                 : [...list, value]
         );
     }
@@ -125,7 +112,6 @@ export function Navbar() {
                 </h2>
 
                 <div className="relative" ref={filterRef}>
-
                     <input
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
@@ -153,45 +139,33 @@ export function Navbar() {
                                         </span>
                                     )}
 
-                                    {categories.map((c) => (
-                                        <span
-                                            key={c}
-                                            className="px-2 py-1 text-xs rounded-full bg-green-500 text-white"
-                                        >
+                                    {categories.map(c => (
+                                        <span key={c} className="px-2 py-1 text-xs rounded-full bg-green-500 text-white">
                                             {c}
                                         </span>
                                     ))}
 
-                                    {excludedAllergies.map((a) => (
-                                        <span
-                                            key={a}
-                                            className="px-2 py-1 text-xs rounded-full bg-red-500 text-white"
-                                        >
+                                    {excludedAllergies.map(a => (
+                                        <span key={a} className="px-2 py-1 text-xs rounded-full bg-red-500 text-white">
                                             no {a}
                                         </span>
                                     ))}
-
                                 </div>
                             </div>
                         )}
 
-                    {/* FILTER PANEL (UNCHANGED UI) */}
-                    <div
-                        className={`absolute top-14 left-1/2 -translate-x-1/2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-4 space-y-4 z-50 transition-all duration-200 origin-top ${showFilters
-                                ? "opacity-100 scale-100"
-                                : "opacity-0 scale-95 pointer-events-none"
-                            }`}
-                    >
+                    {/* FILTER PANEL */}
+                    <div className={`absolute top-14 left-1/2 -translate-x-1/2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-soft p-4 space-y-4 z-50 transition-all duration-200 origin-top ${showFilters ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+                        }`}>
+
                         <div>
                             <p className="text-xs font-semibold mb-2">Search type</p>
                             <div className="flex gap-2">
-                                {["all", "posts", "users"].map((m) => (
+                                {["all", "posts", "users"].map(m => (
                                     <button
                                         key={m}
                                         onClick={() => setMode(m)}
-                                        className={`px-3 py-1 rounded-full text-xs border ${mode === m
-                                                ? "bg-accent text-white"
-                                                : "bg-gray-100 dark:bg-gray-800"
+                                        className={`px-3 py-1 rounded-full text-xs border ${mode === m ? "bg-accent text-white" : "bg-gray-100 dark:bg-gray-800"
                                             }`}
                                     >
                                         {m}
@@ -203,15 +177,13 @@ export function Navbar() {
                         <div>
                             <p className="text-xs font-semibold mb-2">Categories</p>
                             <div className="flex flex-wrap gap-2">
-                                {apiCategories.map((c) => (
+                                {apiCategories.map(c => (
                                     <button
                                         key={c.id}
-                                        onClick={() =>
-                                            toggleMulti(setCategories, categories, c.name)
-                                        }
+                                        onClick={() => toggleMulti(setCategories, categories, c.name)}
                                         className={`px-3 py-1 rounded-full text-xs border ${categories.includes(c.name)
-                                                ? "bg-accent text-white"
-                                                : "bg-gray-100 dark:bg-gray-800"
+                                            ? "bg-accent text-white"
+                                            : "bg-gray-100 dark:bg-gray-800"
                                             }`}
                                     >
                                         {c.name}
@@ -223,19 +195,13 @@ export function Navbar() {
                         <div>
                             <p className="text-xs font-semibold mb-2">Exclude allergies</p>
                             <div className="flex flex-wrap gap-2">
-                                {apiAllergies.map((a) => (
+                                {apiAllergies.map(a => (
                                     <button
                                         key={a.id}
-                                        onClick={() =>
-                                            toggleMulti(
-                                                setExcludedAllergies,
-                                                excludedAllergies,
-                                                a.name
-                                            )
-                                        }
+                                        onClick={() => toggleMulti(setExcludedAllergies, excludedAllergies, a.name)}
                                         className={`px-3 py-1 rounded-full text-xs border ${excludedAllergies.includes(a.name)
-                                                ? "bg-red-500 text-white"
-                                                : "bg-gray-100 dark:bg-gray-800"
+                                            ? "bg-red-500 text-white"
+                                            : "bg-gray-100 dark:bg-gray-800"
                                             }`}
                                     >
                                         {a.name}
@@ -247,62 +213,27 @@ export function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-6 text-sm font-medium">
-                    <Link to="/" className="hover:text-accent transition">
-                        Home
-                    </Link>
-                    <Link to="/profile" className="hover:text-accent transition">
-                        Profile
-                    </Link>
+                    <Link to="/">Home</Link>
+                    <Link to="/profile">Profile</Link>
 
-                    {canAccessAdmin && (
-                        <Link to="/admin" className="hover:text-accent transition">
-                            Admin
-                        </Link>
-                    )}
+                    {canAccessAdmin && <Link to="/admin">Admin</Link>}
 
                     {isAuth && <NotificationBell />}
 
                     {!isAuth && (
-                        <div className="flex items-center gap-4">
-                            <Link to="/register" className="hover:text-accent transition">
-                                Register
-                            </Link>
-                            <Link to="/login" className="hover:text-accent transition">
-                                Login
-                            </Link>
-                        </div>
+                        <>
+                            <Link to="/register">Register</Link>
+                            <Link to="/login">Login</Link>
+                        </>
                     )}
 
-                    <ThemeToggle
-                        darkMode={darkMode}
-                        toggleTheme={toggleTheme}
-                        className="hidden sm:flex"
-                    />
-
-                    {isAuth && (
+                    {isAuth &&
                         <button onClick={logout} className="text-red-500 hover:underline">
                             Logout
                         </button>
-                    )}
+                    }
                 </div>
             </div>
         </nav>
-    );
-}
-
-function ThemeToggle({ darkMode, toggleTheme, className }) {
-    return (
-        <button
-            onClick={toggleTheme}
-            className={`relative inline-flex items-center w-14 h-7 rounded-full transition-colors duration-300 ${darkMode ? "bg-accent" : "bg-gray-300"
-                } ${className}`}
-        >
-            <span
-                className={`absolute left-1 top-1 w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 flex items-center justify-center text-xs ${darkMode ? "translate-x-7" : ""
-                    }`}
-            >
-                {darkMode ? "🌙" : "☀️"}
-            </span>
-        </button>
     );
 }

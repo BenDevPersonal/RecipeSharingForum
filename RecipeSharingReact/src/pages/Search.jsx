@@ -6,8 +6,8 @@ import { getBlacklists } from "../api/blacklist";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { SkeletonSection } from "../components/Skeleton";
 import { highlightParts } from "../utils/highlight";
-import { useMemo } from "react";
 import { getBadge } from "../utils/reputation";
+import { useMemo } from "react";
 
 export function Search() {
     const [params] = useSearchParams();

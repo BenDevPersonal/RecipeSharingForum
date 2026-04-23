@@ -168,6 +168,7 @@ public class NotificationService {
             case FEEDBACK_DELETED -> "Your feedback from \"" + meta.getOrDefault("postTitle", "a post") + "\" was deleted";
             case POST_DELETED -> "Your post \"" + meta.get("postTitle") + "\" was deleted";
             case FOLLOWER_GAINED -> meta.getOrDefault("actorName", "Someone") + " started following you";
+            case POST_CREATED_BY_FOLLOWED_USER ->  meta.getOrDefault("actorName", "Someone") + " made a new post \""  + meta.get("postTitle") + "\"";
             default -> "New notification";
         };
     }
