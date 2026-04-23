@@ -214,7 +214,9 @@ export function Navbar() {
 
                 <div className="flex items-center gap-6 text-sm font-medium">
                     <Link to="/">Home</Link>
-                    <Link to="/profile">Profile</Link>
+                    {isAuth &&
+                        <Link to="/profile">Profile</Link>
+                    }
 
                     {canAccessAdmin && <Link to="/admin">Admin</Link>}
 

@@ -39,15 +39,21 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
 
+                        // AUTH
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/categories/**").permitAll()
-                        .requestMatchers("/api/posts/**").permitAll()
-                        .requestMatchers("/api/recipes/**").permitAll()
-                        .requestMatchers("/api/notifications/**").permitAll()
-                        .requestMatchers("/error").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        // PUBLIC READ
+                        .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/allergies/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
 
+                        // PROTECTED
+                        .requestMatchers("/api/notifications/**").authenticated()
+                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/settings/**").authenticated()
+
+                        // EVERYTHING ELSE
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

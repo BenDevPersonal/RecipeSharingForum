@@ -16,11 +16,13 @@ import {
     unblacklistUser,
     isBlacklistedUser,
 } from "../api/blacklist";
+import { useAuth } from "../context/useAuth";
 
 export function User() {
     const { id } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { isAuth, token } = useAuth();
 
     // USER
     const {
@@ -181,7 +183,7 @@ export function User() {
             </h1>
 
             {/* ACTION BUTTONS */}
-            {!isMe && (
+            {!isMe && isAuth && (
                 <div className="flex gap-3">
                     <button
                         disabled={
