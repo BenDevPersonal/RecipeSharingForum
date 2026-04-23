@@ -2,9 +2,11 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { searchPosts, searchUsers } from "../api/search";
 import { getPosts } from "../api/posts";
+import { getBlacklists } from "../api/blacklist";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { SkeletonSection } from "../components/Skeleton";
-import { highlightParts } from "../utils/highlight"
+import { highlightParts } from "../utils/highlight";
+import { getBadge } from "../utils/reputation";
 import { useMemo } from "react";
 
 export function Search() {
@@ -15,6 +17,18 @@ export function Search() {
         queryKey: ["allPosts"],
         queryFn: () => getPosts(),
     });
+
+    // ✅ FETCH BLACKLIST
+    const { data: blacklistData = [] } = useQuery({
+        queryKey: ["blacklist-all"],
+        queryFn: () => getBlacklists(),
+    });
+
+    // ✅ EXTRACT IDS
+    const blacklistedIds = useMemo(
+        () => blacklistData.map((b) => b.blacklistedUserId),
+        [blacklistData]
+    );
 
     const q = params.get("q") || "";
     const mode = params.get("mode") || "all";
@@ -87,6 +101,7 @@ export function Search() {
                 navigate={navigate}
                 params={params}
                 allPosts={allPosts}
+                blacklistedIds={blacklistedIds} // ✅ PASS HERE
             />
         </div>
     );
@@ -110,22 +125,33 @@ function applyFilters(posts, category, allergy) {
     const allergies = allergy ? allergy.split(",").filter(Boolean) : [];
 
     return posts.filter((post) => {
-        const postCategories = post.categories || [];
-        const postAllergies = post.allergies || [];
+        const postCategories = post.categories ?? [];
+        const postAllergies = post.allergies ?? [];
 
         const categoryMatch =
             categories.length === 0 ||
             categories.some((c) => postCategories.includes(c));
 
+        // ✅ NORMALISE EVERYTHING TO STRINGS
+        const postAllergySet = new Set(
+            postAllergies.map(a =>
+                typeof a === "object" ? a.name : a
+            )
+        );
+
+        const selectedAllergies = allergies.map(a => a.toLowerCase());
+
         const allergyMatch =
-            allergies.length === 0 ||
-            !allergies.some((a) => postAllergies.includes(a));
+            selectedAllergies.length === 0 ||
+            !selectedAllergies.some(a =>
+                postAllergySet.has(a.toLowerCase())
+            );
 
         return categoryMatch && allergyMatch;
     });
 }
 
-function SearchResults({ data, query, navigate, params, allPosts }) {
+function SearchResults({ data, query, navigate, params, allPosts, blacklistedIds }) {
     const sortedPosts = useMemo(() => {
         const filtered = applyFilters(
             data.posts,
@@ -133,10 +159,15 @@ function SearchResults({ data, query, navigate, params, allPosts }) {
             params.get("allergy") || ""
         );
 
-        return [...filtered].sort(
+        // ✅ FILTER OUT BLACKLISTED USERS
+        const withoutBlacklisted = filtered.filter(
+            (post) => !blacklistedIds.includes(post.authorId)
+        );
+
+        return [...withoutBlacklisted].sort(
             (a, b) => getAvgRating(b) - getAvgRating(a)
         );
-    }, [data.posts, params]);
+    }, [data.posts, params, blacklistedIds]);
 
     return (
         <>
@@ -184,6 +215,18 @@ function ResultSection({ title, items, type, query, navigate, allPosts }) {
 }
 
 function ResultCard({ item, type, query, navigate, allPosts = [] }) {
+    function highlight(text, q) {
+        return highlightParts(text, q).map((part, i) =>
+            part.match ? (
+                <span key={i} className="text-accent font-semibold">
+                    {part.text}
+                </span>
+            ) : (
+                part.text
+            )
+        );
+    }
+
     if (type === "post") {
         const avg = getAvgRating(item);
 
@@ -192,24 +235,12 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
                 ? item.updateDate !== item.creationDate
                 : false;
 
-        function highlight(text, query) {
-            return highlightParts(text, query).map((part, i) =>
-                part.match ? (
-                    <span key={i} className="text-accent font-semibold">
-                        {part.text}
-                    </span>
-                ) : (
-                    part.text
-                )
-            );
-        }
-
         return (
             <div
                 onClick={() => navigate(`/post/${item.id}`)}
                 className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer space-y-2"
             >
-                <div className="font-semibold">{highlight(item.title)}</div>
+                <div className="font-semibold">{highlight(item.title, query)}</div>
 
                 <div className="text-sm text-gray-500">
                     by {item.author}
@@ -227,19 +258,13 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
 
                 <div className="flex flex-wrap gap-2">
                     {item.categories?.map((c) => (
-                        <span
-                            key={c}
-                            className="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                        >
+                        <span key={c} className="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
                             {c}
                         </span>
                     ))}
 
                     {item.allergies?.map((a) => (
-                        <span
-                            key={a}
-                            className="text-xs px-2 py-1 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
-                        >
+                        <span key={a} className="text-xs px-2 py-1 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">
                             {a}
                         </span>
                     ))}
@@ -259,7 +284,6 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
 
     const ratings = userPosts.flatMap((p) => {
         const postTime = new Date(p.creationDate).getTime();
-
         const weight = 1 / (1 + (now - postTime) / (1000 * 60 * 60 * 24 * 30));
 
         return (p.feedbacks || []).map((f) => ({
@@ -269,41 +293,25 @@ function ResultCard({ item, type, query, navigate, allPosts = [] }) {
     });
 
     let reputation = 0;
-    let avg = 0;
 
     if (ratings.length) {
-        const weightedSum = ratings.reduce(
-            (sum, r) => sum + r.rating * r.weight,
-            0
-        );
+        const weightedSum = ratings.reduce((sum, r) => sum + r.rating * r.weight, 0);
+        const weightSum = ratings.reduce((sum, r) => sum + r.weight, 0);
 
-        const weightSum = ratings.reduce(
-            (sum, r) => sum + r.weight,
-            0
-        );
-
-        avg = weightedSum / weightSum;
-
+        const avg = weightedSum / weightSum;
         const diff = avg - 2.5;
 
         reputation = Math.round(diff * ratings.length);
     }
 
-    let badge = "Newbie";
-
-    if (reputation > 50) badge = "Chef Legend 👑";
-    else if (reputation > 20) badge = "Master Cook 🔥";
-    else if (reputation > 5) badge = "Skilled Cook 👨‍🍳";
-    else if (reputation >= 1) badge = "Home Cook";
-    else if (reputation == 0) badge = "Newbie";
-    else badge = "Burnt Toast 💀";
+    let badge = getBadge(reputation);
 
     return (
         <div
             onClick={() => navigate(`/user/${item.id}`)}
             className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer space-y-1"
         >
-            <div className="font-semibold">{highlight(item.login)}</div>
+            <div className="font-semibold">{highlight(item.login, query)}</div>
 
             <div className="inline-flex w-fit text-xs px-2 py-1 rounded-full 
             text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900

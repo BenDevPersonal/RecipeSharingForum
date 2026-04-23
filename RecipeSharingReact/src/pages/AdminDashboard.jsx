@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SkeletonSection } from "../components/Skeleton";
@@ -53,6 +53,19 @@ const DeleteIcon = () => (
 export function AdminDashboard() {
   const [tab, setTab] = useState("Users");
 
+  const { data: currentUser } = useQuery({
+    queryKey: ["me"],
+    queryFn: getMe,
+  });
+
+  const isModerator = currentUser?.role === "moderator";
+
+  useEffect(() => {
+    if (isModerator && (tab === "Categories" || tab === "Allergies")) {
+      setTab("Users");
+    }
+  }, [isModerator, tab]);
+
   return (
     <div className="max-w-6xl mx-auto p-8">
       <h1 className="text-4xl font-bold mb-8 tracking-tight">
@@ -63,16 +76,22 @@ export function AdminDashboard() {
         <Tab name="Users" tab={tab} setTab={setTab} />
         <Tab name="Posts" tab={tab} setTab={setTab} />
         <Tab name="Feedbacks" tab={tab} setTab={setTab} />
-        <Tab name="Categories" tab={tab} setTab={setTab} />
-        <Tab name="Allergies" tab={tab} setTab={setTab} />
+
+        {!isModerator && (
+          <>
+            <Tab name="Categories" tab={tab} setTab={setTab} />
+            <Tab name="Allergies" tab={tab} setTab={setTab} />
+          </>
+        )}
       </div>
 
       <FadeIn>
         {tab === "Users" && <UsersTab />}
         {tab === "Posts" && <PostsTab />}
         {tab === "Feedbacks" && <FeedbacksTab />}
-        {tab === "Categories" && <CategoriesTab />}
-        {tab === "Allergies" && <AllergiesTab />}
+
+        {!isModerator && tab === "Categories" && <CategoriesTab />}
+        {!isModerator && tab === "Allergies" && <AllergiesTab />}
       </FadeIn>
     </div>
   );
@@ -128,7 +147,7 @@ function UsersTab() {
     onSuccess: () => queryClient.invalidateQueries(["admin-users"]),
   });
 
-  const ROLE_LEVEL = { user: 1, manager: 2, admin: 3 };
+  const ROLE_LEVEL = { user: 1, moderator: 2, manager: 3, admin: 4 };
 
   function canModify(targetUser) {
     return (
