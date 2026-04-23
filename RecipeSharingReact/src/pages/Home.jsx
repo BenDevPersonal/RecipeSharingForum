@@ -11,6 +11,7 @@ import { getMe } from "../api/users";
 import { getUserSetting } from "../api/settings";
 
 export function Home() {
+const BOOKMARKS = -1;
   const { isAuth, token } = useAuth();
   const navigate = useNavigate();
 
@@ -76,15 +77,18 @@ export function Home() {
   const filteredPosts = useMemo(() => {
     if (!posts) return [];
 
+    // BOOKMARK MODE
+    if (selectedCategory === BOOKMARKS) {
+      return posts.filter((p) => p.bookmarked === true); // OR use API (better below)
+    }
+
     return posts.filter((post) => {
-      // CATEGORY FILTER
       const categoryMatch =
         !selectedCategory ||
         post.categories?.includes(
           categories?.find((c) => c.id === selectedCategory)?.name
         );
 
-      // ALLERGY FILTER (AUTO)
       const allergyMatch =
         excludedAllergies.length === 0 ||
         !post.allergies?.some((a) =>
@@ -138,6 +142,16 @@ export function Home() {
           <p>Loading categories...</p>
         ) : (
           <div className="flex flex-wrap gap-3">
+
+          <button
+            onClick={() => setSelectedCategory(BOOKMARKS)}
+            className={`px-5 py-2 rounded-full border ${
+              selectedCategory === BOOKMARKS ? "bg-accent text-white" : ""
+            }`}
+          >
+            Bookmarks
+          </button>
+
             <button
               onClick={() => setSelectedCategory(null)}
               className={`px-5 py-2 rounded-full border ${

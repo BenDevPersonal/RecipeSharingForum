@@ -1,7 +1,8 @@
+import { toggleBookmark } from "../api/bookmarks";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-
+import { useEffect } from "react";
 import { useAuth } from "../context/useAuth";
 import { getPostById, deletePost } from "../api/posts";
 import {
@@ -40,6 +41,7 @@ export function Post() {
 
   const [newRating, setNewRating] = useState(1);
   const [newContent, setNewContent] = useState("");
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   const currentUser = useMemo(() => {
     if (!token) return null;
@@ -56,6 +58,12 @@ export function Post() {
     queryFn: () => getPostById(id),
     enabled: !!id,
   });
+
+  useEffect(() => {
+    if (post) {
+      setIsBookmarked(post.bookmarked);
+    }
+  }, [post]);
 
   const { data: me } = useQuery({
     queryKey: ["me"],
@@ -94,6 +102,13 @@ export function Post() {
       queryClient.invalidateQueries({ queryKey: ["post", id] });
     },
   });
+
+const bookmarkMutation = useMutation({
+  mutationFn: toggleBookmark,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["post", id] });
+  },
+});
 
   if (isLoading) return <div className="p-6">Loading...</div>;
   if (isError) return <ErrorMessage message={error.message} />;
@@ -249,6 +264,17 @@ export function Post() {
           {isEdited && <span>(edited)</span>}
         </div>
       </div>
+
+     <button
+       onClick={() => bookmarkMutation.mutate(post.id)}
+       className={`px-4 py-2 rounded-lg transition ${
+         isBookmarked
+           ? "bg-yellow-400 text-black"
+           : "bg-gray-200 dark:bg-gray-800"
+       }`}
+     >
+       {isBookmarked ? "🔖 Bookmarked" : "🔖 Bookmark"}
+     </button>
 
       {/* FEEDBACK */}
       <div className="space-y-4">
