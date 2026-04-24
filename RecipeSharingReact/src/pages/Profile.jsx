@@ -216,7 +216,7 @@ export function Profile() {
 
                 <button
                     onClick={() => setTab("bookmarks")}
-                    className={`px-4 py-2 rounded-xl ${tab === "settings" ? "bg-accent text-white" : "bg-gray-200 dark:bg-gray-800"}`}
+                    className={`px-4 py-2 rounded-xl ${tab === "bookmarks" ? "bg-accent text-white" : "bg-gray-200 dark:bg-gray-800"}`}
                 >
                     Bookmarks
                 </button>

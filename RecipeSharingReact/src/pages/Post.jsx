@@ -148,8 +148,8 @@ export function Post() {
           type="button"
           onClick={() => setValue(n)}
           className={`text-lg transition hover:scale-110 ${n <= value
-              ? "text-yellow-400 drop-shadow"
-              : "text-gray-300 dark:text-gray-600"
+            ? "text-yellow-400 drop-shadow"
+            : "text-gray-300 dark:text-gray-600"
             }`}
         >
           ★
@@ -266,15 +266,17 @@ export function Post() {
         </div>
       </div>
 
-      <button
-        onClick={() => bookmarkMutation.mutate(post.id)}
-        className={`px-4 py-2 rounded-lg transition ${isBookmarked
+      {isAuth && (
+        <button
+          onClick={() => bookmarkMutation.mutate(post.id)}
+          className={`px-4 py-2 rounded-lg transition ${isBookmarked
             ? "bg-yellow-400 text-black"
             : "bg-gray-200 dark:bg-gray-800"
-          }`}
-      >
-        {isBookmarked ? "🔖 Bookmarked" : "🔖 Bookmark"}
-      </button>
+            }`}
+        >
+          {isBookmarked ? "🔖 Bookmarked" : "🔖 Bookmark"}
+        </button>
+      )}
 
       {/* FEEDBACK */}
       <div className="space-y-4">
@@ -418,11 +420,14 @@ export function Post() {
             </button>
           </div>
         )}
-        {(!isAuth || hasUserFeedback) && (
+        {(!isAuth || hasUserFeedback || post.author === currentUser) && (
           <div className="text-sm text-gray-400 text-center">
             {!isAuth
               ? "You need to be logged in to leave feedback"
-              : "You have already left feedback for this post"}
+              : (post.author === currentUser 
+                ? "You cannot rate your own post"
+                : "You have already left feedback for this post"
+              )}
           </div>
         )}
       </div>
