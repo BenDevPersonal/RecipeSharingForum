@@ -48,10 +48,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/allergies/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
 
+                        // ✅ FIXED IMAGES
+                        .requestMatchers("/images/**").permitAll()
+
                         // PROTECTED
                         .requestMatchers("/api/notifications/**").authenticated()
-                        .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/settings/**").authenticated()
+                        .requestMatchers("/api/bookmarks/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/users/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").authenticated()
 
                         // EVERYTHING ELSE
                         .anyRequest().authenticated()
@@ -81,6 +87,8 @@ public class SecurityConfig {
         config.setAllowedHeaders(List.of("*"));
 
         config.setAllowCredentials(true);
+
+        config.setExposedHeaders(List.of("Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

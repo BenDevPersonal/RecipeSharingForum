@@ -213,6 +213,13 @@ export function Profile() {
                 >
                     Settings
                 </button>
+
+                <button
+                    onClick={() => setTab("bookmarks")}
+                    className={`px-4 py-2 rounded-xl ${tab === "settings" ? "bg-accent text-white" : "bg-gray-200 dark:bg-gray-800"}`}
+                >
+                    Bookmarks
+                </button>
             </div>
 
             {/* PROFILE TAB */}
@@ -299,6 +306,92 @@ export function Profile() {
                     <SettingToggle label="Show country on profile" value={settingsForm?.showCountry} onClick={() => toggleSetting("showCountry")} />
                     <SettingToggle label="Show allergies on profile" value={settingsForm?.showAllergy} onClick={() => toggleSetting("showAllergy")} />
                     <SettingToggle label="Auto filter posts by allergies" value={settingsForm?.autoFilter} onClick={() => toggleSetting("autoFilter")} />
+                </div>
+            )}
+
+            {tab === "bookmarks" && (
+                <div className="space-y-4">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                        Bookmarked posts
+                    </h2>
+
+                    {!allPosts.length ? (
+                    <p className="text-gray-500 dark:text-gray-400">
+                        This user has no posts.
+                    </p>
+                ) : (
+                    allPosts.filter((p) => p.bookmarked === true).map((post) => {
+                        const avg =
+                            post.feedbacks?.length
+                                ? Number(
+                                      (
+                                          post.feedbacks.reduce(
+                                              (sum, f) => sum + (f.rating || 0),
+                                              0
+                                          ) / post.feedbacks.length
+                                      ).toFixed(1)
+                                  )
+                                : 0;
+
+                        const isEdited =
+                            post.updateDate &&
+                            post.creationDate &&
+                            post.updateDate !== post.creationDate;
+
+                        return (
+                            <div
+                                key={post.id}
+                                onClick={() => navigate(`/post/${post.id}`)}
+                                className="p-4 rounded-2xl bg-white dark:bg-gray-900 shadow-soft hover:shadow-md transition cursor-pointer space-y-2"
+                            >
+                                <div className="font-semibold text-gray-900 dark:text-gray-100">
+                                    {post.title}
+                                </div>
+
+                                <div className="text-sm text-gray-500">
+                                    by {post.author}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    {avg ? (
+                                        <span className="text-sm px-3 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300">
+                                            {avg} ★
+                                        </span>
+                                    ) : (
+                                        <span className="text-sm text-gray-400">
+                                            No rating
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {post.categories?.map((c) => (
+                                        <span
+                                            key={c}
+                                            className="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                                        >
+                                            {c}
+                                        </span>
+                                    ))}
+
+                                    {post.allergies?.map((a) => (
+                                        <span
+                                            key={a}
+                                            className="text-xs px-2 py-1 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
+                                        >
+                                            {a}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                <div className="text-xs text-gray-500 flex gap-2">
+                                    <span>Created: {post.creationDate}</span>
+                                    {isEdited && <span>(edited)</span>}
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
                 </div>
             )}
         </div>

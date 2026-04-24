@@ -76,11 +76,6 @@ const BOOKMARKS = -1;
   const filteredPosts = useMemo(() => {
     if (!posts) return [];
 
-    // BOOKMARK MODE
-    if (selectedCategory === BOOKMARKS) {
-      return posts.filter((p) => p.bookmarked === true); // OR use API (better below)
-    }
-
     return posts.filter((post) => {
       const categoryMatch =
         !selectedCategory ||
@@ -141,15 +136,6 @@ const BOOKMARKS = -1;
           <p>Loading categories...</p>
         ) : (
           <div className="flex flex-wrap gap-3">
-
-          <button
-            onClick={() => setSelectedCategory(BOOKMARKS)}
-            className={`px-5 py-2 rounded-full border ${
-              selectedCategory === BOOKMARKS ? "bg-accent text-white" : ""
-            }`}
-          >
-            Bookmarks
-          </button>
 
             <button
               onClick={() => setSelectedCategory(null)}

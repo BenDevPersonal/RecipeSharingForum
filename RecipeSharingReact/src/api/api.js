@@ -4,9 +4,6 @@ export const api = Axios.create({
   baseURL: "http://localhost:8080",
 });
 
-export const toggleBookmark = (postId) =>
-  api.post(`/api/bookmarks/${postId}`);
-
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 

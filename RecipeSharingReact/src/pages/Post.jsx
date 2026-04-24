@@ -103,12 +103,14 @@ export function Post() {
     },
   });
 
-const bookmarkMutation = useMutation({
-  mutationFn: toggleBookmark,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["post", id] });
-  },
-});
+  const bookmarkMutation = useMutation({
+    mutationFn: toggleBookmark,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["post", id] });
+    },
+  });
+
+  const images = useMemo(() => post?.images || [], [post?.images]);
 
   if (isLoading) return <div className="p-6">Loading...</div>;
   if (isError) return <ErrorMessage message={error.message} />;
@@ -123,9 +125,9 @@ const bookmarkMutation = useMutation({
   const avgRating =
     feedbacks.length > 0
       ? (
-          feedbacks.reduce((sum, f) => sum + (f.rating || 0), 0) /
-          feedbacks.length
-        ).toFixed(1)
+        feedbacks.reduce((sum, f) => sum + (f.rating || 0), 0) /
+        feedbacks.length
+      ).toFixed(1)
       : null;
 
   const isEdited =
@@ -145,11 +147,10 @@ const bookmarkMutation = useMutation({
           key={n}
           type="button"
           onClick={() => setValue(n)}
-          className={`text-lg transition hover:scale-110 ${
-            n <= value
+          className={`text-lg transition hover:scale-110 ${n <= value
               ? "text-yellow-400 drop-shadow"
               : "text-gray-300 dark:text-gray-600"
-          }`}
+            }`}
         >
           ★
         </button>
@@ -249,12 +250,12 @@ const bookmarkMutation = useMutation({
         </p>
 
         <div className="grid gap-4 mt-4">
-          {post.images?.map((img, i) => (
+          {images.map((img) => (
             <img
-              key={i}
+              key={img}
               src={`http://localhost:8080/images/${img}`}
               className="rounded-xl w-full object-cover"
-              alt={`post-image-${i}`}
+              alt={img}
             />
           ))}
         </div>
@@ -265,16 +266,15 @@ const bookmarkMutation = useMutation({
         </div>
       </div>
 
-     <button
-       onClick={() => bookmarkMutation.mutate(post.id)}
-       className={`px-4 py-2 rounded-lg transition ${
-         isBookmarked
-           ? "bg-yellow-400 text-black"
-           : "bg-gray-200 dark:bg-gray-800"
-       }`}
-     >
-       {isBookmarked ? "🔖 Bookmarked" : "🔖 Bookmark"}
-     </button>
+      <button
+        onClick={() => bookmarkMutation.mutate(post.id)}
+        className={`px-4 py-2 rounded-lg transition ${isBookmarked
+            ? "bg-yellow-400 text-black"
+            : "bg-gray-200 dark:bg-gray-800"
+          }`}
+      >
+        {isBookmarked ? "🔖 Bookmarked" : "🔖 Bookmark"}
+      </button>
 
       {/* FEEDBACK */}
       <div className="space-y-4">
