@@ -16,13 +16,14 @@ public class PostDto {
     private List<String> categories;
     private List<FeedbackDto> feedbacks;
     private List<String> images;
+    private boolean bookmarked;
 
     public PostDto() {
     }
 
     public PostDto(
             Integer id,
-            Integer authorId,
+            Integer userId,
             String author,
             String title,
             String content,
@@ -31,10 +32,11 @@ public class PostDto {
             List<String> allergies,
             List<String> categories,
             List<FeedbackDto> feedbacks,
-            List<String> images
+            List<String> images,
+            boolean bookmarked
     ) {
         this.id = id;
-        this.authorId = authorId;
+        this.authorId = userId;
         this.author = author;
         this.title = title;
         this.content = content;
@@ -44,6 +46,7 @@ public class PostDto {
         this.categories = categories;
         this.feedbacks = feedbacks;
         this.images = images;
+        this.bookmarked = bookmarked;
     }
 
     public Integer getId() {
@@ -87,5 +90,13 @@ public class PostDto {
     }
     public List<String> getImages() {
         return images;
+    }
+
+    public boolean isBookmarked() {
+        return bookmarked;
+    }
+
+    public void setBookmarked(boolean bookmarked) {
+        this.bookmarked = bookmarked;
     }
 }

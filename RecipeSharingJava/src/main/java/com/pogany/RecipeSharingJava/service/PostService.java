@@ -31,6 +31,7 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private NotificationService notificationService;
     private FollowRepository followRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     public PostService(
                        UserRepository userRepository,
@@ -40,7 +41,8 @@ public class PostService {
                        FeedbackRepository feedbackRepository,
                        PostImageRepository postImageRepository,
                        FollowRepository followRepository,
-                       NotificationService notificationService
+                       NotificationService notificationService,
+                       BookmarkRepository bookmarkRepository
                        ) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
@@ -50,6 +52,7 @@ public class PostService {
         this.postImageRepository = postImageRepository;
         this.followRepository = followRepository;
         this.notificationService = notificationService;
+        this.bookmarkRepository = bookmarkRepository;
     }
 
     private User getCurrentUser() {
@@ -241,9 +244,12 @@ public class PostService {
     }
 
 
-    private PostDto toDto(Post post) {
+    public PostDto toDto(Post post) {
 
         User user = post.getUser();
+        User currentUser = getCurrentUser();
+
+        boolean bookmarked = bookmarkRepository.existsByUserAndPost(currentUser, post);
 
         List<FeedbackDto> feedbacks = feedbackRepository.findByPostId(post.getId())
                 .stream()
@@ -262,7 +268,6 @@ public class PostService {
                 .map(PostImage::getImageUrl)
                 .toList();
 
-
         return new PostDto(
                 post.getId(),
                 user.getId(),
@@ -274,7 +279,8 @@ public class PostService {
                 post.getAllergies().stream().map(Allergy::getName).toList(),
                 post.getCategories().stream().map(Category::getName).toList(),
                 feedbacks,
-                images
+                images,
+                bookmarked
         );
     }
 }
