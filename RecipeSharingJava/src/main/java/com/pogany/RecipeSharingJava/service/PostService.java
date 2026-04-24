@@ -8,7 +8,12 @@ import com.pogany.RecipeSharingJava.repository.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,17 +28,28 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private final AllergyRepository allergyRepository;
     private final FeedbackRepository feedbackRepository;
+    private final PostImageRepository postImageRepository;
     private NotificationService notificationService;
     private FollowRepository followRepository;
 
-    public PostService(FollowRepository followRepository, NotificationService notificationService, FeedbackRepository feedbackRepository, AllergyRepository allergyRepository, CategoryRepository categoryRepository, PostRepository postRepository, UserRepository userRepository) {
+    public PostService(
+                       UserRepository userRepository,
+                       PostRepository postRepository,
+                       CategoryRepository categoryRepository,
+                       AllergyRepository allergyRepository,
+                       FeedbackRepository feedbackRepository,
+                       PostImageRepository postImageRepository,
+                       FollowRepository followRepository,
+                       NotificationService notificationService
+                       ) {
+        this.userRepository = userRepository;
+        this.postRepository = postRepository;
+        this.categoryRepository = categoryRepository;
+        this.allergyRepository = allergyRepository;
+        this.feedbackRepository = feedbackRepository;
+        this.postImageRepository = postImageRepository;
         this.followRepository = followRepository;
         this.notificationService = notificationService;
-        this.feedbackRepository = feedbackRepository;
-        this.allergyRepository = allergyRepository;
-        this.categoryRepository = categoryRepository;
-        this.postRepository = postRepository;
-        this.userRepository = userRepository;
     }
 
     private User getCurrentUser() {
@@ -89,7 +105,7 @@ public class PostService {
                 .toList();
     }
 
-    public PostDto createPost(CreatePostRequest request) {
+    public PostDto createPost(CreatePostRequest request, List<MultipartFile> images) {
 
         User user = getCurrentUser();
 
@@ -103,6 +119,8 @@ public class PostService {
         post.setAllergies(new ArrayList<>());
         post.setCategories(new ArrayList<>());
 
+
+
         if (request.getAllergyIds() != null) {
             post.getAllergies().addAll(
                     allergyRepository.findAllById(request.getAllergyIds())
@@ -115,11 +133,33 @@ public class PostService {
             );
         }
 
-        List<Follow> followers = followRepository.findAllByFollowedUser(user);
+        Post savedPost = postRepository.save(post);
+
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile file : images) {
+                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                Path path = Paths.get("RecipeSharingForum/post_images/" + fileName);
+
+                try {
+                    Files.createDirectories(path.getParent());
+                    Files.write(path, file.getBytes());
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to save image", e);
+                }
+
+                PostImage img = new PostImage();
+                img.setPost(savedPost);
+                img.setImageUrl(fileName);
+
+                postImageRepository.save(img);
+            }
+        }
+      
+      List<Follow> followers = followRepository.findAllByFollowedUser(user);
 
         CreateNotificationRequest req = new CreateNotificationRequest();
         req.setType(NotificationType.POST_CREATED_BY_FOLLOWED_USER);
-        req.setPostId(post.getId());
+        req.setPostId(savedPost.getId());
         req.setMetadata(Map.of(
                 "postTitle", post.getTitle(),
                 "actorName", user.getLogin()
@@ -134,7 +174,7 @@ public class PostService {
             );
         }
 
-        return toDto(postRepository.save(post));
+        return toDto(savedPost);
     }
 
     public PostDto updatePost(Integer id, CreatePostRequest request) {
@@ -217,6 +257,12 @@ public class PostService {
                 ))
                 .toList();
 
+        List<String> images = post.getImages()
+                .stream()
+                .map(PostImage::getImageUrl)
+                .toList();
+
+
         return new PostDto(
                 post.getId(),
                 user.getId(),
@@ -227,7 +273,8 @@ public class PostService {
                 post.getUpdateDate(),
                 post.getAllergies().stream().map(Allergy::getName).toList(),
                 post.getCategories().stream().map(Category::getName).toList(),
-                feedbacks
+                feedbacks,
+                images
         );
     }
 }
