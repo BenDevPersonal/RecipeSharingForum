@@ -48,16 +48,22 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/allergies/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
 
-                        // ✅ FIXED IMAGES
-                        .requestMatchers("/images/**").permitAll()
-
                         // PROTECTED
                         .requestMatchers("/api/notifications/**").authenticated()
                         .requestMatchers("/api/settings/**").authenticated()
                         .requestMatchers("/api/bookmarks/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/posts/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/users/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/users/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/categories/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/allergies/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/allergies/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/allergies/**").authenticated()
 
                         // EVERYTHING ELSE
                         .anyRequest().authenticated()
@@ -87,8 +93,6 @@ public class SecurityConfig {
         config.setAllowedHeaders(List.of("*"));
 
         config.setAllowCredentials(true);
-
-        config.setExposedHeaders(List.of("Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

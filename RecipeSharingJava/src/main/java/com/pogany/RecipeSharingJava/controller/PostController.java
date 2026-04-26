@@ -38,19 +38,14 @@ public class PostController {
         return postService.search(q, category, allergy);
     }
 
-    @PostMapping(consumes = "multipart/form-data")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PostDto createPost(
-            @RequestPart("data") CreatePostRequest request,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images
-    ) {
-        return postService.createPost(request, images);
+    public PostDto createPost(@RequestBody CreatePostRequest request) {
+        return postService.createPost(request);
     }
 
-    @PutMapping("/update/{id}")
-    public PostDto updatePost(@PathVariable Integer id,
-                              @RequestBody CreatePostRequest request) {
-
+    @PutMapping(value = "/update/{id}")
+    public PostDto updatePost(@PathVariable Integer id, @RequestBody CreatePostRequest request) {
         return postService.updatePost(id, request);
     }
 

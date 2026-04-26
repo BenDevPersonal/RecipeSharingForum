@@ -15,8 +15,6 @@ export function CreatePost() {
   const queryClient = useQueryClient();
   const user = token ? parseJwt(token)?.sub : null;
 
-const [images, setImages] = useState([]);
-
   const [post, setPost] = useState({
     title: "",
     content: "",
@@ -41,35 +39,33 @@ const [images, setImages] = useState([]);
     queryFn: getAllergies,
   });
 
- const mutation = useMutation({
-   mutationFn: ({ data, images }) => createPost(data, images),
+  const mutation = useMutation({
+    mutationFn: createPost,
 
-   onSuccess: (data) => {
-     queryClient.invalidateQueries(["posts"]);
-     setBackendError("");
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["posts"]);
+      setBackendError("");
 
-     setPost({
-       title: "",
-       content: "",
-       categories: [],
-       allergies: [],
-     });
+      setPost({
+        title: "",
+        content: "",
+        categories: [],
+        allergies: [],
+      });
 
-     setImages([]); // 👈 reset images
+      navigate(`/post/${data.id}`);
+    },
 
-     navigate(`/post/${data.id}`);
-   },
+    onError: (error) => {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error.message ||
+        "Something went wrong";
 
-   onError: (error) => {
-     const message =
-       error?.response?.data?.message ||
-       error?.response?.data?.error ||
-       error.message ||
-       "Something went wrong";
-
-     setBackendError(message);
-   },
- });
+      setBackendError(message);
+    },
+  });
 
   function toggleItem(field, name) {
     setPost((prev) => {
@@ -102,7 +98,7 @@ const [images, setImages] = useState([]);
       return;
     }
 
-    const data = {
+    mutation.mutate({
       title: post.title,
       content: post.content,
       userId: user.id,
@@ -117,11 +113,6 @@ const [images, setImages] = useState([]);
 
       creationDate: new Date().toISOString().split("T")[0],
       updateDate: new Date().toISOString().split("T")[0],
-    };
-
-    mutation.mutate({
-      data,
-      images,
     });
   }
 
@@ -167,17 +158,6 @@ const [images, setImages] = useState([]);
         {errors.content && (
           <p className="text-red-500 text-sm">Content is required</p>
         )}
-      </div>
-
-      <div>
-        <h2 className="text-lg font-semibold mb-2">add Images</h2>
-
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={(e) => setImages([...e.target.files])}
-        />
       </div>
 
       {/* CATEGORIES */}

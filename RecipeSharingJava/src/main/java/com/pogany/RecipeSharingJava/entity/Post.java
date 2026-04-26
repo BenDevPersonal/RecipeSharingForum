@@ -46,9 +46,6 @@ public class Post {
     )
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostImage> images = new ArrayList<>();
-
     public Integer getId() {
         return id;
     }
@@ -111,13 +108,5 @@ public class Post {
 
     public void setCategories(List<Category> categories) {
         this.categories = categories;
-    }
-
-    public List<PostImage> getImages() {
-        return images;
-    }
-
-    public void setImages(List<PostImage> images) {
-        this.images = images;
     }
 }

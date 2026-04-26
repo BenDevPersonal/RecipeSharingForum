@@ -28,7 +28,6 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private final AllergyRepository allergyRepository;
     private final FeedbackRepository feedbackRepository;
-    private final PostImageRepository postImageRepository;
     private NotificationService notificationService;
     private FollowRepository followRepository;
     private final BookmarkRepository bookmarkRepository;
@@ -39,7 +38,6 @@ public class PostService {
                        CategoryRepository categoryRepository,
                        AllergyRepository allergyRepository,
                        FeedbackRepository feedbackRepository,
-                       PostImageRepository postImageRepository,
                        FollowRepository followRepository,
                        NotificationService notificationService,
                        BookmarkRepository bookmarkRepository
@@ -49,18 +47,9 @@ public class PostService {
         this.categoryRepository = categoryRepository;
         this.allergyRepository = allergyRepository;
         this.feedbackRepository = feedbackRepository;
-        this.postImageRepository = postImageRepository;
         this.followRepository = followRepository;
         this.notificationService = notificationService;
         this.bookmarkRepository = bookmarkRepository;
-    }
-
-    private User getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String login = auth.getName();
-
-        return userRepository.findByLogin(login)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + login));
     }
 
     public List<PostDto> findAll() {
@@ -108,7 +97,7 @@ public class PostService {
                 .toList();
     }
 
-    public PostDto createPost(CreatePostRequest request, List<MultipartFile> images) {
+    public PostDto createPost(CreatePostRequest request) {
 
         User user = getCurrentUser();
 
@@ -138,26 +127,6 @@ public class PostService {
 
         Post savedPost = postRepository.save(post);
 
-        if (images != null && !images.isEmpty()) {
-            for (MultipartFile file : images) {
-                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                Path path = Paths.get("RecipeSharingForum/post_images/" + fileName);
-
-                try {
-                    Files.createDirectories(path.getParent());
-                    Files.write(path, file.getBytes());
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to save image", e);
-                }
-
-                PostImage img = new PostImage();
-                img.setPost(savedPost);
-                img.setImageUrl(fileName);
-
-                postImageRepository.save(img);
-            }
-        }
-      
       List<Follow> followers = followRepository.findAllByFollowedUser(user);
 
         CreateNotificationRequest req = new CreateNotificationRequest();
@@ -243,13 +212,36 @@ public class PostService {
         );
     }
 
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String login = auth.getName();
+
+        return userRepository.findByLogin(login)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + login));
+    }
+
 
     public PostDto toDto(Post post) {
 
         User user = post.getUser();
-        User currentUser = getCurrentUser();
 
-        boolean bookmarked = bookmarkRepository.existsByUserAndPost(currentUser, post);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        boolean bookmarked = false;
+
+        if (auth != null
+                && auth.isAuthenticated()
+                && auth.getName() != null
+                && !auth.getName().equals("anonymousUser")) {
+
+            String login = auth.getName();
+
+            User currentUser = userRepository.findByLogin(login).orElse(null);
+
+            if (currentUser != null) {
+                bookmarked = bookmarkRepository.existsByUserAndPost(currentUser, post);
+            }
+        }
 
         List<FeedbackDto> feedbacks = feedbackRepository.findByPostId(post.getId())
                 .stream()
@@ -263,11 +255,6 @@ public class PostService {
                 ))
                 .toList();
 
-        List<String> images = post.getImages()
-                .stream()
-                .map(PostImage::getImageUrl)
-                .toList();
-
         return new PostDto(
                 post.getId(),
                 user.getId(),
@@ -279,7 +266,6 @@ public class PostService {
                 post.getAllergies().stream().map(Allergy::getName).toList(),
                 post.getCategories().stream().map(Category::getName).toList(),
                 feedbacks,
-                images,
                 bookmarked
         );
     }

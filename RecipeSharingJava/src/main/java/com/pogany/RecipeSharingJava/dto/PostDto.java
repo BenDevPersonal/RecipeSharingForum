@@ -15,7 +15,6 @@ public class PostDto {
     private List<String> allergies;
     private List<String> categories;
     private List<FeedbackDto> feedbacks;
-    private List<String> images;
     private boolean bookmarked;
 
     public PostDto() {
@@ -32,7 +31,6 @@ public class PostDto {
             List<String> allergies,
             List<String> categories,
             List<FeedbackDto> feedbacks,
-            List<String> images,
             boolean bookmarked
     ) {
         this.id = id;
@@ -45,7 +43,6 @@ public class PostDto {
         this.allergies = allergies;
         this.categories = categories;
         this.feedbacks = feedbacks;
-        this.images = images;
         this.bookmarked = bookmarked;
     }
 
@@ -87,9 +84,6 @@ public class PostDto {
 
     public List<FeedbackDto> getFeedbacks() {
         return feedbacks;
-    }
-    public List<String> getImages() {
-        return images;
     }
 
     public boolean isBookmarked() {
