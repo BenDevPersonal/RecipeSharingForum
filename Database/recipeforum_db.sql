@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Apr 22, 2026 at 08:35 PM
+-- Host: localhost
+-- Generation Time: Apr 26, 2026 at 06:39 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.1.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -117,6 +117,15 @@ CREATE TABLE `bookmark` (
   `post_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `bookmark`
+--
+
+INSERT INTO `bookmark` (`user_id`, `post_id`) VALUES
+(8, 7),
+(10, 1),
+(10, 7);
+
 -- --------------------------------------------------------
 
 --
@@ -139,8 +148,7 @@ INSERT INTO `category` (`id`, `name`) VALUES
 (7, 'Baking'),
 (8, 'No cooking/baking required'),
 (9, 'Quickly done'),
-(10, 'Original recipe'),
-(11, 'bookmark');
+(10, 'Original recipe');
 
 -- --------------------------------------------------------
 
@@ -391,7 +399,13 @@ INSERT INTO `notification` (`id`, `user_id`, `type`, `message`, `is_read`, `crea
 (6, 8, 'FEEDBACK_RECEIVED', 'manager left feedback on your post Test title', 1, '2026-04-20', 7, 14, '{\"postTitle\":\"Test title\",\"actorName\":\"manager\"}'),
 (7, 14, 'FEEDBACK_DELETED', 'Your feedback from \"Test title\" was deleted', 1, '2026-04-20', 7, 8, '{\"postTitle\":\"Test title\",\"actorName\":\"admin2\"}'),
 (8, 1, 'FEEDBACK_RECEIVED', 'admin2 left feedback on your post Classic Margherita Pizza', 0, '2026-04-20', 1, 8, '{\"postTitle\":\"Classic Margherita Pizza\",\"actorName\":\"admin2\"}'),
-(9, 8, 'FEEDBACK_DELETED', 'Your feedback from \"Classic Margherita Pizza\" was deleted', 1, '2026-04-20', 1, 8, '{\"postTitle\":\"Classic Margherita Pizza\",\"actorName\":\"admin2\"}');
+(9, 8, 'FEEDBACK_DELETED', 'Your feedback from \"Classic Margherita Pizza\" was deleted', 1, '2026-04-20', 1, 8, '{\"postTitle\":\"Classic Margherita Pizza\",\"actorName\":\"admin2\"}'),
+(10, 8, 'POST_DELETED', 'Your post \"Image test\" was deleted', 1, '2026-04-24', NULL, 8, '{\"postTitle\":\"Image test\",\"actorName\":\"admin2\"}'),
+(11, 8, 'POST_DELETED', 'Your post \"img tewst\" was deleted', 1, '2026-04-24', NULL, 8, '{\"postTitle\":\"img tewst\",\"actorName\":\"admin2\"}'),
+(12, 8, 'POST_DELETED', 'Your post \"tes\" was deleted', 1, '2026-04-25', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"tes\"}'),
+(13, 8, 'POST_DELETED', 'Your post \"tg\" was deleted', 1, '2026-04-25', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"tg\"}'),
+(14, 8, 'POST_DELETED', 'Your post \"ww\" was deleted', 1, '2026-04-25', NULL, 8, '{\"postTitle\":\"ww\",\"actorName\":\"admin2\"}'),
+(15, 8, 'POST_DELETED', 'Your post \"Test zrer\" was deleted', 1, '2026-04-26', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"Test zrer\"}');
 
 -- --------------------------------------------------------
 
@@ -418,26 +432,7 @@ INSERT INTO `post` (`id`, `user_id`, `title`, `content`, `creation_date`, `updat
 (3, 3, 'Spicy Chicken Curry', 'Traditional Indian chicken curry with rich spices.', '2026-01-12', '2026-01-12'),
 (4, 4, 'Quick Pasta Alfredo', 'Creamy Alfredo pasta ready in under 30 minutes.', '2026-01-13', '2026-01-13'),
 (5, 5, 'Chocolate croissants', 'Flaky croissants filled with dark chocolate', '2026-01-14', '2026-02-09'),
-(7, 8, 'Test title', 'Test\nrecipe\nedited version', '2026-04-14', '2026-04-16');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `post_image`
---
-
-CREATE TABLE `post_image` (
-  `id` int(11) NOT NULL,
-  `post_id` int(11) NOT NULL,
-  `image_url` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `post_image`
---
-
-INSERT INTO `post_image` (`id`, `post_id`, `image_url`) VALUES
-(1, 1, 'pizza.jpeg');
+(7, 8, 'Test title', 'Test\nrecipe\nedited version', '2026-04-14', '2026-04-26');
 
 -- --------------------------------------------------------
 
@@ -490,8 +485,7 @@ INSERT INTO `user` (`id`, `login`, `email`, `password`, `country`, `role_id`) VA
 (10, 'Test', 'test@recipeforum.com', '$2a$10$Lbs.KUS0OD4kODMQ3SfXB.u93Tad5QZFlV3bK02LYcWr4CCW6zyD2', 'HUN', 2),
 (12, 'Test2', 'test2@recipeforum.com', '$2a$10$ezBywSHDQeRfZEsynAAz7.JG.UjQXHXmj65eHx7mhYH/A0k3Kuewi', 'ARE', 2),
 (13, 'Test3', 'test3@recipeforum.com', '$2a$10$bO8Wpuh6okjHUVJodEa69uPGjspOOLoajRVmNdgai2UJ7MEeyZhmy', 'NOR', 2),
-(14, 'manager', 'manager@recipeforum.com', '$2a$10$oy8mALY8Ff9qgwQprV6jK.cptjs81dTgWo1LbDTd5NNql/d.3w1.a', 'ESP', 3),
-(15, 'sitedevattila', 'spiegelattila999@gmail.com', '$2a$10$rYVK5IiV4uzuEVwKY1g.zuATIzuGFaEohriuBdVgkZZ7Kga.SAzX.', 'HUN', 2);
+(14, 'manager', 'manager@recipeforum.com', '$2a$10$oy8mALY8Ff9qgwQprV6jK.cptjs81dTgWo1LbDTd5NNql/d.3w1.a', 'ESP', 3);
 
 -- --------------------------------------------------------
 
@@ -506,6 +500,14 @@ CREATE TABLE `user_setting` (
   `show_allergy_on_profile` tinyint(1) NOT NULL,
   `auto_filter_allergy` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_setting`
+--
+
+INSERT INTO `user_setting` (`id`, `user_id`, `show_country_on_profile`, `show_allergy_on_profile`, `auto_filter_allergy`) VALUES
+(1, 8, 1, 1, 0),
+(2, 10, 1, 1, 0);
 
 --
 -- Indexes for dumped tables
@@ -599,13 +601,6 @@ ALTER TABLE `post`
   ADD KEY `fk_user_id` (`user_id`);
 
 --
--- Indexes for table `post_image`
---
-ALTER TABLE `post_image`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `post_id` (`post_id`);
-
---
 -- Indexes for table `role`
 --
 ALTER TABLE `role`
@@ -666,19 +661,13 @@ ALTER TABLE `follow`
 -- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `post`
 --
 ALTER TABLE `post`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
--- AUTO_INCREMENT for table `post_image`
---
-ALTER TABLE `post_image`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `role`
@@ -690,13 +679,13 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `user_setting`
 --
 ALTER TABLE `user_setting`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
@@ -764,12 +753,6 @@ ALTER TABLE `notification`
 --
 ALTER TABLE `post`
   ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
-
---
--- Constraints for table `post_image`
---
-ALTER TABLE `post_image`
-  ADD CONSTRAINT `post_image_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user`
