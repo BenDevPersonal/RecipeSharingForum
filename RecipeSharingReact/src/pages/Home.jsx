@@ -11,7 +11,7 @@ import { getMe } from "../api/users";
 import { getUserSetting } from "../api/settings";
 
 export function Home() {
-const BOOKMARKS = -1;
+  const BOOKMARKS = -1;
   const { isAuth, token } = useAuth();
   const navigate = useNavigate();
 
@@ -66,31 +66,60 @@ const BOOKMARKS = -1;
   // -----------------------------
   const excludedAllergies = useMemo(() => {
     if (!settings?.autoFilterAllergy) return [];
-
     return me?.allergies || [];
   }, [settings, me]);
 
   // -----------------------------
-  // FILTER POSTS
+  // HELPER: POPULARITY SCORE
+  // -----------------------------
+  const getPopularityScore = (post) => {
+    if (!post.feedbacks?.length) return 0;
+
+    const avg =
+      post.feedbacks.reduce((sum, f) => sum + f.rating, 0) /
+      post.feedbacks.length;
+
+    return avg * post.feedbacks.length;
+  };
+
+  // -----------------------------
+  // FILTER + SORT POSTS
   // -----------------------------
   const filteredPosts = useMemo(() => {
     if (!posts) return [];
 
-    return posts.filter((post) => {
-      const categoryMatch =
-        !selectedCategory ||
-        post.categories?.includes(
-          categories?.find((c) => c.id === selectedCategory)?.name
-        );
+    const selectedCategoryName = categories?.find(
+      (c) => c.id === selectedCategory
+    )?.name;
 
-      const allergyMatch =
-        excludedAllergies.length === 0 ||
-        !post.allergies?.some((a) =>
-          excludedAllergies.includes(a)
-        );
+    return posts
+      .filter((post) => {
+        const categoryMatch =
+          !selectedCategory ||
+          post.categories?.includes(selectedCategoryName);
 
-      return categoryMatch && allergyMatch;
-    });
+        const allergyMatch =
+          excludedAllergies.length === 0 ||
+          !post.allergies?.some((a) =>
+            excludedAllergies.includes(a)
+          );
+
+        return categoryMatch && allergyMatch;
+      })
+      .sort((a, b) => {
+        const scoreDiff =
+          getPopularityScore(b) - getPopularityScore(a);
+
+        // tie-breaker → newest first
+        if (scoreDiff !== 0) return scoreDiff;
+
+        return (
+          new Date(b.creationDate) -
+          new Date(a.creationDate)
+        );
+      })
+      .slice(0, 8);
+
   }, [posts, selectedCategory, categories, excludedAllergies]);
 
   function handleCategoryClick(id) {
@@ -139,9 +168,8 @@ const BOOKMARKS = -1;
 
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-5 py-2 rounded-full border ${
-                selectedCategory === null ? "bg-accent text-white" : ""
-              }`}
+              className={`px-5 py-2 rounded-full border ${selectedCategory === null ? "bg-accent text-white" : ""
+                }`}
             >
               All
             </button>
@@ -150,11 +178,10 @@ const BOOKMARKS = -1;
               <button
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.id)}
-                className={`px-5 py-2 rounded-full border ${
-                  selectedCategory === cat.id
-                    ? "bg-accent text-white"
-                    : ""
-                }`}
+                className={`px-5 py-2 rounded-full border ${selectedCategory === cat.id
+                  ? "bg-accent text-white"
+                  : ""
+                  }`}
               >
                 {cat.name}
               </button>
@@ -165,7 +192,9 @@ const BOOKMARKS = -1;
 
       {/* RECIPES */}
       <div>
-        <h2 className="text-2xl font-semibold mb-6">Latest Recipes</h2>
+        <h2 className="text-2xl font-semibold mb-6">
+          🔥 Popular Recipes
+        </h2>
 
         {recError && <ErrorMessage message={recErrObj?.message} />}
 
@@ -188,22 +217,52 @@ const BOOKMARKS = -1;
 }
 
 function RecipeCard({ recipe, navigate }) {
+  const avg =
+    recipe.feedbacks?.length
+      ? Number(
+        (
+          recipe.feedbacks.reduce(
+            (sum, f) => sum + (f.rating || 0),
+            0
+          ) / recipe.feedbacks.length
+        ).toFixed(1)
+      )
+      : 0;
+
+  const isEdited =
+    recipe.updateDate &&
+    recipe.creationDate &&
+    recipe.updateDate !== recipe.creationDate;
+
   return (
     <div
       onClick={() => navigate(`/post/${recipe.id}`)}
       className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden cursor-pointer"
     >
-
-      {recipe.images?.length > 0 && (
-        <img
-          src={`http://localhost:8080/images/${recipe.images[0]}`}
-          alt={recipe.title}
-          className="h-44 w-full object-cover"
-        />
-      )}
-
       <div className="p-4">
         <h3 className="font-semibold">{recipe.title}</h3>
+        <div className="text-sm text-gray-500">
+          by {recipe.author}
+        </div>
+        <div className="flex items-center gap-2 p-2">
+          {avg ? (
+            <span className="text-sm px-3 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300">
+              {avg} ★
+            </span>
+          ) : (
+            <span className="text-sm text-gray-400">
+              No rating
+            </span>
+          )}
+        </div>
+
+          <div className="text-xs text-gray-500 flex gap-2">
+            <span>{recipe.feedbacks?.length} {recipe.feedbacks?.length === 1 ? "feedback" : "feedbacks"}</span>
+          </div>
+        <div className="text-xs text-gray-500 flex gap-2">
+          <span>Created: {recipe.creationDate}</span>
+          {isEdited && <span>(edited)</span>}
+        </div>
       </div>
     </div>
   );
