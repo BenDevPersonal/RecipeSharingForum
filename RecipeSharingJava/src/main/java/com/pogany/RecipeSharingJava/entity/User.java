@@ -2,6 +2,7 @@ package com.pogany.RecipeSharingJava.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "allergy_id")
     )
-    private Set<Allergy> allergies = new HashSet<>();
+    private List<Allergy> allergies = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -87,11 +88,11 @@ public class User {
         this.role = role;
     }
 
-    public Set<Allergy> getAllergies() {
+    public List<Allergy> getAllergies() {
         return allergies;
     }
 
-    public void setAllergies(Set<Allergy> allergies) {
+    public void setAllergies(List<Allergy> allergies) {
         this.allergies = allergies;
     }
 }

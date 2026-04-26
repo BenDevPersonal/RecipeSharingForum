@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 06, 2026 at 04:27 PM
+-- Generation Time: Apr 26, 2026 at 06:39 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -67,6 +67,15 @@ CREATE TABLE `allergy_post` (
   `post_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `allergy_post`
+--
+
+INSERT INTO `allergy_post` (`allergy_id`, `post_id`) VALUES
+(3, 7),
+(5, 7),
+(12, 7);
+
 -- --------------------------------------------------------
 
 --
@@ -77,6 +86,45 @@ CREATE TABLE `allergy_user` (
   `allergy_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `allergy_user`
+--
+
+INSERT INTO `allergy_user` (`allergy_id`, `user_id`) VALUES
+(5, 12);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `blacklist`
+--
+
+CREATE TABLE `blacklist` (
+  `id` int(11) NOT NULL,
+  `blacklisting_user` int(11) NOT NULL,
+  `blacklisted_user` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bookmark`
+--
+
+CREATE TABLE `bookmark` (
+  `user_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `bookmark`
+--
+
+INSERT INTO `bookmark` (`user_id`, `post_id`) VALUES
+(8, 7),
+(10, 1),
+(10, 7);
 
 -- --------------------------------------------------------
 
@@ -112,6 +160,14 @@ CREATE TABLE `category_post` (
   `category_id` int(11) NOT NULL,
   `post_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `category_post`
+--
+
+INSERT INTO `category_post` (`category_id`, `post_id`) VALUES
+(1, 7),
+(10, 7);
 
 -- --------------------------------------------------------
 
@@ -296,7 +352,60 @@ INSERT INTO `feedback` (`id`, `user_id`, `post_id`, `rating`, `content`) VALUES
 (2, 3, 2, 4, 'Great burger, but I added extra spices.'),
 (3, 4, 3, 5, 'Loved the flavors, very authentic curry.'),
 (4, 5, 4, 4, 'Creamy and easy to make, perfect weeknight meal.'),
-(5, 1, 5, 5, 'Perfect texture and rich chocolate flavor!');
+(5, 1, 5, 5, 'Perfect texture and rich chocolate flavor!'),
+(9, 10, 7, 5, 'Test feedback'),
+(10, 12, 7, 4, 'Test feedback 2');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `follow`
+--
+
+CREATE TABLE `follow` (
+  `id` int(11) NOT NULL,
+  `following_user` int(11) NOT NULL,
+  `followed_user` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notification`
+--
+
+CREATE TABLE `notification` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `message` text NOT NULL,
+  `is_read` tinyint(1) NOT NULL,
+  `created_at` date NOT NULL,
+  `post_id` int(11) DEFAULT NULL,
+  `actor_id` int(11) DEFAULT NULL,
+  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`metadata`))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notification`
+--
+
+INSERT INTO `notification` (`id`, `user_id`, `type`, `message`, `is_read`, `created_at`, `post_id`, `actor_id`, `metadata`) VALUES
+(1, 8, 'POST_DELETED', 'Your post \"test for notif\" was deleted', 1, '2026-04-20', NULL, 8, '{\"postTitle\":\"test for notif\",\"actorName\":\"admin2\"}'),
+(2, 8, 'FEEDBACK_DELETED', 'Your feedback from \"Chocolate croissants\" was deleted', 1, '2026-04-20', 5, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"Chocolate croissants\"}'),
+(3, 14, 'FEEDBACK_DELETED', 'Your feedback from \"Test title\" was deleted', 1, '2026-04-20', 7, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"Test title\"}'),
+(4, 14, 'FEEDBACK_RECEIVED', 'manager left feedback on your post Test title', 1, '2026-04-20', 7, 14, '{\"actorName\":\"manager\",\"postTitle\":\"Test title\"}'),
+(5, 14, 'FEEDBACK_DELETED', 'Your feedback from \"Test title\" was deleted', 1, '2026-04-20', 7, 14, '{\"postTitle\":\"Test title\",\"actorName\":\"manager\"}'),
+(6, 8, 'FEEDBACK_RECEIVED', 'manager left feedback on your post Test title', 1, '2026-04-20', 7, 14, '{\"postTitle\":\"Test title\",\"actorName\":\"manager\"}'),
+(7, 14, 'FEEDBACK_DELETED', 'Your feedback from \"Test title\" was deleted', 1, '2026-04-20', 7, 8, '{\"postTitle\":\"Test title\",\"actorName\":\"admin2\"}'),
+(8, 1, 'FEEDBACK_RECEIVED', 'admin2 left feedback on your post Classic Margherita Pizza', 0, '2026-04-20', 1, 8, '{\"postTitle\":\"Classic Margherita Pizza\",\"actorName\":\"admin2\"}'),
+(9, 8, 'FEEDBACK_DELETED', 'Your feedback from \"Classic Margherita Pizza\" was deleted', 1, '2026-04-20', 1, 8, '{\"postTitle\":\"Classic Margherita Pizza\",\"actorName\":\"admin2\"}'),
+(10, 8, 'POST_DELETED', 'Your post \"Image test\" was deleted', 1, '2026-04-24', NULL, 8, '{\"postTitle\":\"Image test\",\"actorName\":\"admin2\"}'),
+(11, 8, 'POST_DELETED', 'Your post \"img tewst\" was deleted', 1, '2026-04-24', NULL, 8, '{\"postTitle\":\"img tewst\",\"actorName\":\"admin2\"}'),
+(12, 8, 'POST_DELETED', 'Your post \"tes\" was deleted', 1, '2026-04-25', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"tes\"}'),
+(13, 8, 'POST_DELETED', 'Your post \"tg\" was deleted', 1, '2026-04-25', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"tg\"}'),
+(14, 8, 'POST_DELETED', 'Your post \"ww\" was deleted', 1, '2026-04-25', NULL, 8, '{\"postTitle\":\"ww\",\"actorName\":\"admin2\"}'),
+(15, 8, 'POST_DELETED', 'Your post \"Test zrer\" was deleted', 1, '2026-04-26', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"Test zrer\"}');
 
 -- --------------------------------------------------------
 
@@ -322,7 +431,8 @@ INSERT INTO `post` (`id`, `user_id`, `title`, `content`, `creation_date`, `updat
 (2, 2, 'Best Beef Burger', 'Juicy beef burger with homemade sauce and fresh veggies.', '2026-01-11', '2026-01-11'),
 (3, 3, 'Spicy Chicken Curry', 'Traditional Indian chicken curry with rich spices.', '2026-01-12', '2026-01-12'),
 (4, 4, 'Quick Pasta Alfredo', 'Creamy Alfredo pasta ready in under 30 minutes.', '2026-01-13', '2026-01-13'),
-(5, 5, 'Chocolate croissants', 'Flaky croissants filled with dark chocolate', '2026-01-14', '2026-02-09');
+(5, 5, 'Chocolate croissants', 'Flaky croissants filled with dark chocolate', '2026-01-14', '2026-02-09'),
+(7, 8, 'Test title', 'Test\nrecipe\nedited version', '2026-04-14', '2026-04-26');
 
 -- --------------------------------------------------------
 
@@ -341,7 +451,9 @@ CREATE TABLE `role` (
 
 INSERT INTO `role` (`id`, `name`) VALUES
 (1, 'admin'),
-(2, 'user');
+(2, 'user'),
+(3, 'manager'),
+(4, 'moderator');
 
 -- --------------------------------------------------------
 
@@ -368,7 +480,34 @@ INSERT INTO `user` (`id`, `login`, `email`, `password`, `country`, `role_id`) VA
 (3, 'spicequeen', 'spicequeen@outlook.com', 'hashed_pw_spice', 'HUN', 2),
 (4, 'homecook_john', 'john.cook@gmail.com', 'hashed_pw_john', 'HUN', 2),
 (5, 'baker_lily', 'lily.bakes@gmail.com', 'hashed_pw_lily', 'HUN', 2),
-(7, 'admin', 'admin@recipeforum.com', 'hashed_admin_pw', 'HUN', 1);
+(7, 'admin', 'admin@recipeforum.com', 'hashed_admin_pw', 'HUN', 1),
+(8, 'admin2', 'admin2@recipeforum.com', '$2a$10$THnXeqxsUs.p3JdEN7q9MOCbC4uq8erlyAEGx.lumEkkz9dOnYRoW', 'HUN', 1),
+(10, 'Test', 'test@recipeforum.com', '$2a$10$Lbs.KUS0OD4kODMQ3SfXB.u93Tad5QZFlV3bK02LYcWr4CCW6zyD2', 'HUN', 2),
+(12, 'Test2', 'test2@recipeforum.com', '$2a$10$ezBywSHDQeRfZEsynAAz7.JG.UjQXHXmj65eHx7mhYH/A0k3Kuewi', 'ARE', 2),
+(13, 'Test3', 'test3@recipeforum.com', '$2a$10$bO8Wpuh6okjHUVJodEa69uPGjspOOLoajRVmNdgai2UJ7MEeyZhmy', 'NOR', 2),
+(14, 'manager', 'manager@recipeforum.com', '$2a$10$oy8mALY8Ff9qgwQprV6jK.cptjs81dTgWo1LbDTd5NNql/d.3w1.a', 'ESP', 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_setting`
+--
+
+CREATE TABLE `user_setting` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `show_country_on_profile` tinyint(1) NOT NULL,
+  `show_allergy_on_profile` tinyint(1) NOT NULL,
+  `auto_filter_allergy` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_setting`
+--
+
+INSERT INTO `user_setting` (`id`, `user_id`, `show_country_on_profile`, `show_allergy_on_profile`, `auto_filter_allergy`) VALUES
+(1, 8, 1, 1, 0),
+(2, 10, 1, 1, 0);
 
 --
 -- Indexes for dumped tables
@@ -393,6 +532,21 @@ ALTER TABLE `allergy_post`
 ALTER TABLE `allergy_user`
   ADD KEY `fk_allergyconn_user_id` (`user_id`),
   ADD KEY `fk_allergyconn_allergy_id` (`allergy_id`);
+
+--
+-- Indexes for table `blacklist`
+--
+ALTER TABLE `blacklist`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `blacklisting_user` (`blacklisting_user`),
+  ADD KEY `blacklisted_user` (`blacklisted_user`);
+
+--
+-- Indexes for table `bookmark`
+--
+ALTER TABLE `bookmark`
+  ADD PRIMARY KEY (`user_id`,`post_id`),
+  ADD KEY `post_id` (`post_id`);
 
 --
 -- Indexes for table `category`
@@ -422,6 +576,24 @@ ALTER TABLE `feedback`
   ADD KEY `fk_user_id2` (`user_id`);
 
 --
+-- Indexes for table `follow`
+--
+ALTER TABLE `follow`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `following_user` (`following_user`),
+  ADD KEY `followed_user` (`followed_user`);
+
+--
+-- Indexes for table `notification`
+--
+ALTER TABLE `notification`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `post_id` (`post_id`),
+  ADD KEY `actor_id` (`actor_id`),
+  ADD KEY `user_id_2` (`user_id`);
+
+--
 -- Indexes for table `post`
 --
 ALTER TABLE `post`
@@ -445,6 +617,13 @@ ALTER TABLE `user`
   ADD KEY `country` (`country`);
 
 --
+-- Indexes for table `user_setting`
+--
+ALTER TABLE `user_setting`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -452,37 +631,61 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `allergy`
 --
 ALTER TABLE `allergy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT for table `blacklist`
+--
+ALTER TABLE `blacklist`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `follow`
+--
+ALTER TABLE `follow`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `notification`
+--
+ALTER TABLE `notification`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `post`
 --
 ALTER TABLE `post`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT for table `user_setting`
+--
+ALTER TABLE `user_setting`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
@@ -503,6 +706,20 @@ ALTER TABLE `allergy_user`
   ADD CONSTRAINT `fk_allergyconn_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 
 --
+-- Constraints for table `blacklist`
+--
+ALTER TABLE `blacklist`
+  ADD CONSTRAINT `blacklist_ibfk_1` FOREIGN KEY (`blacklisting_user`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `blacklist_ibfk_2` FOREIGN KEY (`blacklisted_user`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `bookmark`
+--
+ALTER TABLE `bookmark`
+  ADD CONSTRAINT `bookmark_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `bookmark_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `category_post`
 --
 ALTER TABLE `category_post`
@@ -517,6 +734,21 @@ ALTER TABLE `feedback`
   ADD CONSTRAINT `fk_user_id2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 
 --
+-- Constraints for table `follow`
+--
+ALTER TABLE `follow`
+  ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`following_user`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `follow_ibfk_2` FOREIGN KEY (`followed_user`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `notification`
+--
+ALTER TABLE `notification`
+  ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `notification_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`),
+  ADD CONSTRAINT `notification_ibfk_3` FOREIGN KEY (`actor_id`) REFERENCES `user` (`id`);
+
+--
 -- Constraints for table `post`
 --
 ALTER TABLE `post`
@@ -528,6 +760,12 @@ ALTER TABLE `post`
 ALTER TABLE `user`
   ADD CONSTRAINT `fk_role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`),
   ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`country`) REFERENCES `country` (`code`);
+
+--
+-- Constraints for table `user_setting`
+--
+ALTER TABLE `user_setting`
+  ADD CONSTRAINT `user_setting_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

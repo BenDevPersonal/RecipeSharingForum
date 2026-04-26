@@ -5,6 +5,7 @@ import com.pogany.RecipeSharingJava.dto.UserDto;
 import com.pogany.RecipeSharingJava.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,7 +13,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private UserService userService;
+
+    private final UserService userService;
 
     @Autowired
     public UserController(UserService userService) {
@@ -24,14 +26,24 @@ public class UserController {
         return userService.findAll();
     }
 
+    @GetMapping("/search")
+    public List<UserDto> searchUsers(@RequestParam String q) {
+        return userService.search(q);
+    }
+
+    @GetMapping("/me")
+    public UserDto me(Authentication authentication) {
+        return userService.findByLogin(authentication.getName());
+    }
+
+    @GetMapping("/by-login/{login}")
+    public UserDto getUserByLogin(@PathVariable String login) {
+        return userService.findByLogin(login);
+    }
+
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable Integer id) {
         return userService.findById(id);
-    }
-
-    @GetMapping("/{login}")
-    public UserDto getUserByLogin(@PathVariable String login) {
-        return userService.findByLogin(login);
     }
 
     @PostMapping
@@ -42,9 +54,13 @@ public class UserController {
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UserDto updateUser(@PathVariable Integer id, @RequestBody CreateUserRequest request) { return userService.updateUser(id, request); }
+    public UserDto updateUser(@PathVariable Integer id, @RequestBody CreateUserRequest request) {
+        return userService.updateUser(id, request);
+    }
 
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteUser(@PathVariable Integer id) { userService.delete(id); }
+    public void deleteUser(@PathVariable Integer id) {
+        userService.delete(id);
+    }
 }

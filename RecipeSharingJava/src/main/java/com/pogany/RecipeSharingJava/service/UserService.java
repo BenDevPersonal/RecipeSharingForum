@@ -13,19 +13,22 @@ import com.pogany.RecipeSharingJava.repository.RoleRepository;
 import com.pogany.RecipeSharingJava.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private CountryRepository countryRepository;
-    private AllergyRepository allergyRepository;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, CountryRepository countryRepository, AllergyRepository allergyRepository) {
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final CountryRepository countryRepository;
+    private final AllergyRepository allergyRepository;
+
+    public UserService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       CountryRepository countryRepository,
+                       AllergyRepository allergyRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.countryRepository = countryRepository;
@@ -48,56 +51,68 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with Login: " + login)));
     }
 
-    public UserDto createUser(CreateUserRequest request) {
-        Role role = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + request.getRoleId()));
-
-        Country country = countryRepository.findById(request.getCountry())
-                .orElseThrow(() -> new ResourceNotFoundException("Country not found with Code: " + request.getCountry()));
-
-        User user = new User();
-        user.setLogin(request.getLogin());
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-        user.setCountry(country);
-        user.setRole(role);
-
-        if (request.getAllergyIds() != null && !request.getAllergyIds().isEmpty()) {
-            Set<Allergy> allergies = new HashSet<>(allergyRepository.findAllById(request.getAllergyIds()));
-            user.setAllergies(allergies);
-        } else {
-            user.setAllergies(new HashSet<>());
-        }
-
-        return toDto(userRepository.save(user));
+    public List<UserDto> search(String q) {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getLogin().toLowerCase().contains(q.toLowerCase()))
+                .map(this::toDto)
+                .toList();
     }
 
     public UserDto updateUser(Integer id, CreateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
 
-        Role role = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + request.getRoleId()));
+        Role role = roleRepository.findByName(request.getRole())
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + request.getRole()));
 
-        Country country = countryRepository.findById(request.getCountry())
-                .orElseThrow(() -> new ResourceNotFoundException("Country not found with Code: " + request.getCountry()));
+        Country country = countryRepository.findByName(request.getCountry())
+                .orElseThrow(() -> new ResourceNotFoundException("Country not found: " + request.getCountry()));
 
+        user.setLogin(request.getLogin());
+        user.setEmail(request.getEmail());
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(request.getPassword());
+        }
+
+        user.setCountry(country);
+        user.setRole(role);
+
+        user.setAllergies(new ArrayList<>());
+
+        if (request.getAllergies() != null) {
+            user.getAllergies().addAll(
+                    allergyRepository.findAllById(request.getAllergies())
+            );
+        }
+
+
+        return toDto(userRepository.save(user));
+    }
+
+    public UserDto createUser(CreateUserRequest request) {
+
+        Country country = countryRepository.findByName(request.getCountry())
+                .orElseThrow(() -> new ResourceNotFoundException("Country not found: " + request.getCountry()));
+
+        User user = new User();
         user.setLogin(request.getLogin());
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setCountry(country);
-        user.setRole(role);
 
-        if (request.getAllergyIds() != null && !request.getAllergyIds().isEmpty()) {
-            Set<Allergy> allergies = new HashSet<>(allergyRepository.findAllById(request.getAllergyIds()));
-            user.setAllergies(allergies);
+        if (request.getAllergies() != null && !request.getAllergies().isEmpty()) {
+            List<Allergy> allergies = allergyRepository.findAll()
+                    .stream()
+                    .filter(a -> request.getAllergies().contains(a.getName()))
+                    .toList();
+
+            user.setAllergies(new ArrayList<>(allergies));
         } else {
-            user.setAllergies(new HashSet<>());
+            user.setAllergies(new ArrayList<>());
         }
 
-        userRepository.save(user);
-
-        return toDto(user);
+        return toDto(userRepository.save(user));
     }
 
     public void delete(Integer id) {
@@ -114,7 +129,7 @@ public class UserService {
                 user.getEmail(),
                 user.getCountry().getName(),
                 user.getRole().getName(),
-                user.getAllergies().stream().map(Allergy::getName).collect(Collectors.toSet())
+                user.getAllergies().stream().map(Allergy::getName).collect(Collectors.toList())
         );
     }
 }
