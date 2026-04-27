@@ -45,11 +45,13 @@ public class PostController {
     }
 
     @PutMapping(value = "/update/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public PostDto updatePost(@PathVariable Integer id, @RequestBody CreatePostRequest request) {
         return postService.updatePost(id, request);
     }
 
     @DeleteMapping("/delete/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public void deletePost(@PathVariable Integer id) {
         postService.delete(id);
     }

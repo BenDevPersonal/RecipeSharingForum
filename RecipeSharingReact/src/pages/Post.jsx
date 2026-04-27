@@ -231,6 +231,7 @@ export function Post() {
                   <button
                     onClick={() => {
                       close();
+                      confirm("Delete recipe?") &&
                       deletePostMutation.mutate(post.id);
                     }}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-left text-red-600"
@@ -313,6 +314,7 @@ export function Post() {
                         <button
                           onClick={() => {
                             close();
+                            confirm("Delete feedback?") && 
                             deleteFeedbackMutation.mutate(f.id);
                           }}
                           className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-left text-red-600"

@@ -384,7 +384,7 @@ function PostsTab() {
 
               {/* DELETE BUTTON */}
               <button
-                onClick={() => deleteMutation.mutate(p.id)}
+                onClick={() => confirm("Delete recipe?") && deleteMutation.mutate(p.id)}
                 className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
               >
                 Delete

@@ -162,7 +162,7 @@ export function CreatePost() {
 
       {/* CATEGORIES */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">Categories</h2>
+        <h2 className="text-lg font-semibold mb-3">Categories (optional)</h2>
 
         <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
@@ -183,7 +183,7 @@ export function CreatePost() {
 
       {/* ALLERGIES */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">Allergies</h2>
+        <h2 className="text-lg font-semibold mb-3">Allergies (optional)</h2>
 
         <div className="flex flex-wrap gap-2">
           {allergies.map((allergy) => (

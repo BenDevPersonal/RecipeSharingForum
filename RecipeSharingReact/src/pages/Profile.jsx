@@ -259,7 +259,7 @@ export function Profile() {
 
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-soft space-y-4">
                         <Field label="Login" value={form.login} editMode={editMode} name="login" onChange={handleChange} />
-                        <Field label="Email" value={form.email} editMode={false} />
+                        <Field label="Email" value={form.email} editMode={editMode} name="email" onChange={handleChange} />
 
                         <p className="text-sm text-gray-500">Badge</p>
                         <div className="text-left space-y-1">

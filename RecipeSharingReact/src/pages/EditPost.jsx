@@ -114,7 +114,7 @@ export function EditPost() {
 
       {/* CATEGORIES */}
       <div>
-        <h2 className="font-semibold mb-2">Categories</h2>
+        <h2 className="font-semibold mb-2">Categories (optional)</h2>
 
         <div className="flex flex-wrap gap-2">
           {categories?.map((c) => (
@@ -138,7 +138,7 @@ export function EditPost() {
 
       {/* ALLERGIES */}
       <div>
-        <h2 className="font-semibold mb-2">Allergies</h2>
+        <h2 className="font-semibold mb-2">Allergies (optional)</h2>
 
         <div className="flex flex-wrap gap-2">
           {allergies?.map((a) => (
