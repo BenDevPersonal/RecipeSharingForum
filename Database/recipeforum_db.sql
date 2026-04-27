@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 26, 2026 at 06:39 PM
+-- Generation Time: Apr 27, 2026 at 08:21 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -353,8 +353,8 @@ INSERT INTO `feedback` (`id`, `user_id`, `post_id`, `rating`, `content`) VALUES
 (3, 4, 3, 5, 'Loved the flavors, very authentic curry.'),
 (4, 5, 4, 4, 'Creamy and easy to make, perfect weeknight meal.'),
 (5, 1, 5, 5, 'Perfect texture and rich chocolate flavor!'),
-(9, 10, 7, 5, 'Test feedback'),
-(10, 12, 7, 4, 'Test feedback 2');
+(10, 12, 7, 4, 'Test feedback 2'),
+(22, 10, 7, 5, 'Test feedback');
 
 -- --------------------------------------------------------
 
@@ -367,6 +367,13 @@ CREATE TABLE `follow` (
   `following_user` int(11) NOT NULL,
   `followed_user` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `follow`
+--
+
+INSERT INTO `follow` (`id`, `following_user`, `followed_user`) VALUES
+(1, 10, 8);
 
 -- --------------------------------------------------------
 
@@ -405,7 +412,19 @@ INSERT INTO `notification` (`id`, `user_id`, `type`, `message`, `is_read`, `crea
 (12, 8, 'POST_DELETED', 'Your post \"tes\" was deleted', 1, '2026-04-25', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"tes\"}'),
 (13, 8, 'POST_DELETED', 'Your post \"tg\" was deleted', 1, '2026-04-25', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"tg\"}'),
 (14, 8, 'POST_DELETED', 'Your post \"ww\" was deleted', 1, '2026-04-25', NULL, 8, '{\"postTitle\":\"ww\",\"actorName\":\"admin2\"}'),
-(15, 8, 'POST_DELETED', 'Your post \"Test zrer\" was deleted', 1, '2026-04-26', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"Test zrer\"}');
+(15, 8, 'POST_DELETED', 'Your post \"Test zrer\" was deleted', 1, '2026-04-26', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"Test zrer\"}'),
+(16, 8, 'POST_DELETED', 'Your post \"cscadfadf\" was deleted', 1, '2026-04-26', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"cscadfadf\"}'),
+(17, 8, 'POST_DELETED', 'Your post \"fewfw\" was deleted', 1, '2026-04-26', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"fewfw\"}'),
+(18, 8, 'POST_DELETED', 'Your post \"er44\" was deleted', 1, '2026-04-26', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"er44\"}'),
+(19, 8, 'POST_DELETED', 'Your recipe \"A szeretet receptje\" was deleted', 1, '2026-04-27', NULL, 8, '{\"postTitle\":\"A szeretet receptje\",\"actorName\":\"admin2\"}'),
+(20, 8, 'POST_DELETED', 'Your recipe \"g\" was deleted', 1, '2026-04-27', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"g\"}'),
+(21, 8, 'POST_DELETED', 'Your recipe \"v\" was deleted', 1, '2026-04-27', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"v\"}'),
+(22, 5, 'FEEDBACK_RECEIVED', 'admin2 left feedback on your recipe \"Chocolate croissants\"', 0, '2026-04-27', 5, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"Chocolate croissants\"}'),
+(23, 8, 'FEEDBACK_DELETED', 'Your feedback from \"Chocolate croissants\" was deleted', 1, '2026-04-27', 5, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"Chocolate croissants\"}'),
+(24, 10, 'FEEDBACK_DELETED', 'Your feedback from \"Test title\" was deleted', 1, '2026-04-27', 7, 10, '{\"actorName\":\"Test\",\"postTitle\":\"Test title\"}'),
+(25, 8, 'FEEDBACK_RECEIVED', 'Test left feedback on your recipe \"Test title\"', 1, '2026-04-27', 7, 10, '{\"actorName\":\"Test\",\"postTitle\":\"Test title\"}'),
+(26, 8, 'FOLLOWER_GAINED', 'Test started following you', 1, '2026-04-27', NULL, 10, '{\"actorName\":\"Test\"}'),
+(28, 8, 'POST_DELETED', 'Your recipe \"Test\" was deleted', 1, '2026-04-27', NULL, 8, '{\"actorName\":\"admin2\",\"postTitle\":\"Test\"}');
 
 -- --------------------------------------------------------
 
@@ -481,11 +500,12 @@ INSERT INTO `user` (`id`, `login`, `email`, `password`, `country`, `role_id`) VA
 (4, 'homecook_john', 'john.cook@gmail.com', 'hashed_pw_john', 'HUN', 2),
 (5, 'baker_lily', 'lily.bakes@gmail.com', 'hashed_pw_lily', 'HUN', 2),
 (7, 'admin', 'admin@recipeforum.com', 'hashed_admin_pw', 'HUN', 1),
-(8, 'admin2', 'admin2@recipeforum.com', '$2a$10$THnXeqxsUs.p3JdEN7q9MOCbC4uq8erlyAEGx.lumEkkz9dOnYRoW', 'HUN', 1),
+(8, 'admin2', 'admin2@recipeforum.com', '$2a$10$Lbs.KUS0OD4kODMQ3SfXB.u93Tad5QZFlV3bK02LYcWr4CCW6zyD2', 'HUN', 1),
 (10, 'Test', 'test@recipeforum.com', '$2a$10$Lbs.KUS0OD4kODMQ3SfXB.u93Tad5QZFlV3bK02LYcWr4CCW6zyD2', 'HUN', 2),
 (12, 'Test2', 'test2@recipeforum.com', '$2a$10$ezBywSHDQeRfZEsynAAz7.JG.UjQXHXmj65eHx7mhYH/A0k3Kuewi', 'ARE', 2),
 (13, 'Test3', 'test3@recipeforum.com', '$2a$10$bO8Wpuh6okjHUVJodEa69uPGjspOOLoajRVmNdgai2UJ7MEeyZhmy', 'NOR', 2),
-(14, 'manager', 'manager@recipeforum.com', '$2a$10$oy8mALY8Ff9qgwQprV6jK.cptjs81dTgWo1LbDTd5NNql/d.3w1.a', 'ESP', 3);
+(14, 'manager', 'manager@recipeforum.com', '$2a$10$oy8mALY8Ff9qgwQprV6jK.cptjs81dTgWo1LbDTd5NNql/d.3w1.a', 'ESP', 3),
+(15, 'moderator', 'moderator@recipeforum.com', '$2a$10$r9Ys8SAmlE4o4YTFtFfE0ukh42FYieBuwsUtoe2dTvduOtZ67k4A.', 'UZB', 4);
 
 -- --------------------------------------------------------
 
@@ -507,7 +527,9 @@ CREATE TABLE `user_setting` (
 
 INSERT INTO `user_setting` (`id`, `user_id`, `show_country_on_profile`, `show_allergy_on_profile`, `auto_filter_allergy`) VALUES
 (1, 8, 1, 1, 0),
-(2, 10, 1, 1, 0);
+(2, 10, 1, 1, 0),
+(3, 15, 0, 0, 0),
+(4, 12, 1, 1, 1);
 
 --
 -- Indexes for dumped tables
@@ -590,8 +612,7 @@ ALTER TABLE `notification`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `post_id` (`post_id`),
-  ADD KEY `actor_id` (`actor_id`),
-  ADD KEY `user_id_2` (`user_id`);
+  ADD KEY `actor_id` (`actor_id`);
 
 --
 -- Indexes for table `post`
@@ -649,25 +670,25 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `follow`
 --
 ALTER TABLE `follow`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `post`
 --
 ALTER TABLE `post`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `role`
@@ -679,13 +700,13 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `user_setting`
 --
 ALTER TABLE `user_setting`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
@@ -695,7 +716,7 @@ ALTER TABLE `user_setting`
 -- Constraints for table `allergy_post`
 --
 ALTER TABLE `allergy_post`
-  ADD CONSTRAINT `allergy_post_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`),
+  ADD CONSTRAINT `allergy_post_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `allergy_post_ibfk_2` FOREIGN KEY (`allergy_id`) REFERENCES `allergy` (`id`);
 
 --
@@ -724,13 +745,13 @@ ALTER TABLE `bookmark`
 --
 ALTER TABLE `category_post`
   ADD CONSTRAINT `category_post_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`),
-  ADD CONSTRAINT `category_post_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`);
+  ADD CONSTRAINT `category_post_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `feedback`
 --
 ALTER TABLE `feedback`
-  ADD CONSTRAINT `fk_post_id` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`),
+  ADD CONSTRAINT `fk_post_id` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_user_id2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 
 --
@@ -745,14 +766,7 @@ ALTER TABLE `follow`
 --
 ALTER TABLE `notification`
   ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
-  ADD CONSTRAINT `notification_ibfk_2` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`),
   ADD CONSTRAINT `notification_ibfk_3` FOREIGN KEY (`actor_id`) REFERENCES `user` (`id`);
-
---
--- Constraints for table `post`
---
-ALTER TABLE `post`
-  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 
 --
 -- Constraints for table `user`
