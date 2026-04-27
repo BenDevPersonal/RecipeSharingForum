@@ -114,7 +114,7 @@ export function Post() {
 
   if (isLoading) return <div className="p-6">Loading...</div>;
   if (isError) return <ErrorMessage message={error.message} />;
-  if (!post) return <div className="p-6">Post not found</div>;
+  if (!post) return <div className="p-6">Recipe not found</div>;
 
   const feedbacks = [...(post.feedbacks || [])].sort((a, b) => b.id - a.id);
 
@@ -166,7 +166,7 @@ export function Post() {
 
         {hasAllergyConflict && (
           <div className="text-sm px-3 py-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">
-            Warning: This post contains ingredients matching your allergies
+            Warning: This recipe contains ingredients matching your allergies
           </div>
         )}
 
@@ -248,17 +248,6 @@ export function Post() {
         <p className="whitespace-pre-line text-gray-700 dark:text-gray-300">
           {post.content}
         </p>
-
-        <div className="grid gap-4 mt-4">
-          {images.map((img) => (
-            <img
-              key={img}
-              src={`http://localhost:8080/images/${img}`}
-              className="rounded-xl w-full object-cover"
-              alt={img}
-            />
-          ))}
-        </div>
 
         <div className="text-xs text-gray-500 flex gap-2">
           <span>Created: {post.creationDate}</span>
@@ -425,8 +414,8 @@ export function Post() {
             {!isAuth
               ? "You need to be logged in to leave feedback"
               : (post.author === currentUser 
-                ? "You cannot rate your own post"
-                : "You have already left feedback for this post"
+                ? "You cannot rate your own recipe"
+                : "You have already left feedback for this recipe"
               )}
           </div>
         )}

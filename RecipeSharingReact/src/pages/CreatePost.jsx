@@ -94,7 +94,7 @@ export function CreatePost() {
     if (!validate()) return;
 
     if (!isAuth) {
-      setBackendError("You must be logged in to create a post.");
+      setBackendError("You must be logged in to create a recipe.");
       return;
     }
 
@@ -119,7 +119,7 @@ export function CreatePost() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
 
-      <h1 className="text-3xl font-bold">Create Post</h1>
+      <h1 className="text-3xl font-bold">Create Recipe</h1>
 
       {backendError && (
         <div className="p-4 rounded-xl bg-red-100 text-red-700 border border-red-300">
@@ -207,7 +207,7 @@ export function CreatePost() {
         disabled={mutation.isPending}
         className="px-6 py-3 bg-accent text-white rounded-full hover:bg-accentDark transition shadow-soft disabled:opacity-50"
       >
-        {mutation.isPending ? "Publishing..." : "Publish Post"}
+        {mutation.isPending ? "Publishing..." : "Publish Recipe"}
       </button>
     </div>
   );

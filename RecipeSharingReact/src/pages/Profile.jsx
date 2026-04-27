@@ -305,19 +305,19 @@ export function Profile() {
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl space-y-4">
                     <SettingToggle label="Show country on profile" value={settingsForm?.showCountry} onClick={() => toggleSetting("showCountry")} />
                     <SettingToggle label="Show allergies on profile" value={settingsForm?.showAllergy} onClick={() => toggleSetting("showAllergy")} />
-                    <SettingToggle label="Auto filter posts by allergies" value={settingsForm?.autoFilter} onClick={() => toggleSetting("autoFilter")} />
+                    <SettingToggle label="Auto filter recipes by allergies" value={settingsForm?.autoFilter} onClick={() => toggleSetting("autoFilter")} />
                 </div>
             )}
 
             {tab === "bookmarks" && (
                 <div className="space-y-4">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                        Bookmarked posts
+                        Bookmarked recipes
                     </h2>
 
                     {!allPosts.length ? (
                     <p className="text-gray-500 dark:text-gray-400">
-                        This user has no posts.
+                        This user has no recipes.
                     </p>
                 ) : (
                     allPosts.filter((p) => p.bookmarked === true).map((post) => {

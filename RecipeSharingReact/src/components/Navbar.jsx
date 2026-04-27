@@ -161,7 +161,7 @@ export function Navbar() {
                         <div>
                             <p className="text-xs font-semibold mb-2">Search type</p>
                             <div className="flex gap-2">
-                                {["all", "posts", "users"].map(m => (
+                                {["all", "recipes", "users"].map(m => (
                                     <button
                                         key={m}
                                         onClick={() => setMode(m)}

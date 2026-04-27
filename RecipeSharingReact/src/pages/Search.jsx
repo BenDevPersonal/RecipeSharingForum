@@ -47,7 +47,7 @@ export function Search() {
     });
 
     function runSearch(q, mode, category, allergy) {
-        if (mode === "posts") {
+        if (mode === "recipes") {
             return searchPosts(q, category, allergy).then((posts) => ({
                 posts: posts || [],
                 users: [],
@@ -80,7 +80,7 @@ export function Search() {
                 <h1 className="text-2xl font-bold">Searching "{q}"...</h1>
 
                 <div className="space-y-6">
-                    <SkeletonSection title="Posts" />
+                    <SkeletonSection title="Recipes" />
                     <SkeletonSection title="Users" />
                 </div>
             </div>
@@ -172,7 +172,7 @@ function SearchResults({ data, query, navigate, params, allPosts, blacklistedIds
     return (
         <>
             <ResultSection
-                title="Posts"
+                title="Recipes"
                 items={sortedPosts}
                 type="post"
                 query={query}

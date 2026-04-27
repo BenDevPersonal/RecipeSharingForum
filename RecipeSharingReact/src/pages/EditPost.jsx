@@ -90,12 +90,12 @@ export function EditPost() {
 
   if (isLoading) return <div className="p-6">Loading...</div>;
   if (isError) return <ErrorMessage message={error.message} />;
-  if (!post) return <div className="p-6">Post not found</div>;
+  if (!post) return <div className="p-6">Recipe not found</div>;
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
 
-      <h1 className="text-2xl font-bold">Edit Post</h1>
+      <h1 className="text-2xl font-bold">Edit Recipe</h1>
 
       <input
         value={title}

@@ -74,7 +74,7 @@ export function AdminDashboard() {
 
       <div className="flex gap-3 mb-8 flex-wrap">
         <Tab name="Users" tab={tab} setTab={setTab} />
-        <Tab name="Posts" tab={tab} setTab={setTab} />
+        <Tab name="Recipes" tab={tab} setTab={setTab} />
         <Tab name="Feedbacks" tab={tab} setTab={setTab} />
 
         {!isModerator && (
@@ -87,7 +87,7 @@ export function AdminDashboard() {
 
       <FadeIn>
         {tab === "Users" && <UsersTab />}
-        {tab === "Posts" && <PostsTab />}
+        {tab === "Recipes" && <PostsTab />}
         {tab === "Feedbacks" && <FeedbacksTab />}
 
         {!isModerator && tab === "Categories" && <CategoriesTab />}
@@ -297,14 +297,14 @@ function PostsTab() {
     );
   }
 
-  if (isLoading) return <SkeletonSection title="Posts" />;
+  if (isLoading) return <SkeletonSection title="Recipes" />;
 
   return (
     <div className="space-y-4">
       <input
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search posts..."
+        placeholder="Search recipes..."
         className="w-full px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
       />
 
