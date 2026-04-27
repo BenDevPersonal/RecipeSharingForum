@@ -164,11 +164,11 @@ public class NotificationService {
     private String buildMessage(NotificationType type, Map<String, Object> meta) {
         return switch (type) {
             case FEEDBACK_RECEIVED ->
-                    meta.getOrDefault("actorName", "Someone") + " left feedback on your post \"" + meta.get("postTitle") + "\"";
-            case FEEDBACK_DELETED -> "Your feedback from \"" + meta.getOrDefault("postTitle", "a post") + "\" was deleted";
-            case POST_DELETED -> "Your post \"" + meta.get("postTitle") + "\" was deleted";
+                    meta.getOrDefault("actorName", "Someone") + " left feedback on your recipe \"" + meta.get("postTitle") + "\"";
+            case FEEDBACK_DELETED -> "Your feedback from \"" + meta.getOrDefault("postTitle", "a recipe") + "\" was deleted";
+            case POST_DELETED -> "Your recipe \"" + meta.get("postTitle") + "\" was deleted";
             case FOLLOWER_GAINED -> meta.getOrDefault("actorName", "Someone") + " started following you";
-            case POST_CREATED_BY_FOLLOWED_USER ->  meta.getOrDefault("actorName", "Someone") + " made a new post \""  + meta.get("postTitle") + "\"";
+            case POST_CREATED_BY_FOLLOWED_USER ->  meta.getOrDefault("actorName", "Someone") + " made a new recipe \""  + meta.get("postTitle") + "\"";
             default -> "New notification";
         };
     }

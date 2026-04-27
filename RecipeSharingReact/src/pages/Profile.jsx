@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMe, getUserById, updateProfile } from "../api/users";
 import { getAllergies } from "../api/meta";
@@ -20,6 +21,8 @@ export function Profile() {
     const [settingsForm, setSettingsForm] = useState(null);
 
     const settingsInitializedRef = useRef(false);
+
+    const navigate = useNavigate();
 
     const { data: allPosts = [] } = useQuery({
         queryKey: ["allPosts"],
@@ -315,9 +318,9 @@ export function Profile() {
                         Bookmarked recipes
                     </h2>
 
-                    {!allPosts.length ? (
+                    {!allPosts.filter((r) => r.bookmarked === true).length ? (
                     <p className="text-gray-500 dark:text-gray-400">
-                        This user has no recipes.
+                        You do not have any bookmarked recipes.
                     </p>
                 ) : (
                     allPosts.filter((p) => p.bookmarked === true).map((post) => {
