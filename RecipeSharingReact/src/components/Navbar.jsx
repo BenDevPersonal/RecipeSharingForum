@@ -229,6 +229,8 @@ export function Navbar() {
                         </>
                     )}
 
+                    <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} className="hidden sm:flex" />
+                    
                     {isAuth &&
                         <button onClick={logout} className="text-red-500 hover:underline">
                             Logout
@@ -237,5 +239,22 @@ export function Navbar() {
                 </div>
             </div>
         </nav>
+    );
+}
+
+function ThemeToggle({ darkMode, toggleTheme, className }) {
+    return (
+        <button
+            onClick={toggleTheme}
+            className={`relative inline-flex items-center w-14 h-7 rounded-full transition-colors duration-300 ${darkMode ? "bg-accent" : "bg-gray-300"
+                } ${className}`}
+        >
+            <span
+                className={`absolute left-1 top-1 w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 flex items-center justify-center text-xs ${darkMode ? "translate-x-7" : ""
+                    }`}
+            >
+                {darkMode ? "🌙" : "☀️"}
+            </span>
+        </button>
     );
 }
